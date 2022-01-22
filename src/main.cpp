@@ -6,18 +6,10 @@
 #include "lvgl.h"
 #include "esp_freertos_hooks.h"
 
+// platform-related code
 TFT_eSPI tft = TFT_eSPI();
 Adafruit_FT6206 touchScreen = Adafruit_FT6206();
-
-static lv_disp_buf_t disp_buf;
-static lv_color_t buf[LV_HOR_RES_MAX * 10];
-
-lv_obj_t *btn1;
-lv_obj_t *btn2;
-lv_obj_t *screenMain;
-lv_obj_t *label;
-
-bool my_input_read2(lv_indev_drv_t * drv, lv_indev_data_t*data) {
+void my_input_read(lv_indev_drv_t * drv, lv_indev_data_t*data) {
 #ifdef TOUCH_DEBUG
   Serial.println("#");
 #endif
@@ -29,7 +21,7 @@ bool my_input_read2(lv_indev_drv_t * drv, lv_indev_data_t*data) {
      data->state = LV_INDEV_STATE_REL;
      data->point.x = lastx;
      data->point.y = lasty;
-     return false;
+     return;
   }
 
   TS_Point touchPos = touchScreen.getPoint();
@@ -49,17 +41,7 @@ bool my_input_read2(lv_indev_drv_t * drv, lv_indev_data_t*data) {
   lastx = xpos;
   lasty = ypos;
 
-  return false;
-}
-
-static void event_handler_btn(lv_obj_t * obj, lv_event_t event){
-    if(event == LV_EVENT_CLICKED) {
-        if (obj == btn1)
-          lv_label_set_text(label, "Hello");
-        else if (obj == btn2){
-          lv_label_set_text(label, "Goodbye");
-        }
-    }
+  return;
 }
 
 void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
@@ -81,22 +63,11 @@ static void lv_tick_task(void)
 }
 
 void setupPlatform() {
-  esp_err_t err = esp_register_freertos_tick_hook((esp_freertos_tick_cb_t)lv_tick_task); 
-}
-
-void setup() {
-  lv_disp_drv_t disp_drv;
-  lv_indev_drv_t indev_drv;
-
+  // enable serial
   Serial.begin(9600);
-  lv_init();
 
-  setupPlatform();
-
-  // Enable TFT
-  tft.begin();
-
-  tft.setRotation(1);
+  esp_err_t err = esp_register_freertos_tick_hook((esp_freertos_tick_cb_t)lv_tick_task); 
+  // TODO: check err
 
   // Enable Backlight
   pinMode(TFT_BL, OUTPUT);
@@ -109,59 +80,74 @@ void setup() {
     Serial.println("Unable to start touchscreen.");
   }
 
-  // Display Buffer
-  lv_disp_buf_init(&disp_buf, buf, NULL, LV_HOR_RES_MAX * 10);
-
-  // Init Display
-  lv_disp_drv_init(&disp_drv);
-  disp_drv.hor_res = TFT_HEIGHT;
-  disp_drv.ver_res = TFT_WIDTH;
-  disp_drv.flush_cb = my_disp_flush;
-  disp_drv.buffer = &disp_buf;
-  lv_disp_drv_register(&disp_drv);
-
-  // Init Touchscreen
-  lv_indev_drv_init(&indev_drv);
-  indev_drv.type = LV_INDEV_TYPE_POINTER;
-  indev_drv.read_cb = my_input_read2;
-  lv_indev_t *indev_drv_t = lv_indev_drv_register(&indev_drv);
-
-  // Screen Object
-  screenMain = lv_obj_create(NULL, NULL);
-
-  // Text
-  label = lv_label_create(screenMain, NULL);
-  lv_label_set_long_mode(label, LV_LABEL_LONG_BREAK);
-  lv_label_set_text(label, "Press a button");
-  lv_label_set_align(label, LV_LABEL_ALIGN_CENTER);
-  lv_obj_set_size(label, 240, 40);
-  lv_obj_set_pos(label, 0, 15);
-
-  // BUtton 1
-  btn1 = lv_btn_create(screenMain, NULL);
-  lv_obj_set_event_cb(btn1, event_handler_btn);
-  lv_obj_set_width(btn1, 70);
-  lv_obj_set_height(btn1, 32);
-  lv_obj_set_pos(btn1, 32, 100);
-  lv_obj_t * label1 = lv_label_create(btn1, NULL);
-  lv_label_set_text(label1, "Hello");
-
-
-  // Button 2
-  btn2 = lv_btn_create(screenMain, NULL);
-  lv_obj_set_event_cb(btn2, event_handler_btn);
-  lv_obj_set_width(btn2, 70);
-  lv_obj_set_height(btn2, 32);
-  lv_obj_set_pos(btn2, 142, 100);
-  lv_obj_t * label2 = lv_label_create(btn2, NULL);
-  lv_label_set_text(label2, "Goodbye");
-
-  lv_indev_set_cursor(indev_drv_t, label);
-  // Screen load
-  lv_scr_load(screenMain);
+  // Enable TFT
+  tft.begin();
+  tft.setRotation(1);
 }
 
-void loop() {
-  lv_task_handler();
-  delay(1);
+/*Change to your screen resolution*/
+static const uint16_t screenWidth  = TFT_HEIGHT;
+static const uint16_t screenHeight = TFT_WIDTH;
+
+static lv_disp_draw_buf_t draw_buf;
+static lv_color_t buf[ screenWidth * 10 ];
+
+#if LV_USE_LOG != 0
+/* Serial debugging */
+void my_print(const char * buf)
+{
+    Serial.printf(buf);
+    Serial.flush();
+}
+#endif
+
+void setup()
+{
+
+    setupPlatform();
+
+    String LVGL_Arduino = "Hello Arduino! ";
+    LVGL_Arduino += String('V') + lv_version_major() + "." + lv_version_minor() + "." + lv_version_patch();
+
+    Serial.println( LVGL_Arduino );
+    Serial.println( "I am LVGL_Arduino" );
+
+    lv_init();
+
+#if LV_USE_LOG != 0
+    lv_log_register_print_cb( my_print ); /* register print function for debugging */
+#endif
+
+    lv_disp_draw_buf_init( &draw_buf, buf, NULL, screenWidth * 10 );
+
+    /*Initialize the display*/
+    static lv_disp_drv_t disp_drv;
+    lv_disp_drv_init( &disp_drv );
+    /*Change the following line to your display resolution*/
+    disp_drv.hor_res = screenWidth;
+    disp_drv.ver_res = screenHeight;
+    disp_drv.flush_cb = my_disp_flush;
+    disp_drv.draw_buf = &draw_buf;
+    lv_disp_drv_register( &disp_drv );
+
+    /* Initialize the (dummy) input device driver */
+    static lv_indev_drv_t indev_drv;
+    lv_indev_drv_init( &indev_drv );
+    indev_drv.type = LV_INDEV_TYPE_POINTER;
+    indev_drv.read_cb = my_input_read;
+    lv_indev_drv_register( &indev_drv );
+
+    /* Create simple label */
+    lv_obj_t *label = lv_label_create( lv_scr_act() );
+    lv_label_set_text( label, LVGL_Arduino.c_str() );
+    lv_obj_align( label, LV_ALIGN_CENTER, 0, 0 );
+
+    /* setup done */
+    Serial.println( "Setup done" );
+}
+
+void loop()
+{
+    lv_timer_handler(); /* let the GUI do its work */
+    delay( 5 );
 }
