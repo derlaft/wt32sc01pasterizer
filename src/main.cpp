@@ -6,6 +6,24 @@
 #include "esp_freertos_hooks.h"
 
 #include "lvgl.h"
+#include "Config.h"
+
+static const char * btnm_map[] PROGMEM = {
+    LV_SYMBOL_LEFT,
+    LV_SYMBOL_PAUSE,
+    LV_SYMBOL_RIGHT,
+    "00:00",
+    "",
+};
+
+static const lv_btnmatrix_ctrl_t btnm_control[] PROGMEM = {
+    0,
+    0,
+    0,
+    LV_BTNMATRIX_CTRL_DISABLED,
+    0,
+};
+
 
 // platform-related code
 TFT_eSPI tft = TFT_eSPI();
@@ -64,8 +82,17 @@ static void lv_tick_task(void)
 }
 
 void setupPlatform() {
+
+  // Configure custom pins
+  pinMode(PIN_MIXER, OUTPUT);
+  pinMode(PIN_HEATER, OUTPUT);
+  pinMode(PIN_COOLER, OUTPUT);
+
+  // Configure 18B20
+  // TODO
+
   // enable serial
-  Serial.begin(9600);
+  Serial.begin(115200);
 
   esp_err_t err = esp_register_freertos_tick_hook((esp_freertos_tick_cb_t)lv_tick_task); 
   // TODO: check err
@@ -159,86 +186,88 @@ void setup()
     indev_drv.read_cb = my_input_read;
     lv_indev_drv_register( &indev_drv );
 
-    // tab one: temperature arc
-    meter = lv_meter_create(lv_scr_act());
-    lv_obj_set_align(meter, LV_ALIGN_TOP_LEFT);
-    lv_obj_set_pos(meter, 20, 20);
-    lv_obj_set_size(meter, 200, 200);
+    lv_obj_set_style_text_font(lv_scr_act(), &hack_14_cyr, 0);
 
-    /*Add a scale first*/
-    lv_meter_scale_t * scale = lv_meter_add_scale(meter);
-    lv_meter_set_scale_ticks(meter, scale, 41, 2, 10, lv_palette_main(LV_PALETTE_GREY));
-    lv_meter_set_scale_major_ticks(meter, scale, 8, 4, 15, lv_color_black(), 10);
+    lv_obj_t * btnm = lv_btnmatrix_create(lv_scr_act());
+    lv_btnmatrix_set_map(btnm, btnm_map);
+    lv_btnmatrix_set_ctrl_map(btnm, btnm_control);
+    //lv_btnmatrix_set_btn_width(btnm, 10, 2);
+    lv_obj_align(btnm, LV_ALIGN_TOP_MID, 0, 10);
+    lv_obj_set_height(btnm, lv_pct(30));
+    lv_obj_set_width(btnm, lv_pct(90));
 
-    lv_meter_indicator_t * indic;
+    // шрифт
+    lv_obj_set_style_text_font(btnm, &lv_font_montserrat_30, 0);
+    // изменить стиль кнопок
+    lv_obj_set_style_bg_opa(btnm, LV_OPA_TRANSP, LV_PART_MAIN);
+    lv_obj_set_style_border_opa(btnm, LV_OPA_TRANSP, LV_PART_MAIN);
+    lv_obj_set_style_bg_color(btnm, lv_color_white(), LV_PART_ITEMS);
 
-    /*Add a blue arc to the start*/
-    indic = lv_meter_add_arc(meter, scale, 3, lv_palette_main(LV_PALETTE_BLUE), 0);
-    lv_meter_set_indicator_start_value(meter, indic, 0);
-    lv_meter_set_indicator_end_value(meter, indic, 20);
-
-    /*Make the tick lines blue at the start of the scale*/
-    indic = lv_meter_add_scale_lines(meter, scale, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_BLUE), false, 0);
-    lv_meter_set_indicator_start_value(meter, indic, 0);
-    lv_meter_set_indicator_end_value(meter, indic, 20);
-
-    /*Add a red arc to the end*/
-    indic = lv_meter_add_arc(meter, scale, 3, lv_palette_main(LV_PALETTE_RED), 0);
-    lv_meter_set_indicator_start_value(meter, indic, 80);
-    lv_meter_set_indicator_end_value(meter, indic, 100);
-
-    /*Make the tick lines red at the end of the scale*/
-    indic = lv_meter_add_scale_lines(meter, scale, lv_palette_main(LV_PALETTE_RED), lv_palette_main(LV_PALETTE_RED), false, 0);
-    lv_meter_set_indicator_start_value(meter, indic, 80);
-    lv_meter_set_indicator_end_value(meter, indic, 100);
-
-    /*Add a needle line indicator*/
-    indic = lv_meter_add_needle_line(meter, scale, 4, lv_palette_main(LV_PALETTE_GREY), -10);
-
-    /*Create an animation to set the value*/
-    lv_anim_t a;
-    lv_anim_init(&a);
-    lv_anim_set_exec_cb(&a, set_value);
-    lv_anim_set_var(&a, indic);
-    lv_anim_set_values(&a, 0, 100);
-    lv_anim_set_time(&a, 2000);
-    lv_anim_set_repeat_delay(&a, 100);
-    lv_anim_set_playback_time(&a, 500);
-    lv_anim_set_playback_delay(&a, 100);
-    lv_anim_set_repeat_count(&a, LV_ANIM_REPEAT_INFINITE);
-    lv_anim_start(&a);
-
+    // lv_obj_add_event_cb(btnm1, event_handler, LV_EVENT_ALL, NULL);
     lv_obj_t * chart;
     chart = lv_chart_create(lv_scr_act());
-    lv_obj_set_size(chart, 200, 200);
-    lv_obj_center(chart);
-    lv_obj_set_align(chart, LV_ALIGN_TOP_RIGHT);
-    lv_obj_set_pos(chart, -20, 20);
-    lv_chart_set_type(chart, LV_CHART_TYPE_LINE);   /*Show lines and points too*/
+    lv_obj_align(chart, LV_ALIGN_BOTTOM_MID, -40, -15);
+    lv_obj_set_height(chart, lv_pct(65));
+    lv_obj_set_width(chart, lv_pct(80));
+    lv_chart_set_type(chart, LV_CHART_TYPE_LINE);
 
-    lv_chart_series_t * ser1 = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
-    lv_chart_set_next_value(chart, ser1, 10);
-    lv_chart_set_next_value(chart, ser1, 10);
-    lv_chart_set_next_value(chart, ser1, 10);
-    lv_chart_set_next_value(chart, ser1, 10);
-    lv_chart_set_next_value(chart, ser1, 10);
-    lv_chart_set_next_value(chart, ser1, 10);
-    lv_chart_set_next_value(chart, ser1, 10);
-    lv_chart_set_next_value(chart, ser1, 30);
-    lv_chart_set_next_value(chart, ser1, 70);
-    lv_chart_set_next_value(chart, ser1, 90);
+    lv_chart_set_range(chart, LV_CHART_AXIS_SECONDARY_Y, 0, 10000);
+    lv_chart_set_axis_tick(chart, LV_CHART_AXIS_SECONDARY_Y, 10, 5, 6, 2, true, 60);
+
+    /*Add two data series*/
+    lv_chart_series_t * ser1 = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_YELLOW), LV_CHART_AXIS_SECONDARY_Y);
+    lv_chart_series_t * ser2 = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_GREEN), LV_CHART_AXIS_SECONDARY_Y);
+    lv_chart_series_t * ser3 = lv_chart_add_series(chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_SECONDARY_Y);
+
+    /*Set the next points on 'ser1'*/
+    lv_chart_set_next_value(chart, ser1, 1000);
+    lv_chart_set_next_value(chart, ser1, 1000);
+    lv_chart_set_next_value(chart, ser1, 1000);
+    lv_chart_set_next_value(chart, ser1, 1000);
+    lv_chart_set_next_value(chart, ser1, 1000);
+    lv_chart_set_next_value(chart, ser1, 1000);
+    lv_chart_set_next_value(chart, ser1, 1000);
+    lv_chart_set_next_value(chart, ser1, 3000);
+    lv_chart_set_next_value(chart, ser1, 7000);
+    lv_chart_set_next_value(chart, ser1, 9000);
+
+    lv_chart_set_next_value(chart, ser2, 9000);
+    lv_chart_set_next_value(chart, ser2, 7000);
+    lv_chart_set_next_value(chart, ser2, 6500);
+    lv_chart_set_next_value(chart, ser2, 6500);
+    lv_chart_set_next_value(chart, ser2, 6500);
+    lv_chart_set_next_value(chart, ser2, 6500);
+    lv_chart_set_next_value(chart, ser2, 6500);
+    lv_chart_set_next_value(chart, ser2, 6500);
+    lv_chart_set_next_value(chart, ser2, 6500);
+    lv_chart_set_next_value(chart, ser2, 6500);
+
+    lv_chart_set_next_value(chart, ser3, 9000);
+    lv_chart_set_next_value(chart, ser3, 8000);
+    lv_chart_set_next_value(chart, ser3, 7000);
+    lv_chart_set_next_value(chart, ser3, 6000);
+    lv_chart_set_next_value(chart, ser3, 5000);
+    lv_chart_set_next_value(chart, ser3, 4000);
+    lv_chart_set_next_value(chart, ser3, 5500);
+    lv_chart_set_next_value(chart, ser3, 7600);
+    lv_chart_set_next_value(chart, ser3, 9900);
+    lv_chart_set_next_value(chart, ser3, 9900);
 
     lv_chart_refresh(chart); /*Required after direct set*/
 
     lv_obj_t * btn = lv_btn_create(lv_scr_act());
-    lv_obj_set_size(btn, 120, 50);
-    lv_obj_set_align(btn, LV_ALIGN_BOTTOM_MID);
-    lv_obj_set_pos(btn, 0, -20);
-    lv_obj_add_event_cb(btn, btn_event_cb, LV_EVENT_ALL, NULL); 
+    lv_obj_set_style_text_font(btn, &lv_font_montserrat_30, 0);
+    lv_obj_add_flag(btn, LV_OBJ_FLAG_FLOATING | LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_set_style_bg_color(btn, lv_color_white(), LV_STATE_CHECKED);
+    lv_obj_set_style_pad_all(btn, 10, 0);
+    lv_obj_set_style_radius(btn, LV_RADIUS_CIRCLE, 0);
+    lv_obj_set_style_shadow_width(btn, 0, 0);
+    lv_obj_set_style_bg_img_src(btn, LV_SYMBOL_SETTINGS, 0);
 
-    lv_obj_t * label = lv_label_create(btn);          /*Add a label to the button*/
-    lv_label_set_text(label, "Тест");                     /*Set the labels text*/
-    lv_obj_center(label);
+    //lv_obj_add_event_cb(btn, color_changer_event_cb, LV_EVENT_ALL, color_cont);
+
+    lv_obj_set_size(btn, LV_DPX(42), LV_DPX(42));
+    lv_obj_align(btn, LV_ALIGN_BOTTOM_RIGHT, -LV_DPX(15), -LV_DPX(15));
 
     /* setup done */
     Serial.println( "Setup done" );
