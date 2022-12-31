@@ -146,12 +146,13 @@ static void on_mixer_override(lv_event_t * e)
     }
 }
 
-static lv_obj_t * meter;
-static lv_meter_indicator_t * indic;
+static lv_obj_t * label_temp;
 
-static void display_temperature(int32_t v)
+static void display_temperature(float v)
 {
-    lv_meter_set_indicator_value(meter, indic, v);
+    char buf[6];
+    sprintf(buf, v < 0 ? "%04.1f" : "!%04.1f", v);
+    lv_label_set_text(label_temp, buf);
 }
 
 void setup()
@@ -190,76 +191,61 @@ void setup()
     indev_drv.read_cb = my_input_read;
     lv_indev_drv_register( &indev_drv );
 
+    // общие переменные
+    lv_obj_t * label;
+
     // управление нагревом
-    lv_obj_t * sw_heat;
-    sw_heat = lv_switch_create(lv_scr_act());
-    lv_obj_add_event_cb(sw_heat, on_heat_override, LV_EVENT_ALL, NULL);
-    lv_obj_align(sw_heat, LV_ALIGN_TOP_LEFT, 40, 40);
-    
-    lv_obj_t * lbl_heat = lv_label_create(lv_scr_act());
-    lv_obj_set_style_text_align(lbl_heat, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_align(lbl_heat, LV_ALIGN_TOP_LEFT, 100, 40);
-    lv_label_set_text(lbl_heat, "TEST Нагреватель");
+    lv_obj_t * btn_heat = lv_btn_create(lv_scr_act());
+    lv_obj_add_event_cb(btn_heat, on_heat_override, LV_EVENT_ALL, NULL);
+    lv_obj_align(btn_heat, LV_ALIGN_TOP_LEFT, 100, 40);
+    lv_obj_add_flag(btn_heat, LV_OBJ_FLAG_CHECKABLE);
+    lv_obj_set_height(btn_heat, LV_SIZE_CONTENT);
+    lv_obj_set_style_bg_color(btn_heat, lv_palette_main(LV_PALETTE_GREY), LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(btn_heat, lv_palette_main(LV_PALETTE_LIGHT_BLUE), LV_STATE_CHECKED);
+    lv_obj_set_style_text_font(btn_heat, &hack_14_cyr, 0);
+
+
+    label = lv_label_create(btn_heat);
+    lv_label_set_text(label, "Нагреватель");
+    lv_obj_center(label);
 
     // управление охлаждением
-    lv_obj_t * sw_cool;
-    sw_cool = lv_switch_create(lv_scr_act());
-    lv_obj_add_event_cb(sw_cool, on_cool_override, LV_EVENT_ALL, NULL);
-    lv_obj_align(sw_cool, LV_ALIGN_TOP_LEFT, 40, 80);
-    
-    lv_obj_t * lbl_cool = lv_label_create(lv_scr_act());
-    lv_obj_set_style_text_align(lbl_cool, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_align(lbl_cool, LV_ALIGN_TOP_LEFT, 100, 80);
-    lv_label_set_text(lbl_cool, "TEST Охлаждение");
+    lv_obj_t * btn_cool = lv_btn_create(lv_scr_act());
+    lv_obj_add_event_cb(btn_cool, on_cool_override, LV_EVENT_ALL, NULL);
+    lv_obj_align(btn_cool, LV_ALIGN_TOP_LEFT, 100, 80);
+    lv_obj_add_flag(btn_cool, LV_OBJ_FLAG_CHECKABLE);
+    lv_obj_set_height(btn_cool, LV_SIZE_CONTENT);
+    lv_obj_set_style_bg_color(btn_cool, lv_palette_main(LV_PALETTE_GREY), LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(btn_cool, lv_palette_main(LV_PALETTE_LIGHT_BLUE), LV_STATE_CHECKED);
+    lv_obj_set_style_text_font(btn_cool, &hack_14_cyr, 0);
+
+
+    label = lv_label_create(btn_cool);
+    lv_label_set_text(label, "Охлаждение");
+    lv_obj_center(label);
 
     // управление перемешиванием
-    lv_obj_t * sw_mixer;
-    sw_mixer = lv_switch_create(lv_scr_act());
-    lv_obj_add_event_cb(sw_mixer, on_mixer_override, LV_EVENT_ALL, NULL);
-    lv_obj_align(sw_mixer, LV_ALIGN_TOP_LEFT, 40, 120);
-    
-    lv_obj_t * lbl_mixer = lv_label_create(lv_scr_act());
-    lv_obj_set_style_text_align(lbl_mixer, LV_TEXT_ALIGN_LEFT, 0);
-    lv_obj_align(lbl_mixer, LV_ALIGN_TOP_LEFT, 100, 120);
-    lv_label_set_text(lbl_mixer, "TEST Перемешивание");
+    lv_obj_t * btn_mixer = lv_btn_create(lv_scr_act());
+    lv_obj_add_event_cb(btn_mixer, on_mixer_override, LV_EVENT_ALL, NULL);
+    lv_obj_align(btn_mixer, LV_ALIGN_TOP_LEFT, 100, 120);
+    lv_obj_add_flag(btn_mixer, LV_OBJ_FLAG_CHECKABLE);
+    lv_obj_set_height(btn_mixer, LV_SIZE_CONTENT);
+
+    lv_obj_set_style_bg_color(btn_mixer, lv_palette_main(LV_PALETTE_GREY), LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(btn_mixer, lv_palette_main(LV_PALETTE_LIGHT_BLUE), LV_STATE_CHECKED);
+    label = lv_label_create(btn_mixer);
+    lv_label_set_text(label, "Перемешивание");
+    lv_obj_center(label);
+    lv_obj_set_style_text_font(btn_mixer, &hack_14_cyr, 0);
 
     // индикатор температуры
-    //
-    // scale
-    meter = lv_meter_create(lv_scr_act());
-    lv_obj_set_size(meter, 200, 200);
-    lv_obj_set_align(meter, LV_ALIGN_TOP_RIGHT);
-
-    lv_meter_scale_t * scale = lv_meter_add_scale(meter);
-    lv_meter_set_scale_ticks(meter, scale, 41, 2, 10, lv_palette_main(LV_PALETTE_GREY));
-    lv_meter_set_scale_major_ticks(meter, scale, 8, 4, 15, lv_color_black(), 10);
-
-
-    // синяя зона
-    indic = lv_meter_add_arc(meter, scale, 3, lv_palette_main(LV_PALETTE_BLUE), 0);
-    lv_meter_set_indicator_start_value(meter, indic, 0);
-    lv_meter_set_indicator_end_value(meter, indic, 20);
-
-    // отметки в синей зоне
-    indic = lv_meter_add_scale_lines(meter, scale, lv_palette_main(LV_PALETTE_BLUE), lv_palette_main(LV_PALETTE_BLUE), false, 0);
-    lv_meter_set_indicator_start_value(meter, indic, 0);
-    lv_meter_set_indicator_end_value(meter, indic, 20);
-
-    // красная линия
-    indic = lv_meter_add_arc(meter, scale, 3, lv_palette_main(LV_PALETTE_RED), 0);
-    lv_meter_set_indicator_start_value(meter, indic, 80);
-    lv_meter_set_indicator_end_value(meter, indic, 100);
-
-    // отметки в красной зоне
-    indic = lv_meter_add_scale_lines(meter, scale, lv_palette_main(LV_PALETTE_RED), lv_palette_main(LV_PALETTE_RED), false, 0);
-    lv_meter_set_indicator_start_value(meter, indic, 80);
-    lv_meter_set_indicator_end_value(meter, indic, 100);
-
-    // стрелка
-    indic = lv_meter_add_needle_line(meter, scale, 4, lv_palette_main(LV_PALETTE_GREY), -10);
-
+    label_temp = lv_label_create(lv_scr_act());
+    lv_label_set_text(label_temp, "!00.0");
+    lv_obj_align(label_temp, LV_ALIGN_TOP_LEFT, 0, 180);
+    lv_obj_set_style_text_font(label_temp, &dseg_bold_italic, 0);
+    
     // Установить глобальный шрифт
-    lv_obj_set_style_text_font(lv_scr_act(), &hack_14_cyr, 0);
+    // lv_obj_set_style_text_font(lv_scr_act(), &hack_14_cyr, 0);
 
     /* setup done */
     Serial.println( "Setup done" );
@@ -271,7 +257,7 @@ void loop()
     
     if (temperature_loop()) {
       float t = temperature_get();
-      display_temperature((int)t);
+      display_temperature(t);
       Serial.printf("Temperature: %f", temperature_get());
       Serial.println();
     }
