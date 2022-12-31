@@ -147,12 +147,20 @@ static void on_mixer_override(lv_event_t * e)
 }
 
 static lv_obj_t * label_temp;
+lv_obj_t * temp_chart;
+lv_chart_series_t * temp_series;
+unsigned long last_series_insert = 0;
 
 static void display_temperature(float v)
 {
     char buf[6];
     sprintf(buf, v < 0 ? "%04.1f" : "!%04.1f", v);
     lv_label_set_text(label_temp, buf);
+
+    if (millis() - last_series_insert > TEMP_CHART_RESOLUTION) {
+      last_series_insert = millis();
+      lv_chart_set_next_value(temp_chart, temp_series, (int)v);
+    }
 }
 
 void setup()
@@ -194,7 +202,7 @@ void setup()
     lv_obj_set_size(flex, lv_pct(100), lv_pct(100));
     lv_obj_center(flex);
     lv_obj_set_flex_flow(flex, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_flex_align(flex, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
+    lv_obj_set_flex_align(flex, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_END);
 
     // общие переменные
     lv_obj_t * label;
@@ -204,6 +212,17 @@ void setup()
     lv_label_set_text(label_temp, "!00.0");
     // lv_obj_align(label_temp, LV_ALIGN_TOP_LEFT, 0, 180);
     lv_obj_set_style_text_font(label_temp, &dseg_bold_italic, 0);
+
+    // График температуры
+    temp_chart = lv_chart_create(flex);
+    lv_chart_set_update_mode(temp_chart, LV_CHART_UPDATE_MODE_SHIFT);
+    lv_obj_align(temp_chart, LV_ALIGN_LEFT_MID, 0, 20);
+    lv_chart_set_point_count(temp_chart, 60);
+    lv_obj_set_size(temp_chart, lv_pct(50), lv_pct(40));
+    lv_chart_set_type(temp_chart, LV_CHART_TYPE_LINE);
+    lv_chart_set_range(temp_chart, LV_CHART_AXIS_SECONDARY_Y, 0, 100);
+    lv_chart_set_axis_tick(temp_chart, LV_CHART_AXIS_SECONDARY_Y, 10, 6, 3, 2, true, 35);
+    temp_series = lv_chart_add_series(temp_chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_SECONDARY_Y);
 
     // flex-раскладка для нижнего ряда кнопок
     lv_obj_t * bottom_buttons = lv_obj_create(flex);
@@ -241,9 +260,9 @@ void setup()
 
 
     label = lv_label_create(btn_cool);
-    // flex-раскладка для нижнего ряда кнопок
     lv_label_set_text(label, "Охлаждение");
     lv_obj_center(label);
+
 
     // управление перемешиванием
     lv_obj_t * btn_mixer = lv_btn_create(bottom_buttons);

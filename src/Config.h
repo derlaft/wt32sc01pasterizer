@@ -11,6 +11,8 @@
 #define PIN_PROBE 25
 // разрешение измерений температуры
 #define PROBE_RESOLUTION 12
+// разрешение графика температуры (в ms)
+#define TEMP_CHART_RESOLUTION (1000)
 
 // пин, включающий охлаждение
 #define PIN_COOLER 27
