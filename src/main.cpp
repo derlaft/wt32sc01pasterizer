@@ -163,6 +163,17 @@ static void display_temperature(float v)
     }
 }
 
+void disable_border(struct _lv_obj_t *obj) {
+  //lv_obj_set_style_border_opa(obj, LV_OPA_COVER, LV_STATE_DEFAULT);
+  //lv_obj_set_style_border_color(obj, lv_palette_main(LV_PALETTE_RED), LV_STATE_DEFAULT);
+  lv_obj_set_style_border_opa(obj, LV_OPA_TRANSP, LV_STATE_DEFAULT);
+
+  lv_obj_set_style_pad_left(obj, 0, LV_STATE_DEFAULT);
+  lv_obj_set_style_pad_right(obj, 0, LV_STATE_DEFAULT);
+  lv_obj_set_style_pad_top(obj, 0, LV_STATE_DEFAULT);
+  lv_obj_set_style_pad_bottom(obj, 0, LV_STATE_DEFAULT);
+}
+
 void setup()
 {
 
@@ -197,39 +208,57 @@ void setup()
     indev_drv.read_cb = my_input_read;
     lv_indev_drv_register( &indev_drv );
 
-    // flex-раскладка: вертикальные айтемы
+    // flex-раскладка: вертикальные айтемы (корневой)
     lv_obj_t * flex = lv_obj_create(lv_scr_act());
     lv_obj_set_size(flex, lv_pct(100), lv_pct(100));
-    lv_obj_center(flex);
     lv_obj_set_flex_flow(flex, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_flex_align(flex, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_END);
+    disable_border(flex);
+
+    // flex-раскладка: вертикальные айтемы (bottom)
+    lv_obj_t * top_block = lv_obj_create(flex);
+    lv_obj_set_size(top_block, lv_pct(100), lv_pct(70));
+    lv_obj_set_flex_flow(top_block, LV_FLEX_FLOW_ROW);
+    // lv_obj_set_flex_align(top_block, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_END);
+    disable_border(top_block);
+
+    // flex-раскладка: левый верхний блок
+    lv_obj_t * top_left_block = lv_obj_create(top_block);
+    lv_obj_set_size(top_left_block, lv_pct(55), lv_pct(100));
+    lv_obj_set_flex_flow(top_left_block, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(top_left_block, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
+    disable_border(top_left_block);
 
     // общие переменные
     lv_obj_t * label;
 
     // индикатор температуры
-    label_temp = lv_label_create(flex);
+    label_temp = lv_label_create(top_left_block);
     lv_label_set_text(label_temp, "!00.0");
     // lv_obj_align(label_temp, LV_ALIGN_TOP_LEFT, 0, 180);
     lv_obj_set_style_text_font(label_temp, &dseg_bold_italic, 0);
+    lv_obj_set_size(label_temp, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_set_style_pad_top(label_temp, 15, LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(label_temp, 5, LV_STATE_DEFAULT);
 
     // График температуры
-    temp_chart = lv_chart_create(flex);
+    temp_chart = lv_chart_create(top_left_block);
     lv_chart_set_update_mode(temp_chart, LV_CHART_UPDATE_MODE_SHIFT);
     lv_obj_align(temp_chart, LV_ALIGN_LEFT_MID, 0, 20);
     lv_chart_set_point_count(temp_chart, 60);
-    lv_obj_set_size(temp_chart, lv_pct(50), lv_pct(40));
+    lv_obj_set_size(temp_chart, 200, 120);
     lv_chart_set_type(temp_chart, LV_CHART_TYPE_LINE);
     lv_chart_set_range(temp_chart, LV_CHART_AXIS_SECONDARY_Y, 0, 100);
-    lv_chart_set_axis_tick(temp_chart, LV_CHART_AXIS_SECONDARY_Y, 10, 6, 3, 2, true, 35);
+    lv_chart_set_axis_tick(temp_chart, LV_CHART_AXIS_SECONDARY_Y, 10, 6, 3, 2, true, 40);
+    lv_obj_set_style_pad_right(temp_chart, 5, LV_STATE_DEFAULT);
     temp_series = lv_chart_add_series(temp_chart, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_SECONDARY_Y);
 
     // flex-раскладка для нижнего ряда кнопок
     lv_obj_t * bottom_buttons = lv_obj_create(flex);
     lv_obj_set_size(bottom_buttons, lv_pct(100), lv_pct(30));
-    lv_obj_align(bottom_buttons, LV_ALIGN_BOTTOM_MID, 0, 0);
     lv_obj_set_flex_flow(bottom_buttons, LV_FLEX_FLOW_ROW);
-    lv_obj_set_style_border_opa(bottom_buttons, LV_OPA_100, LV_STATE_DEFAULT);
+    lv_obj_set_flex_align(bottom_buttons, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
+    disable_border(bottom_buttons);
 
     // управление нагревом
     lv_obj_t * btn_heat = lv_btn_create(bottom_buttons);
@@ -241,8 +270,6 @@ void setup()
     lv_obj_set_style_bg_color(btn_heat, lv_palette_main(LV_PALETTE_GREY), LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(btn_heat, lv_palette_main(LV_PALETTE_LIGHT_BLUE), LV_STATE_CHECKED);
     lv_obj_set_style_text_font(btn_heat, &hack_14_cyr, 0);
-
-
     label = lv_label_create(btn_heat);
     lv_label_set_text(label, "Нагреватель");
     lv_obj_center(label);
@@ -257,8 +284,6 @@ void setup()
     lv_obj_set_style_bg_color(btn_cool, lv_palette_main(LV_PALETTE_GREY), LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(btn_cool, lv_palette_main(LV_PALETTE_LIGHT_BLUE), LV_STATE_CHECKED);
     lv_obj_set_style_text_font(btn_cool, &hack_14_cyr, 0);
-
-
     label = lv_label_create(btn_cool);
     lv_label_set_text(label, "Охлаждение");
     lv_obj_center(label);
@@ -271,7 +296,6 @@ void setup()
     lv_obj_add_flag(btn_mixer, LV_OBJ_FLAG_CHECKABLE);
     lv_obj_set_height(btn_mixer, lv_pct(100));
     lv_obj_set_width(btn_mixer, lv_pct(30));
-
     lv_obj_set_style_bg_color(btn_mixer, lv_palette_main(LV_PALETTE_GREY), LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(btn_mixer, lv_palette_main(LV_PALETTE_LIGHT_BLUE), LV_STATE_CHECKED);
     label = lv_label_create(btn_mixer);
