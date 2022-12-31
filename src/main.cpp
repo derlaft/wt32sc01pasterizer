@@ -160,11 +160,8 @@ void setup()
 
     setupPlatform();
 
-    String LVGL_Arduino = "Hello Arduino! ";
+    String LVGL_Arduino = "lvgl ";
     LVGL_Arduino += String('V') + lv_version_major() + "." + lv_version_minor() + "." + lv_version_patch();
-
-    Serial.println( LVGL_Arduino );
-    Serial.println( "I am LVGL_Arduino" );
 
     lv_init();
 
@@ -177,6 +174,7 @@ void setup()
     /*Initialize the display*/
     static lv_disp_drv_t disp_drv;
     lv_disp_drv_init( &disp_drv );
+
     /*Change the following line to your display resolution*/
     disp_drv.hor_res = screenWidth;
     disp_drv.ver_res = screenHeight;
@@ -191,15 +189,36 @@ void setup()
     indev_drv.read_cb = my_input_read;
     lv_indev_drv_register( &indev_drv );
 
+    // flex-раскладка: вертикальные айтемы
+    lv_obj_t * flex = lv_obj_create(lv_scr_act());
+    lv_obj_set_size(flex, lv_pct(100), lv_pct(100));
+    lv_obj_center(flex);
+    lv_obj_set_flex_flow(flex, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(flex, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
+
     // общие переменные
     lv_obj_t * label;
 
+    // индикатор температуры
+    label_temp = lv_label_create(flex);
+    lv_label_set_text(label_temp, "!00.0");
+    // lv_obj_align(label_temp, LV_ALIGN_TOP_LEFT, 0, 180);
+    lv_obj_set_style_text_font(label_temp, &dseg_bold_italic, 0);
+
+    // flex-раскладка для нижнего ряда кнопок
+    lv_obj_t * bottom_buttons = lv_obj_create(flex);
+    lv_obj_set_size(bottom_buttons, lv_pct(100), lv_pct(30));
+    lv_obj_align(bottom_buttons, LV_ALIGN_BOTTOM_MID, 0, 0);
+    lv_obj_set_flex_flow(bottom_buttons, LV_FLEX_FLOW_ROW);
+    lv_obj_set_style_border_opa(bottom_buttons, LV_OPA_100, LV_STATE_DEFAULT);
+
     // управление нагревом
-    lv_obj_t * btn_heat = lv_btn_create(lv_scr_act());
+    lv_obj_t * btn_heat = lv_btn_create(bottom_buttons);
     lv_obj_add_event_cb(btn_heat, on_heat_override, LV_EVENT_ALL, NULL);
-    lv_obj_align(btn_heat, LV_ALIGN_TOP_LEFT, 100, 40);
+    // lv_obj_align(btn_heat, LV_ALIGN_TOP_LEFT, 100, 40);
     lv_obj_add_flag(btn_heat, LV_OBJ_FLAG_CHECKABLE);
-    lv_obj_set_height(btn_heat, LV_SIZE_CONTENT);
+    lv_obj_set_height(btn_heat, lv_pct(100));
+    lv_obj_set_width(btn_heat, lv_pct(30));
     lv_obj_set_style_bg_color(btn_heat, lv_palette_main(LV_PALETTE_GREY), LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(btn_heat, lv_palette_main(LV_PALETTE_LIGHT_BLUE), LV_STATE_CHECKED);
     lv_obj_set_style_text_font(btn_heat, &hack_14_cyr, 0);
@@ -210,26 +229,29 @@ void setup()
     lv_obj_center(label);
 
     // управление охлаждением
-    lv_obj_t * btn_cool = lv_btn_create(lv_scr_act());
+    lv_obj_t * btn_cool = lv_btn_create(bottom_buttons);
     lv_obj_add_event_cb(btn_cool, on_cool_override, LV_EVENT_ALL, NULL);
-    lv_obj_align(btn_cool, LV_ALIGN_TOP_LEFT, 100, 80);
+    // lv_obj_align(btn_cool, LV_ALIGN_TOP_LEFT, 100, 80);
     lv_obj_add_flag(btn_cool, LV_OBJ_FLAG_CHECKABLE);
-    lv_obj_set_height(btn_cool, LV_SIZE_CONTENT);
+    lv_obj_set_height(btn_cool, lv_pct(100));
+    lv_obj_set_width(btn_cool, lv_pct(30));
     lv_obj_set_style_bg_color(btn_cool, lv_palette_main(LV_PALETTE_GREY), LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(btn_cool, lv_palette_main(LV_PALETTE_LIGHT_BLUE), LV_STATE_CHECKED);
     lv_obj_set_style_text_font(btn_cool, &hack_14_cyr, 0);
 
 
     label = lv_label_create(btn_cool);
+    // flex-раскладка для нижнего ряда кнопок
     lv_label_set_text(label, "Охлаждение");
     lv_obj_center(label);
 
     // управление перемешиванием
-    lv_obj_t * btn_mixer = lv_btn_create(lv_scr_act());
+    lv_obj_t * btn_mixer = lv_btn_create(bottom_buttons);
     lv_obj_add_event_cb(btn_mixer, on_mixer_override, LV_EVENT_ALL, NULL);
-    lv_obj_align(btn_mixer, LV_ALIGN_TOP_LEFT, 100, 120);
+    // lv_obj_align(btn_mixer, LV_ALIGN_TOP_LEFT, 100, 120);
     lv_obj_add_flag(btn_mixer, LV_OBJ_FLAG_CHECKABLE);
-    lv_obj_set_height(btn_mixer, LV_SIZE_CONTENT);
+    lv_obj_set_height(btn_mixer, lv_pct(100));
+    lv_obj_set_width(btn_mixer, lv_pct(30));
 
     lv_obj_set_style_bg_color(btn_mixer, lv_palette_main(LV_PALETTE_GREY), LV_STATE_DEFAULT);
     lv_obj_set_style_bg_color(btn_mixer, lv_palette_main(LV_PALETTE_LIGHT_BLUE), LV_STATE_CHECKED);
@@ -238,11 +260,6 @@ void setup()
     lv_obj_center(label);
     lv_obj_set_style_text_font(btn_mixer, &hack_14_cyr, 0);
 
-    // индикатор температуры
-    label_temp = lv_label_create(lv_scr_act());
-    lv_label_set_text(label_temp, "!00.0");
-    lv_obj_align(label_temp, LV_ALIGN_TOP_LEFT, 0, 180);
-    lv_obj_set_style_text_font(label_temp, &dseg_bold_italic, 0);
     
     // Установить глобальный шрифт
     // lv_obj_set_style_text_font(lv_scr_act(), &hack_14_cyr, 0);

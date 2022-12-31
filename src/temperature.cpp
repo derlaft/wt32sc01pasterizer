@@ -24,6 +24,9 @@ void temperature_setup() {
   sensors.getAddress(deviceAddress, 0);
   sensors.setResolution(deviceAddress, PROBE_RESOLUTION);
 
+  // Manually wait for conversion to happen
+  sensors.setWaitForConversion(false);
+
   // Calculate delay time
   delayInMillis = 750 / (1 << (12 - PROBE_RESOLUTION));
 
