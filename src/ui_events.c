@@ -64,3 +64,14 @@ void on_past_time_incr(lv_event_t * e)
 {
 	// Your code here
 }
+
+void on_ap_focused(lv_event_t * e)
+{
+	// Your code here
+  lv_keyboard_set_textarea(ui_WIfiKeyboard,ui_WifiName);
+}
+
+void on_password_focused(lv_event_t * e)
+{
+  lv_keyboard_set_textarea(ui_WIfiKeyboard,ui_WifiPassword);
+}

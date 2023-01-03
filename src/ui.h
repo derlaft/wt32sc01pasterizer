@@ -17,7 +17,7 @@ extern "C" {
   #include "lvgl.h"
 #endif
 
-extern lv_obj_t *ui_Screen1;
+extern lv_obj_t *ui_MainScreen;
 extern lv_obj_t *ui_MainScreenPanel;
 extern lv_obj_t *ui_Screen1_Chart1;
 void ui_event_StartStopButton( lv_event_t * e);
@@ -29,7 +29,7 @@ void ui_event_SettingsButton1( lv_event_t * e);
 extern lv_obj_t *ui_SettingsButton1;
 void ui_event_ManualControlButton( lv_event_t * e);
 extern lv_obj_t *ui_ManualControlButton;
-extern lv_obj_t *ui_Screen2;
+extern lv_obj_t *ui_ManualControlScreen;
 extern lv_obj_t *ui_ManualControlPanel;
 void ui_event_HeatingButton( lv_event_t * e);
 extern lv_obj_t *ui_HeatingButton;
@@ -45,7 +45,7 @@ extern lv_obj_t *ui_TopPanel1;
 extern lv_obj_t *ui_TemperatureDisplay1;
 void ui_event_BackButton1( lv_event_t * e);
 extern lv_obj_t *ui_BackButton1;
-extern lv_obj_t *ui_Screen3;
+extern lv_obj_t *ui_SettingsScreen;
 extern lv_obj_t *ui_SettingsPanel;
 extern lv_obj_t *ui_Screen3_Label7;
 extern lv_obj_t *ui_PastTemp;
@@ -78,6 +78,21 @@ extern lv_obj_t *ui_TopPanel2;
 extern lv_obj_t *ui_TemperatureDisplay2;
 void ui_event_BackButton2( lv_event_t * e);
 extern lv_obj_t *ui_BackButton2;
+void ui_event_WifiSettingsButton( lv_event_t * e);
+extern lv_obj_t *ui_WifiSettingsButton;
+extern lv_obj_t *ui_WirelessConnectionScreen;
+extern lv_obj_t *ui_SettingsPanel1;
+extern lv_obj_t *ui_WIfiKeyboard;
+void ui_event_WifiName( lv_event_t * e);
+extern lv_obj_t *ui_WifiName;
+void ui_event_WifiPassword( lv_event_t * e);
+extern lv_obj_t *ui_WifiPassword;
+extern lv_obj_t *ui_Screen3_Label13;
+extern lv_obj_t *ui_Screen3_Label14;
+extern lv_obj_t *ui_TopPanel3;
+extern lv_obj_t *ui_TemperatureDisplay3;
+void ui_event_BackButton3( lv_event_t * e);
+extern lv_obj_t *ui_BackButton3;
 
 void on_main_button_pressed(lv_event_t * e);
 void go_to_settings(lv_event_t * e);
@@ -92,6 +107,10 @@ void on_storage_temp_decr(lv_event_t * e);
 void on_storage_temp_incr(lv_event_t * e);
 void on_past_time_decr(lv_event_t * e);
 void on_past_time_incr(lv_event_t * e);
+void go_back_1(lv_event_t * e);
+void go_to_settings(lv_event_t * e);
+void on_ap_focused(lv_event_t * e);
+void on_password_focused(lv_event_t * e);
 void go_back_1(lv_event_t * e);
 
 
