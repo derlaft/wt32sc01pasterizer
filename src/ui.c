@@ -1,8 +1,3 @@
-// SquareLine LVGL GENERATED FILE
-// EDITOR VERSION: SquareLine Studio 1.1.1
-// LVGL VERSION: 8.3.3
-// PROJECT: Past
-
 #include "ui.h"
 #include "ui_helpers.h"
 #include "ui_comp.h"
@@ -91,14 +86,14 @@ void ui_event_SettingsButton1( lv_event_t * e) {
     lv_event_code_t event_code = lv_event_get_code(e);lv_obj_t * target = lv_event_get_target(e);
 if ( event_code == LV_EVENT_CLICKED) {
       go_to_settings( e );
-      _ui_screen_change( ui_Screen3, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0);
+      _ui_screen_change( ui_Screen3, LV_SCR_LOAD_ANIM_MOVE_LEFT, 0, 0);
 }
 }
 void ui_event_ManualControlButton( lv_event_t * e) {
     lv_event_code_t event_code = lv_event_get_code(e);lv_obj_t * target = lv_event_get_target(e);
 if ( event_code == LV_EVENT_CLICKED) {
       go_to_manual_control( e );
-      _ui_screen_change( ui_Screen2, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0);
+      _ui_screen_change( ui_Screen2, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 0, 0);
 }
 }
 void ui_event_HeatingButton( lv_event_t * e) {
@@ -123,7 +118,7 @@ void ui_event_BackButton1( lv_event_t * e) {
     lv_event_code_t event_code = lv_event_get_code(e);lv_obj_t * target = lv_event_get_target(e);
 if ( event_code == LV_EVENT_CLICKED) {
       go_back_1( e );
-      _ui_screen_change( ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0);
+      _ui_screen_change( ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0);
 }
 }
 void ui_event_PastTempDecr( lv_event_t * e) {
@@ -166,7 +161,7 @@ void ui_event_BackButton2( lv_event_t * e) {
     lv_event_code_t event_code = lv_event_get_code(e);lv_obj_t * target = lv_event_get_target(e);
 if ( event_code == LV_EVENT_CLICKED) {
       go_back_1( e );
-      _ui_screen_change( ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 500, 0);
+      _ui_screen_change( ui_Screen1, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0);
 }
 }
 
