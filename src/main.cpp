@@ -54,10 +54,9 @@ void my_disp_flush(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color
     uint32_t w = (area->x2 - area->x1 + 1);
     uint32_t h = (area->y2 - area->y1 + 1);
 
-    tft.startWrite();
+    tft.dmaWait();
     tft.setAddrWindow(area->x1, area->y1, w, h);
-    tft.pushColors(&color_p->full, w * h, true);
-    tft.endWrite();
+    tft.pushPixelsDMA(&color_p->full, w * h);
 
     lv_disp_flush_ready(disp);
 }
@@ -94,7 +93,10 @@ void setupPlatform() {
 
   // Enable TFT
   tft.begin();
+  tft.initDMA(false);
+  tft.setSwapBytes(true);
   tft.setRotation(1);
+  tft.startWrite();
 }
 
 /*Change to your screen resolution*/
@@ -102,7 +104,8 @@ static const uint16_t screenWidth  = TFT_HEIGHT;
 static const uint16_t screenHeight = TFT_WIDTH;
 
 static lv_disp_draw_buf_t draw_buf;
-static lv_color_t buf[ screenWidth * 10 ];
+static lv_color_t buf1[ screenWidth * 10 ];
+static lv_color_t buf2[ screenWidth * 10 ];
 
 #if LV_USE_LOG != 0
 /* Serial debugging */
@@ -188,7 +191,7 @@ void setup()
     lv_log_register_print_cb( my_print ); /* register print function for debugging */
 #endif
 
-    lv_disp_draw_buf_init( &draw_buf, buf, NULL, screenWidth * 10 );
+    lv_disp_draw_buf_init( &draw_buf, buf1, buf2, screenWidth * 10 );
 
     /*Initialize the display*/
     static lv_disp_drv_t disp_drv;
@@ -208,6 +211,9 @@ void setup()
     indev_drv.read_cb = my_input_read;
     lv_indev_drv_register( &indev_drv );
 
+    // общие переменные
+    lv_obj_t * label;
+
     // flex-раскладка: вертикальные айтемы (корневой)
     lv_obj_t * flex = lv_obj_create(lv_scr_act());
     lv_obj_set_size(flex, lv_pct(100), lv_pct(100));
@@ -219,18 +225,50 @@ void setup()
     lv_obj_t * top_block = lv_obj_create(flex);
     lv_obj_set_size(top_block, lv_pct(100), lv_pct(70));
     lv_obj_set_flex_flow(top_block, LV_FLEX_FLOW_ROW);
-    // lv_obj_set_flex_align(top_block, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_END);
+    lv_obj_set_flex_align(top_block, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_END);
     disable_border(top_block);
 
     // flex-раскладка: левый верхний блок
     lv_obj_t * top_left_block = lv_obj_create(top_block);
-    lv_obj_set_size(top_left_block, lv_pct(55), lv_pct(100));
+    lv_obj_set_size(top_left_block, LV_SIZE_CONTENT, lv_pct(100));
     lv_obj_set_flex_flow(top_left_block, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_flex_align(top_left_block, LV_FLEX_ALIGN_SPACE_BETWEEN, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_START);
     disable_border(top_left_block);
 
-    // общие переменные
-    lv_obj_t * label;
+    // flex-раскладка: правый верхний блок
+    lv_obj_t * top_right_block = lv_obj_create(top_block);
+    lv_obj_set_size(top_right_block, lv_pct(44), lv_pct(100));
+    lv_obj_set_flex_flow(top_right_block, LV_FLEX_FLOW_COLUMN);
+    lv_obj_set_flex_align(top_right_block, LV_FLEX_ALIGN_SPACE_AROUND, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_CENTER);
+    disable_border(top_right_block);
+
+    // кнопка начала пастеризации
+    lv_obj_t * btn_program = lv_btn_create(top_right_block);
+    // lv_obj_add_event_cb(btn_program, on_heat_override, LV_EVENT_ALL, NULL);
+    // lv_obj_align(btn_program, LV_ALIGN_TOP_LEFT, 100, 40);
+    lv_obj_add_flag(btn_program, LV_OBJ_FLAG_CHECKABLE);
+    lv_obj_set_height(btn_program, lv_pct(30));
+    lv_obj_set_width(btn_program, lv_pct(80));
+    lv_obj_set_style_bg_color(btn_program, lv_palette_main(LV_PALETTE_GREY), LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(btn_program, lv_palette_main(LV_PALETTE_LIGHT_BLUE), LV_STATE_CHECKED);
+    lv_obj_set_style_text_font(btn_program, &hack_14_cyr, 0);
+    label = lv_label_create(btn_program);
+    lv_label_set_text(label, "Начать пастеризацию");
+    lv_obj_center(label);
+
+    // кнопка конца пастеризации
+    lv_obj_t * btn_stop = lv_btn_create(top_right_block);
+    // lv_obj_add_event_cb(btn_stop, on_heat_override, LV_EVENT_ALL, NULL);
+    // lv_obj_align(btn_stop, LV_ALIGN_TOP_LEFT, 100, 40);
+    lv_obj_add_flag(btn_stop, LV_OBJ_FLAG_CHECKABLE);
+    lv_obj_set_height(btn_stop, lv_pct(30));
+    lv_obj_set_width(btn_stop, lv_pct(80));
+    lv_obj_set_style_bg_color(btn_stop, lv_palette_main(LV_PALETTE_GREY), LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(btn_stop, lv_palette_main(LV_PALETTE_LIGHT_BLUE), LV_STATE_CHECKED);
+    lv_obj_set_style_text_font(btn_stop, &hack_14_cyr, 0);
+    label = lv_label_create(btn_stop);
+    lv_label_set_text(label, "Стоп");
+    lv_obj_center(label);
 
     // индикатор температуры
     label_temp = lv_label_create(top_left_block);
@@ -318,8 +356,8 @@ void loop()
     if (temperature_loop()) {
       float t = temperature_get();
       display_temperature(t);
-      Serial.printf("Temperature: %f", temperature_get());
-      Serial.println();
+      //Serial.printf("Temperature: %f", temperature_get());
+      //Serial.println();
     }
 
     delay(1);
