@@ -1,15 +1,10 @@
 #include <Arduino.h>
-#include <Wire.h>
-#include <SPI.h>
-#include <TFT_eSPI.h> 
-#include <Adafruit_FT6206.h>
 #include "esp_freertos_hooks.h"
 
 #include "lvgl.h"
 #include "Config.h"
 #include "temperature.hpp"
 #include "logic.hpp"
-#include "ui.h"
 #include "ui_hal.h"
 
 
@@ -85,15 +80,11 @@ void setup()
 
     // setup lgvl hardware
     hal_setup();
-
-    // инициализация интерфейса
-    ui_init();
 }
 
 void loop()
 {
-    lv_timer_handler(); /* let the GUI do its work */
-    
+
     if (temperature_loop()) {
       float t = temperature_get();
       display_temperature(t);
