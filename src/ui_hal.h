@@ -5,7 +5,7 @@
 
 void hal_setup();
 
-static void hal_loop(void *pvParameter);
+void hal_loop();
 
 void update_display(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p);
 

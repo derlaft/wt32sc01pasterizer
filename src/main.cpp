@@ -85,6 +85,7 @@ void setup()
 void loop()
 {
 
+  
     if (temperature_loop()) {
       float t = temperature_get();
       display_temperature(t);
@@ -92,5 +93,6 @@ void loop()
       //Serial.println();
     }
 
+    hal_loop();
     delay(1);
 }

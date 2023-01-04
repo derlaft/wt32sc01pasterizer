@@ -8,8 +8,10 @@
 #include "esp_freertos_hooks.h"
 
 // Интерфейсы экрана и тачскрина
-TFT_eSPI tft;
-Adafruit_FT6206 touchScreen;
+TFT_eSPI tft = TFT_eSPI();
+Adafruit_FT6206 touchScreen = Adafruit_FT6206();
+
+bool is_display_open = false;
 
 // Области памяти для отрисовки
 static lv_disp_draw_buf_t draw_buf;
@@ -18,38 +20,18 @@ static lv_color_t buf2[ TFT_WIDTH * 10 ];
 
 void hal_setup() {
 
-  // Включить подсветку экрана
-  pinMode(TFT_BL, OUTPUT);
-  digitalWrite(TFT_BL, 1);
-
-  // xGuiSemaphore = xSemaphoreCreateMutex();
-
-  // Включить тачскрин на кастомных пинах
-  Wire.begin(TOUCH_SDA, TOUCH_SCL);
-  if (!touchScreen.begin(40)) { 
-    Serial.println("hal: unable to start touchscreen");
-  }
-
-  // LVGL необходимо уведомлять о течении времени (в основном для анимаций)
-  ESP_ERROR_CHECK(esp_register_freertos_tick_hook((esp_freertos_tick_cb_t)lv_tick_task));
-
-
-  // Запустить интерфейс в отдельном таске
-  xTaskCreatePinnedToCore(hal_loop, "gui", 4096*2, NULL, 0, NULL, 1);
-}
-
-static void hal_loop(void *pvParameter) {
-
-  // инициализировать компоненты
-  tft = TFT_eSPI();
-  touchScreen = Adafruit_FT6206();
-
   // Включить экран
   tft.begin();
   tft.initDMA(false);
   tft.setSwapBytes(true);
   tft.setRotation(1);
   tft.startWrite();
+
+  // Включить тачскрин на кастомных пинах
+  Wire.begin(TOUCH_SDA, TOUCH_SCL);
+  if (!touchScreen.begin(40)) { 
+    Serial.println("hal: unable to start touchscreen");
+  }
 
   // Инициализировать lvgl
   lv_init();
@@ -81,14 +63,17 @@ static void hal_loop(void *pvParameter) {
   // инициализация интерфейса
   ui_init();
 
-  while (1) {
-    vTaskDelay(pdMS_TO_TICKS(1));
-    lv_task_handler();
-  }
+  // LVGL необходимо уведомлять о течении времени (в основном для анимаций)
+  ESP_ERROR_CHECK(esp_register_freertos_tick_hook((esp_freertos_tick_cb_t)lv_tick_task));
 
-  vTaskDelete(NULL);
+  // Включить подсветку экрана
+  pinMode(TFT_BL, OUTPUT);
+  digitalWrite(TFT_BL, 1);
 }
 
+void hal_loop() {
+  lv_task_handler();
+}
 
 void update_touch_position(lv_indev_drv_t * drv, lv_indev_data_t*data) {
 #ifdef TOUCH_DEBUG
@@ -130,8 +115,6 @@ static void lv_tick_task(void)
   lv_tick_inc(portTICK_RATE_MS);
 }
 
-bool is_display_open = false;
-
 void update_display(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
 {
 
@@ -155,8 +138,6 @@ void update_display(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *colo
     tft.endWrite();
     is_display_open = false;
   }
-
-  lv_disp_flush_ready(disp);
 }
 
 #if LV_USE_LOG != 0
