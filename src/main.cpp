@@ -1,11 +1,12 @@
 #include <Arduino.h>
-#include "esp_freertos_hooks.h"
+#include <esp_freertos_hooks.h>
+#include <lvgl.h>
 
-#include "lvgl.h"
 #include "Config.h"
 #include "temperature.hpp"
 #include "logic.hpp"
 #include "ui_hal.h"
+#include "ui.h"
 
 
 void setupPlatform() {
@@ -63,14 +64,18 @@ lv_chart_series_t * temp_series;
 
 static void display_temperature(float v)
 {
-    char buf[6];
-    sprintf(buf, v < 0 ? "%04.1f" : "!%04.1f", v);
-    // lv_label_set_text(label_temp, buf);
 
-    if (millis() - last_series_insert > TEMP_CHART_RESOLUTION) {
-      last_series_insert = millis();
-      // lv_chart_set_next_value(temp_chart, temp_series, (int)v);
-    }
+  String stringValue = String(v, 1) + String("°");
+  lv_label_set_text(ui_TemperatureDisplay, stringValue.c_str());
+  lv_label_set_text(ui_TemperatureDisplay1, stringValue.c_str());
+  lv_label_set_text(ui_TemperatureDisplay2, stringValue.c_str());
+  lv_label_set_text(ui_TemperatureDisplay3, stringValue.c_str());
+  lv_label_set_text(ui_TemperatureDisplay4, stringValue.c_str());
+
+  if (millis() - last_series_insert > TEMP_CHART_RESOLUTION) {
+    last_series_insert = millis();
+    // lv_chart_set_next_value(temp_chart, temp_series, (int)v);
+  }
 }
 
 void setup()
