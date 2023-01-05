@@ -25,7 +25,6 @@ void hal_setup() {
   tft.initDMA(false);
   tft.setSwapBytes(true);
   tft.setRotation(1);
-  tft.startWrite();
 
   // Включить тачскрин на кастомных пинах
   Wire.begin(TOUCH_SDA, TOUCH_SCL);
@@ -127,10 +126,16 @@ void update_display(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *colo
   }
 
   if (tft.dmaBusy()) {
+    tft.dmaWait();
+#ifdef DISPLAY_DEBUG
     Serial.println("DMA busy, wasting CPU cycles");
+#endif
+  } else {
+#ifdef DISPLAY_DEBUG
+    Serial.println("DMA ready, neat");
+#endif
   }
 
-  tft.dmaWait();
   tft.setAddrWindow(area->x1, area->y1, w, h);
   tft.pushPixelsDMA(&color_p->full, w * h);
 
@@ -138,6 +143,8 @@ void update_display(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *colo
     tft.endWrite();
     is_display_open = false;
   }
+
+  lv_disp_flush_ready(disp);
 }
 
 #if LV_USE_LOG != 0
