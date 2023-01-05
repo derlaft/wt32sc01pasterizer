@@ -1,3 +1,4 @@
+
 #include "ui.h"
 
 void on_main_button_pressed(lv_event_t * e)
@@ -30,7 +31,7 @@ void on_manual_mixing(lv_event_t * e)
 	// Your code here
 }
 
-void go_back_1(lv_event_t * e)
+void on_past_temp_incr(lv_event_t * e)
 {
 	// Your code here
 }
@@ -40,17 +41,7 @@ void on_past_temp_decr(lv_event_t * e)
 	// Your code here
 }
 
-void on_past_temp_incr(lv_event_t * e)
-{
-	// Your code here
-}
-
-void on_storage_temp_decr(lv_event_t * e)
-{
-	// Your code here
-}
-
-void on_storage_temp_incr(lv_event_t * e)
+void on_past_time_incr(lv_event_t * e)
 {
 	// Your code here
 }
@@ -60,7 +51,27 @@ void on_past_time_decr(lv_event_t * e)
 	// Your code here
 }
 
-void on_past_time_incr(lv_event_t * e)
+void on_save_settings(lv_event_t * e)
+{
+	// Your code here
+}
+
+void on_abort_settings(lv_event_t * e)
+{
+	// Your code here
+}
+
+void on_storage_temp_incr(lv_event_t * e)
+{
+	// Your code here
+}
+
+void on_storage_temp_decr(lv_event_t * e)
+{
+	// Your code here
+}
+
+void on_keyboard_press(lv_event_t * e)
 {
 	// Your code here
 }
@@ -68,10 +79,9 @@ void on_past_time_incr(lv_event_t * e)
 void on_ap_focused(lv_event_t * e)
 {
 	// Your code here
-  lv_keyboard_set_textarea(ui_WIfiKeyboard,ui_WifiName);
 }
 
 void on_password_focused(lv_event_t * e)
 {
-  lv_keyboard_set_textarea(ui_WIfiKeyboard,ui_WifiPassword);
+	// Your code here
 }
