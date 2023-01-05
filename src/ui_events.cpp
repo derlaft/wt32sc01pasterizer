@@ -9,16 +9,6 @@ void on_main_button_pressed(lv_event_t * e)
   Serial.println("main button pressed");
 }
 
-void go_to_settings(lv_event_t * e)
-{
-	// Your code here
-}
-
-void go_to_manual_control(lv_event_t * e)
-{
-	// Your code here
-}
-
 void on_manual_heating(lv_event_t * e)
 {
   Serial.println("manual heating override");
@@ -105,11 +95,30 @@ void on_keyboard_press(lv_event_t * e)
 
 void on_ap_focused(lv_event_t * e)
 {
-  lv_keyboard_set_textarea(ui_WIfiKeyboard,ui_WifiName);
+  lv_keyboard_set_textarea(ui_WifiKeyboard,ui_WifiName);
 }
 
 void on_password_focused(lv_event_t * e)
 {
-  lv_keyboard_set_textarea(ui_WIfiKeyboard,ui_WifiPassword);
+  lv_keyboard_set_textarea(ui_WifiKeyboard,ui_WifiPassword);
 }
 
+void on_main_screen_loaded(lv_event_t * e)
+{
+}
+
+void on_manual_control_screen_loaded(lv_event_t * e)
+{
+}
+
+void on_settings_screen_loaded(lv_event_t * e)
+{
+}
+
+void on_settings_screen_2_loaded(lv_event_t * e)
+{
+}
+
+void on_wireless_screen_loaded(lv_event_t * e)
+{
+}

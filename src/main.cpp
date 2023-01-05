@@ -66,6 +66,9 @@ static void display_temperature(float v)
 {
 
   String stringValue = String(v, 1) + String("°");
+  if (v > 0) {
+    stringValue = String("+") + stringValue;
+  }
   lv_label_set_text(ui_TemperatureDisplay, stringValue.c_str());
   lv_label_set_text(ui_TemperatureDisplay1, stringValue.c_str());
   lv_label_set_text(ui_TemperatureDisplay2, stringValue.c_str());
