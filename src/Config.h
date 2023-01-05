@@ -18,15 +18,15 @@
 #define PIN_COOLER 27
 
 // Диапазон температуры пастеризации
-#define MIN_PAST_TEMP 20
-#define MAX_PAST_TEMP 90
+#define MIN_PAST_TEMP 0
+#define MAX_PAST_TEMP 99
 
 // Диапазон времени пастеризации
-#define MIN_PAST_TIME 4
-#define MAX_PAST_TIME 90
+#define MIN_PAST_TIME 0
+#define MAX_PAST_TIME 60
 
 // Диапазон температуры хранения
-#define MIN_STORAGE_TEMP 1
-#define MAX_STORAGE_TEMP 60
+#define MIN_STORAGE_TEMP 4
+#define MAX_STORAGE_TEMP 90
 
 #endif
