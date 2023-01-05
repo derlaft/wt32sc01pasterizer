@@ -1,4 +1,3 @@
-
 #include "ui.h"
 #include "ui_helpers.h"
 
@@ -31,6 +30,7 @@ lv_obj_t *ui_MixingButtonLabel;
 lv_obj_t *ui_ManualControlLabel;
 lv_obj_t *ui_TopPanel1;
 lv_obj_t *ui_TemperatureDisplay1;
+void ui_event_ManualControlButton1( lv_event_t * e);
 lv_obj_t *ui_ManualControlButton1;
 void ui_event_SettingsScreen( lv_event_t * e);
 lv_obj_t *ui_SettingsScreen;
@@ -157,6 +157,12 @@ void ui_event_MixingButton( lv_event_t * e) {
     lv_event_code_t event_code = lv_event_get_code(e);lv_obj_t * target = lv_event_get_target(e);
 if ( event_code == LV_EVENT_VALUE_CHANGED) {
       on_manual_mixing( e );
+}
+}
+void ui_event_ManualControlButton1( lv_event_t * e) {
+    lv_event_code_t event_code = lv_event_get_code(e);lv_obj_t * target = lv_event_get_target(e);
+if ( event_code == LV_EVENT_CLICKED) {
+      _ui_screen_change( ui_MainScreen, LV_SCR_LOAD_ANIM_FADE_ON, 0, 0);
 }
 }
 void ui_event_SettingsScreen( lv_event_t * e) {
@@ -501,6 +507,7 @@ lv_obj_set_style_pad_bottom(ui_ManualControlButton1, 0, LV_PART_MAIN| LV_STATE_D
 lv_obj_add_event_cb(ui_HeatingButton, ui_event_HeatingButton, LV_EVENT_ALL, NULL);
 lv_obj_add_event_cb(ui_CoolingButton, ui_event_CoolingButton, LV_EVENT_ALL, NULL);
 lv_obj_add_event_cb(ui_MixingButton, ui_event_MixingButton, LV_EVENT_ALL, NULL);
+lv_obj_add_event_cb(ui_ManualControlButton1, ui_event_ManualControlButton1, LV_EVENT_ALL, NULL);
 lv_obj_add_event_cb(ui_ManualControlScreen, ui_event_ManualControlScreen, LV_EVENT_ALL, NULL);
 
 }

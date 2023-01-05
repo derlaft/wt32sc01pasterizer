@@ -48,6 +48,7 @@ extern lv_obj_t *ui_MixingButtonLabel;
 extern lv_obj_t *ui_ManualControlLabel;
 extern lv_obj_t *ui_TopPanel1;
 extern lv_obj_t *ui_TemperatureDisplay1;
+void ui_event_ManualControlButton1( lv_event_t * e);
 extern lv_obj_t *ui_ManualControlButton1;
 void ui_event_SettingsScreen( lv_event_t * e);
 extern lv_obj_t *ui_SettingsScreen;
