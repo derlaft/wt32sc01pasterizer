@@ -13,6 +13,8 @@
 #define PROBE_RESOLUTION 12
 // разрешение графика температуры (в ms)
 #define TEMP_CHART_RESOLUTION (1000)
+// количество точек в графике температуры
+#define TEMP_CHART_POINT_COUNT 60
 
 // пин, включающий охлаждение
 #define PIN_COOLER 27

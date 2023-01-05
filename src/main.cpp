@@ -6,6 +6,7 @@
 #include "temperature.hpp"
 #include "logic.hpp"
 #include "ui_hal.h"
+#include "ui_events.h"
 #include "ui.h"
 
 
@@ -56,11 +57,6 @@ static void on_mixer_override(lv_event_t * e)
 }
 
 unsigned long last_series_insert = 0;
-/*
-static lv_obj_t * label_temp;
-lv_obj_t * temp_chart;
-lv_chart_series_t * temp_series;
-*/
 
 static void display_temperature(float v)
 {
@@ -77,7 +73,7 @@ static void display_temperature(float v)
 
   if (millis() - last_series_insert > TEMP_CHART_RESOLUTION) {
     last_series_insert = millis();
-    // lv_chart_set_next_value(temp_chart, temp_series, (int)v);
+    lv_chart_set_next_value(ui_Screen1_Chart1, ui_Screen1_Chart1_Series, (int)v);
   }
 }
 

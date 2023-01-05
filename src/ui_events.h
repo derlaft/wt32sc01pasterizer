@@ -21,5 +21,8 @@ extern void on_settings_screen_loaded(lv_event_t * e);
 extern void on_settings_screen_2_loaded(lv_event_t * e);
 extern void on_manual_control_screen_loaded(lv_event_t * e);
 extern void on_wireless_screen_loaded(lv_event_t * e);
+extern void on_chart_init();
+extern lv_chart_series_t * ui_Screen1_Chart1_Series;
+
 
 #endif

@@ -2,7 +2,10 @@
 #include <lvgl.h>
 #include "ui.h"
 #include "ui_variables.h"
+#include "ui_events.h"
 #include "Config.h"
+
+lv_chart_series_t * ui_Screen1_Chart1_Series;
 
 void on_main_button_pressed(lv_event_t * e)
 {
@@ -121,4 +124,14 @@ void on_settings_screen_2_loaded(lv_event_t * e)
 
 void on_wireless_screen_loaded(lv_event_t * e)
 {
+}
+
+void on_chart_init() {
+  lv_chart_set_type(ui_Screen1_Chart1, LV_CHART_TYPE_LINE);
+  lv_chart_set_point_count(ui_Screen1_Chart1, TEMP_CHART_POINT_COUNT);
+  lv_chart_set_range(ui_Screen1_Chart1, LV_CHART_AXIS_PRIMARY_Y, 0, 100);
+  lv_chart_set_div_line_count(ui_Screen1_Chart1, 0, 0);
+  lv_obj_set_style_size(ui_Screen1_Chart1, 0, LV_PART_INDICATOR);
+  ui_Screen1_Chart1_Series = lv_chart_add_series(ui_Screen1_Chart1, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
+  lv_chart_set_x_start_point(ui_Screen1_Chart1, ui_Screen1_Chart1_Series, TEMP_CHART_POINT_COUNT-1);
 }

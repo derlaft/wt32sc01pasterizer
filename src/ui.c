@@ -304,6 +304,7 @@ lv_obj_set_width( ui_Screen1_Chart1, lv_pct(100));
 lv_obj_set_align( ui_Screen1_Chart1, LV_ALIGN_TOP_MID );
 lv_obj_set_style_radius(ui_Screen1_Chart1, 0, LV_PART_MAIN| LV_STATE_DEFAULT);
 lv_obj_set_style_border_width(ui_Screen1_Chart1, 1, LV_PART_MAIN| LV_STATE_DEFAULT);
+on_chart_init();
 
 ui_StartStopButton = lv_btn_create(ui_MainScreenPanel);
 lv_obj_set_width( ui_StartStopButton, lv_pct(100));
