@@ -73,7 +73,12 @@ static void display_temperature(float v)
 
   if (millis() - last_series_insert > TEMP_CHART_RESOLUTION) {
     last_series_insert = millis();
-    lv_chart_set_next_value(ui_Screen1_Chart1, ui_Screen1_Chart1_Series, (int)v);
+    uint16_t point_count = lv_chart_get_point_count(ui_Screen1_Chart1);
+    if (point_count < TEMP_CHART_POINT_COUNT) {
+      point_count++;
+      // lv_chart_set_point_count(ui_Screen1_Chart1, point_count);
+      lv_chart_set_next_value(ui_Screen1_Chart1, ui_Screen1_Chart1_Series, (int)v);
+    }
   }
 }
 

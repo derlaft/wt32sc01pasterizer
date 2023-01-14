@@ -10,11 +10,14 @@
 // пин с датчиком температуры 18В20
 #define PIN_PROBE 25
 // разрешение измерений температуры
-#define PROBE_RESOLUTION 12
+#define PROBE_RESOLUTION 9
 // разрешение графика температуры (в ms)
 #define TEMP_CHART_RESOLUTION (1000)
-// количество точек в графике температуры
+
+// максимальное количество точек в графике температуры
 #define TEMP_CHART_POINT_COUNT 60
+// начальное количество точек (похоже не может быть меньше 10?)
+#define TEMP_CHART_POINT_COUNT_START 10
 
 // пин, включающий охлаждение
 #define PIN_COOLER 27

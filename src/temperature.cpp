@@ -28,7 +28,17 @@ void temperature_setup() {
   sensors.setWaitForConversion(false);
 
   // Calculate delay time
-  delayInMillis = 750 / (1 << (12 - PROBE_RESOLUTION));
+  delayInMillis = sensors.millisToWaitForConversion();
+
+  Serial.println("===");
+  Serial.println("Temperature init");
+  Serial.print("Resolution: ");
+  Serial.println(PROBE_RESOLUTION);
+  Serial.print("Parasite mode: ");
+  Serial.println(sensors.isParasitePowerMode());
+  Serial.print("Delay: ");
+  Serial.println(delayInMillis);
+  Serial.println("===");
 
   // Send first request
   poll();
@@ -37,6 +47,8 @@ void temperature_setup() {
 int temperature_loop() {
   if (millis() - lastTempRequest >= delayInMillis) {
     lastTemp = sensors.getTempC(deviceAddress);
+    Serial.print("Temp: ");
+    Serial.println(lastTemp);
     poll();
     return true;
   }
