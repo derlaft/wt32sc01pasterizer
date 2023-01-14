@@ -38,6 +38,10 @@ void temperature_setup() {
   Serial.println(sensors.isParasitePowerMode());
   Serial.print("Delay: ");
   Serial.println(delayInMillis);
+  Serial.print("Address: ");
+  Serial.printf("%08X\n", deviceAddress);
+  Serial.print("Supported: ");
+  Serial.println(sensors.validFamily(deviceAddress));
   Serial.println("===");
 
   // Send first request

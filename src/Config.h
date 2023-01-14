@@ -10,7 +10,7 @@
 // пин с датчиком температуры 18В20
 #define PIN_PROBE 25
 // разрешение измерений температуры
-#define PROBE_RESOLUTION 9
+#define PROBE_RESOLUTION 12
 // разрешение графика температуры (в ms)
 #define TEMP_CHART_RESOLUTION (1000)
 
