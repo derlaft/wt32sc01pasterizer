@@ -19,19 +19,23 @@ void poll() {
 }
 
 void temperature_setup() {
+
   // Configure 18B20
   // TODO
   while (sensors.getDS18Count() == 0) {
+      noInterrupts();
       sensors.begin();
+      interrupts();
       delay(250);
   }
 
+  noInterrupts();
   // Get address, set resultion
   sensors.getAddress(deviceAddress, 0);
   sensors.setResolution(deviceAddress, PROBE_RESOLUTION);
-
   // Manually wait for conversion to happen
   sensors.setWaitForConversion(false);
+  interrupts();
 
   // Calculate delay time
   delayInMillis = sensors.millisToWaitForConversion();
@@ -65,6 +69,7 @@ int temperature_loop() {
     noInterrupts();
     lastTemp = sensors.getTempC(deviceAddress);
     interrupts();
+
     Serial.print("Temp: ");
     Serial.println(lastTemp);
     poll();
