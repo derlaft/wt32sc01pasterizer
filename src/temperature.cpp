@@ -12,12 +12,14 @@ int delayInMillis = 0;
 float lastTemp = 0;
 
 void poll() {
-  sensors.requestTemperaturesByIndex(0);
+  sensors.requestTemperaturesByAddress(deviceAddress);
   lastTempRequest = millis();
 }
 
 void temperature_setup() {
   // Configure 18B20
+  // TODO
+  delay(1000);
   sensors.begin();
 
   // Get address, set resultion
@@ -50,7 +52,7 @@ void temperature_setup() {
 
 int temperature_loop() {
   if (millis() - lastTempRequest >= delayInMillis) {
-    lastTemp = sensors.getTempCByIndex(0);
+    lastTemp = sensors.getTempC(deviceAddress);
     Serial.print("Temp: ");
     Serial.println(lastTemp);
     poll();
