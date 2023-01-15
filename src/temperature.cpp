@@ -7,8 +7,9 @@
 OneWire oneWire(PIN_PROBE);
 DallasTemperature sensors(&oneWire);
 DeviceAddress deviceAddress;
-unsigned long lastTempRequest = 0;
-int delayInMillis = 0;
+
+uint16_t lastTempRequest = 0;
+uint16_t delayInMillis = 0;
 float lastTemp = 0;
 
 void poll() {
