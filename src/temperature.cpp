@@ -71,7 +71,7 @@ int temperature_loop() {
 
     if (!sensors.isConnected(deviceAddress)) {
       Serial.println("BUG1");
-      return;
+      return false;
     }
 
     lastTemp = sensors.getTempC(deviceAddress);
