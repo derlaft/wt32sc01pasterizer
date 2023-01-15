@@ -3,3 +3,8 @@
 .gcc-flags.json
 .ccls
 .ccls-cache
+compile_commands.json
+Pasterizer.vim
+.cache
+*.plist
+**/*.plist

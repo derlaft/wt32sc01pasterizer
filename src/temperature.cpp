@@ -21,7 +21,7 @@ void poll() {
     delay(25);
   }
   sensors.requestTemperaturesByAddress(deviceAddress);
-  lastTempRequest = (uint32_t)millis();
+  lastTempRequest = millis();
 }
 
 void temperature_setup() {
@@ -49,7 +49,7 @@ void temperature_setup() {
   Serial.println(sensors.getDeviceCount());
   Serial.print("DS18Count: ");
   Serial.println(sensors.getDS18Count());
-
+;
   Serial.print("Resolution: ");
   Serial.println(PROBE_RESOLUTION);
   Serial.print("Parasite mode: ");
