@@ -19,7 +19,6 @@ void poll() {
 void temperature_setup() {
   // Configure 18B20
   // TODO
-  delay(1000);
   sensors.begin();
 
   // Get address, set resultion
@@ -34,6 +33,12 @@ void temperature_setup() {
 
   Serial.println("===");
   Serial.println("Temperature init");
+
+  Serial.print("Device count: ");
+  Serial.println(sensors.getDeviceCount());
+  Serial.print("DS18Count: ");
+  Serial.println(sensors.getDS18Count());
+
   Serial.print("Resolution: ");
   Serial.println(PROBE_RESOLUTION);
   Serial.print("Parasite mode: ");
@@ -41,7 +46,7 @@ void temperature_setup() {
   Serial.print("Delay: ");
   Serial.println(delayInMillis);
   Serial.print("Address: ");
-  Serial.printf("%08X\n", deviceAddress);
+  Serial.printf("%08X\n\r", deviceAddress);
   Serial.print("Supported: ");
   Serial.println(sensors.validFamily(deviceAddress));
   Serial.println("===");
