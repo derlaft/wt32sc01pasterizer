@@ -8,30 +8,31 @@ OneWire oneWire(PIN_PROBE);
 DallasTemperature sensors(&oneWire);
 DeviceAddress deviceAddress;
 
-uint32_t lastTempRequest = 0;
-uint32_t delayInMillis = 0;
+int64_t lastTempRequest = 0;
+int64_t delayInMicros = 0;
 float lastTemp = 0;
 
 void poll() {
   Serial.print("poll@\t");
-  Serial.println(millis());
+  Serial.println(esp_timer_get_time());
 
   while (!sensors.isConnected(deviceAddress)) {
     Serial.println("BUG2");
     delay(25);
   }
   sensors.requestTemperaturesByAddress(deviceAddress);
-  lastTempRequest = millis();
+  lastTempRequest = esp_timer_get_time();
 }
 
 void temperature_setup() {
 
-  // Configure 18B20
-  // TODO
-  uint32_t init_at = millis();
-  while (sensors.getDS18Count() == 0 && millis() - init_at < TEMP_PROBE_TIMEOUT_MS) {
+  {
+    // Configure 18B20 with limited timeout
+    uint32_t init_at = millis();
+    while (sensors.getDS18Count() == 0 && millis() - init_at < TEMP_PROBE_TIMEOUT_MS) {
       sensors.begin();
       delay(50);
+    }
   }
 
   // Get address, set resultion
@@ -41,8 +42,10 @@ void temperature_setup() {
   sensors.setWaitForConversion(false);
 
   // Calculate delay time
-  delayInMillis = sensors.millisToWaitForConversion();
+  delayInMicros = (int64_t) sensors.millisToWaitForConversion();
+  delayInMicros *= 1000;
 
+#ifdef TEMP_DEBUG
   Serial.println("===");
   Serial.println("Temperature init");
 
@@ -56,7 +59,7 @@ void temperature_setup() {
   Serial.print("Parasite mode: ");
   Serial.println(sensors.isParasitePowerMode());
   Serial.print("Delay: ");
-  Serial.println(delayInMillis);
+  Serial.println(delayInMicros);
   Serial.print("Address:");
   for(uint8_t i = 0; i < 8; i++) {
     Serial.write(' ');
@@ -66,17 +69,18 @@ void temperature_setup() {
   Serial.print("Supported: ");
   Serial.println(sensors.validFamily(deviceAddress));
   Serial.println("===");
+#endif
 
   // Send first request
   poll();
 }
 
 int temperature_loop() {
-  if (millis() - lastTempRequest > delayInMillis) {
+  if  (esp_timer_get_time() - lastTempRequest > delayInMicros) {
 
     if (!sensors.isConnected(deviceAddress)) {
       Serial.print("BUG1 \t");
-      Serial.println(millis());
+      Serial.println(esp_timer_get_time());
       delay(25);
       return false;
     }
