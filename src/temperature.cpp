@@ -76,6 +76,7 @@ int temperature_loop() {
     if (!sensors.isConnected(deviceAddress)) {
       Serial.print("BUG1 \t");
       Serial.println(millis());
+      delay(25);
       return false;
     }
 
