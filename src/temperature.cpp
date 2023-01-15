@@ -12,7 +12,7 @@ int delayInMillis = 0;
 float lastTemp = 0;
 
 void poll() {
-  sensors.requestTemperaturesByAddress(deviceAddress);
+  sensors.requestTemperaturesByIndex(0);
   lastTempRequest = millis();
 }
 
@@ -50,7 +50,7 @@ void temperature_setup() {
 
 int temperature_loop() {
   if (millis() - lastTempRequest >= delayInMillis) {
-    lastTemp = sensors.getTempC(deviceAddress);
+    lastTemp = sensors.getTempCByIndex(0);
     Serial.print("Temp: ");
     Serial.println(lastTemp);
     poll();
