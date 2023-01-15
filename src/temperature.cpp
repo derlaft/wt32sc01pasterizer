@@ -28,9 +28,10 @@ void temperature_setup() {
 
   // Configure 18B20
   // TODO
-  while (sensors.getDS18Count() == 0) {
+  uint32_t init_at = millis();
+  while (sensors.getDS18Count() == 0 && millis() - init_at < TEMP_PROBE_TIMEOUT_MS) {
       sensors.begin();
-      delay(250);
+      delay(50);
   }
 
   // Get address, set resultion
