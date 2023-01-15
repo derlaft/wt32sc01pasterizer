@@ -13,6 +13,9 @@ uint16_t delayInMillis = 0;
 float lastTemp = 0;
 
 void poll() {
+  Serial.print("poll@\t");
+  Serial.println(millis());
+
   while (!sensors.isConnected(deviceAddress)) {
     Serial.println("BUG2");
     delay(25);
@@ -77,8 +80,6 @@ int temperature_loop() {
 
     lastTemp = sensors.getTempC(deviceAddress);
 
-    Serial.print("Temp: ");
-    Serial.println(lastTemp);
     poll();
     return true;
   }
