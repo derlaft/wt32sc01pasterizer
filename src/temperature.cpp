@@ -12,7 +12,7 @@ int delayInMillis = 0;
 float lastTemp = 0;
 
 void poll() {
-  if (!sensors.isConnected()) {
+  if (!sensors.isConnected(deviceAddress)) {
     Serial.println("BUG");
   }
   sensors.requestTemperaturesByAddress(deviceAddress);
@@ -52,10 +52,11 @@ void temperature_setup() {
   Serial.print("Delay: ");
   Serial.println(delayInMillis);
   Serial.print("Address:");
-  for( i = 0; i < 8; i++) {
+  for(uint8_t i = 0; i < 8; i++) {
     Serial.write(' ');
     Serial.print(deviceAddress[i], HEX);
   }
+  Serial.println();
   Serial.print("Supported: ");
   Serial.println(sensors.validFamily(deviceAddress));
   Serial.println("===");
