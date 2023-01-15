@@ -12,9 +12,10 @@ int delayInMillis = 0;
 float lastTemp = 0;
 
 void poll() {
-  noInterrupts();
+  if (!sensors.isConnected()) {
+    Serial.println("BUG");
+  }
   sensors.requestTemperaturesByAddress(deviceAddress);
-  interrupts();
   lastTempRequest = millis();
 }
 
@@ -23,19 +24,15 @@ void temperature_setup() {
   // Configure 18B20
   // TODO
   while (sensors.getDS18Count() == 0) {
-      noInterrupts();
       sensors.begin();
-      interrupts();
       delay(250);
   }
 
-  noInterrupts();
   // Get address, set resultion
   sensors.getAddress(deviceAddress, 0);
   sensors.setResolution(deviceAddress, PROBE_RESOLUTION);
   // Manually wait for conversion to happen
   sensors.setWaitForConversion(false);
-  interrupts();
 
   // Calculate delay time
   delayInMillis = sensors.millisToWaitForConversion();
@@ -54,8 +51,11 @@ void temperature_setup() {
   Serial.println(sensors.isParasitePowerMode());
   Serial.print("Delay: ");
   Serial.println(delayInMillis);
-  Serial.print("Address: ");
-  Serial.printf("%08X\n\r", deviceAddress);
+  Serial.print("Address:");
+  for( i = 0; i < 8; i++) {
+    Serial.write(' ');
+    Serial.print(deviceAddress[i], HEX);
+  }
   Serial.print("Supported: ");
   Serial.println(sensors.validFamily(deviceAddress));
   Serial.println("===");
@@ -66,9 +66,7 @@ void temperature_setup() {
 
 int temperature_loop() {
   if (millis() - lastTempRequest > delayInMillis) {
-    noInterrupts();
     lastTemp = sensors.getTempC(deviceAddress);
-    interrupts();
 
     Serial.print("Temp: ");
     Serial.println(lastTemp);
