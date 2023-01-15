@@ -47,6 +47,7 @@ void temperature_setup() {
 
   // Calculate delay time
   delayInMicros = ((int64_t) sensors.millisToWaitForConversion()) * 1000ULL;
+  delayInMicros += 350ULL * 1000ULL;
   Serial.println("WAT");
   Serial.println(delayInMicros);
 
