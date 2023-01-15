@@ -19,7 +19,10 @@ void poll() {
 void temperature_setup() {
   // Configure 18B20
   // TODO
-  sensors.begin();
+  while (sensors.getDS18Count() == 0) {
+      sensors.begin();
+      delay(250);
+  }
 
   // Get address, set resultion
   sensors.getAddress(deviceAddress, 0);
