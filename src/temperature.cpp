@@ -12,13 +12,17 @@ int64_t lastTempRequest = 0;
 int64_t delayInMicros = 0;
 float lastTemp = 0;
 
+#define BUG_DELAY vTaskDelay(100 / portTICK_PERIOD_MS)
+
 void poll() {
   Serial.print("poll@\t");
   Serial.println(esp_timer_get_time());
 
   while (!sensors.isConnected(deviceAddress)) {
+#ifdef TEMP_DEBUG
     Serial.println("BUG2");
-    delay(25);
+    BUG_DELAY;
+#endif
   }
   sensors.requestTemperaturesByAddress(deviceAddress);
   lastTempRequest = esp_timer_get_time();
@@ -31,7 +35,7 @@ void temperature_setup() {
     uint32_t init_at = millis();
     while (sensors.getDS18Count() == 0 && millis() - init_at < TEMP_PROBE_TIMEOUT_MS) {
       sensors.begin();
-      delay(50);
+      BUG_DELAY;
     }
   }
 
@@ -42,8 +46,10 @@ void temperature_setup() {
   sensors.setWaitForConversion(false);
 
   // Calculate delay time
-  delayInMicros = (int64_t) sensors.millisToWaitForConversion();
-  delayInMicros *= 1000;
+  delayInMicros = ((int64_t) sensors.millisToWaitForConversion()) * 1000ULL;
+  Serial.println("WAT");
+  Serial.println(delayInMicros);
+
 
 #ifdef TEMP_DEBUG
   Serial.println("===");
@@ -79,9 +85,11 @@ int temperature_loop() {
   if  (esp_timer_get_time() - lastTempRequest > delayInMicros) {
 
     if (!sensors.isConnected(deviceAddress)) {
+#ifdef TEMP_DEBUG
       Serial.print("BUG1 \t");
       Serial.println(esp_timer_get_time());
-      delay(25);
+#endif
+      BUG_DELAY;
       return false;
     }
 
