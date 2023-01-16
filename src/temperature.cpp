@@ -11,13 +11,15 @@ DallasTemperature sensors(&oneWire);
 DeviceAddress deviceAddress;
 
 int64_t lastTempRequest = 0;
+int64_t lastTempResponse = 0;
 int64_t delayInMicros = 0;
 float lastTemp = 0;
 
 #define BUG_DELAY vTaskDelay(100 / portTICK_PERIOD_MS)
 
 void poll() {
-  while (!sensors.isConnected(deviceAddress)) {
+  uint32_t init_at = millis();
+  while (!sensors.isConnected(deviceAddress) && millis() - init_at < TEMP_PROBE_TIMEOUT_MS) {
 #ifdef TEMP_DEBUG
     Serial.println("BUG2");
     BUG_DELAY;
@@ -79,7 +81,13 @@ void temperature_setup() {
 }
 
 int temperature_loop() {
-  if  (esp_timer_get_time() - lastTempRequest > delayInMicros) {
+
+  if (esp_timer_get_time() - lastTempResponse > TEMP_PROBE_TIMEOUT_MS * 1000ll) {
+    // слишком давно не было температуры: сбросить
+    lastTemp = -251.0;
+  }
+
+  if (esp_timer_get_time() - lastTempRequest > delayInMicros) {
 
     if (!sensors.isConnected(deviceAddress)) {
       BUG_DELAY;
@@ -87,6 +95,7 @@ int temperature_loop() {
     }
 
     lastTemp = sensors.getTempC(deviceAddress);
+    lastTempResponse = esp_timer_get_time();
 
     poll();
     return true;
