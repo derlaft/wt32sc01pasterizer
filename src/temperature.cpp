@@ -31,14 +31,8 @@ void poll() {
 
 void temperature_setup() {
 
-  {
-    // Configure 18B20 with limited timeout
-    uint32_t init_at = millis();
-    while (sensors.getDS18Count() == 0 && millis() - init_at < TEMP_PROBE_TIMEOUT_MS) {
-      sensors.begin();
-      BUG_DELAY;
-    }
-  }
+  // Initialize lib
+  sensors.begin();
 
   // Get address, set resultion
   sensors.getAddress(deviceAddress, 0);
@@ -48,7 +42,6 @@ void temperature_setup() {
 
   // Calculate delay time
   delayInMicros = ((int64_t) sensors.millisToWaitForConversion()) * 1000ULL;
-
 
 #ifdef TEMP_DEBUG
   Serial.println("===");
@@ -77,7 +70,9 @@ void temperature_setup() {
 #endif
 
   // Send first request
-  poll();
+  if (sensors.getDeviceCount() > 0) {
+    poll();
+  }
 }
 
 int temperature_loop() {
@@ -88,6 +83,14 @@ int temperature_loop() {
   }
 
   if (esp_timer_get_time() - lastTempRequest > delayInMicros) {
+
+    if (sensors.getDS18Count() == 0) {
+      BUG_DELAY;
+      temperature_setup();
+      // do not try to init too often
+      lastTempRequest = esp_timer_get_time();
+      return false;
+    }
 
     if (!sensors.isConnected(deviceAddress)) {
       BUG_DELAY;
