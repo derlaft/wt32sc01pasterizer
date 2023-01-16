@@ -126,12 +126,19 @@ void on_wireless_screen_loaded(lv_event_t * e)
 {
 }
 
+lv_coord_t temperature_data[TEMP_CHART_POINT_COUNT];
+
 void on_chart_init() {
   lv_chart_set_type(ui_Screen1_Chart1, LV_CHART_TYPE_LINE);
-  lv_chart_set_point_count(ui_Screen1_Chart1, TEMP_CHART_POINT_COUNT_START);
-  lv_chart_set_range(ui_Screen1_Chart1, LV_CHART_AXIS_PRIMARY_Y, 0, 100);
+  lv_chart_set_point_count(ui_Screen1_Chart1, 10);
+  lv_chart_set_range(ui_Screen1_Chart1, LV_CHART_AXIS_PRIMARY_Y, 0, 1000);
   lv_chart_set_div_line_count(ui_Screen1_Chart1, 0, 0);
   lv_obj_set_style_size(ui_Screen1_Chart1, 0, LV_PART_INDICATOR);
+
   ui_Screen1_Chart1_Series = lv_chart_add_series(ui_Screen1_Chart1, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
+  for (int i = 0; i < TEMP_CHART_POINT_COUNT; i++) {
+    temperature_data[i] = LV_CHART_POINT_NONE;
+  }
+  lv_chart_set_ext_y_array(ui_Screen1_Chart1, ui_Screen1_Chart1_Series, (lv_coord_t*)&temperature_data);
   lv_chart_set_x_start_point(ui_Screen1_Chart1, ui_Screen1_Chart1_Series, 0);
 }

@@ -1,10 +1,12 @@
 #ifndef TEMP_H
 #define TEMP_H
 
-void temperature_setup();
+extern void temperature_setup();
 
-int temperature_loop();
+extern int temperature_loop();
 
-float temperature_get();
+extern float temperature_get();
+
+extern void display_temperature(float v);
 
 #endif

@@ -56,32 +56,6 @@ static void on_mixer_override(lv_event_t * e)
     }
 }
 
-unsigned long last_series_insert = 0;
-
-static void display_temperature(float v)
-{
-
-  String stringValue = String(v, 1) + String("°");
-  if (v > 0) {
-    stringValue = String("+") + stringValue;
-  }
-  lv_label_set_text(ui_TemperatureDisplay, stringValue.c_str());
-  lv_label_set_text(ui_TemperatureDisplay1, stringValue.c_str());
-  lv_label_set_text(ui_TemperatureDisplay2, stringValue.c_str());
-  lv_label_set_text(ui_TemperatureDisplay3, stringValue.c_str());
-  lv_label_set_text(ui_TemperatureDisplay4, stringValue.c_str());
-
-  if (millis() - last_series_insert > TEMP_CHART_RESOLUTION) {
-    last_series_insert = millis();
-    uint16_t point_count = lv_chart_get_point_count(ui_Screen1_Chart1);
-    if (point_count < TEMP_CHART_POINT_COUNT) {
-      point_count++;
-      // lv_chart_set_point_count(ui_Screen1_Chart1, point_count);
-      lv_chart_set_next_value(ui_Screen1_Chart1, ui_Screen1_Chart1_Series, (int)v);
-    }
-  }
-}
-
 void setup()
 {
 
@@ -93,13 +67,9 @@ void setup()
 
 void loop()
 {
-
-  
     if (temperature_loop()) {
       float t = temperature_get();
       display_temperature(t);
-      //Serial.printf("Temperature: %f", temperature_get());
-      //Serial.println();
     }
 
     hal_loop();

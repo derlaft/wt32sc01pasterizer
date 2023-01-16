@@ -19,9 +19,7 @@
 #define TEMP_DEBUG
 
 // максимальное количество точек в графике температуры
-#define TEMP_CHART_POINT_COUNT 60
-// начальное количество точек (похоже не может быть меньше 10?)
-#define TEMP_CHART_POINT_COUNT_START 10
+#define TEMP_CHART_POINT_COUNT (60 * 12)
 
 // пин, включающий охлаждение
 #define PIN_COOLER 27

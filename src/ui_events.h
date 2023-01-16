@@ -1,6 +1,12 @@
 #ifndef _PAST_UI_EVENTS_H
 #define _PAST_UI_EVENTS_H
 
+#include <lvgl.h>
+#include "Config.h"
+
+extern lv_chart_series_t * ui_Screen1_Chart1_Series;
+extern lv_coord_t temperature_data[TEMP_CHART_POINT_COUNT];
+
 extern void on_main_button_pressed(lv_event_t * e);
 extern void on_manual_heating(lv_event_t * e);
 extern void on_manual_cooling(lv_event_t * e);
@@ -22,7 +28,7 @@ extern void on_settings_screen_2_loaded(lv_event_t * e);
 extern void on_manual_control_screen_loaded(lv_event_t * e);
 extern void on_wireless_screen_loaded(lv_event_t * e);
 extern void on_chart_init();
-extern lv_chart_series_t * ui_Screen1_Chart1_Series;
+extern void on_next_temperature(float data);
 
 
 #endif
