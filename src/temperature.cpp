@@ -100,7 +100,6 @@ float temperature_get() {
 
 unsigned long last_series_insert = 0;
 int16_t chart_ptr = 0;
-int16_t point_count = 10;
 
 void display_temperature(float v)
 {

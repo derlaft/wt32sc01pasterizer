@@ -127,10 +127,12 @@ void on_wireless_screen_loaded(lv_event_t * e)
 }
 
 lv_coord_t temperature_data[TEMP_CHART_POINT_COUNT];
+int16_t point_count = 10;
 
 void on_chart_init() {
   lv_chart_set_type(ui_Screen1_Chart1, LV_CHART_TYPE_LINE);
-  lv_chart_set_point_count(ui_Screen1_Chart1, 10);
+  lv_obj_set_height( ui_Screen1_Chart1, 140);
+  lv_chart_set_point_count(ui_Screen1_Chart1, point_count);
   lv_chart_set_range(ui_Screen1_Chart1, LV_CHART_AXIS_PRIMARY_Y, 0, 1000);
   lv_chart_set_div_line_count(ui_Screen1_Chart1, 0, 0);
   lv_obj_set_style_size(ui_Screen1_Chart1, 0, LV_PART_INDICATOR);
@@ -141,4 +143,31 @@ void on_chart_init() {
   }
   lv_chart_set_ext_y_array(ui_Screen1_Chart1, ui_Screen1_Chart1_Series, (lv_coord_t*)&temperature_data);
   lv_chart_set_x_start_point(ui_Screen1_Chart1, ui_Screen1_Chart1_Series, 0);
+
+  lv_chart_set_axis_tick(ui_Screen1_Chart1, LV_CHART_AXIS_PRIMARY_X, 10, 5, TEMP_CHART_MAJOR_TICKS, 5, true, 60);
+  lv_obj_add_event_cb(ui_Screen1_Chart1, on_chart_draw_cb, LV_EVENT_DRAW_PART_BEGIN, NULL);
+
+  lv_obj_set_style_pad_right(ui_Screen1_Chart1, 30, LV_PART_MAIN| LV_STATE_DEFAULT);
+}
+
+void on_chart_draw_cb(lv_event_t * e)
+{
+    lv_obj_draw_part_dsc_t * dsc = lv_event_get_draw_part_dsc(e);
+    if (!lv_obj_draw_part_check_type(dsc, &lv_chart_class, LV_CHART_DRAW_PART_TICK_LABEL)) {
+      return;
+    }
+
+    if(dsc->id == LV_CHART_AXIS_PRIMARY_X && dsc->text) {
+
+      if (dsc->value == 0) {
+        lv_snprintf(dsc->text, dsc->text_length, "0");
+        return;
+      }
+
+      uint64_t tick_time_ms = TEMP_CHART_RESOLUTION * point_count * ((uint64_t)dsc->value) / TEMP_CHART_MAJOR_TICKS;
+      uint16_t mins = (uint16_t) ((tick_time_ms / 60000ll ) % 60);
+      uint16_t hrs = (uint16_t) (tick_time_ms / 60000ll / 60l);
+
+      lv_snprintf(dsc->text, dsc->text_length, " %02d:%02d ", hrs, mins);
+    }
 }

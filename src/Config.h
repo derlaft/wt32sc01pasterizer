@@ -15,6 +15,8 @@
 #define PROBE_RESOLUTION 12
 // разрешение графика температуры (в ms)
 #define TEMP_CHART_RESOLUTION (1000)
+// количество отметок на оси X
+#define TEMP_CHART_MAJOR_TICKS 4
 // отладка температурного датчика
 #define TEMP_DEBUG
 
