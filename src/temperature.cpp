@@ -2,6 +2,7 @@
 #include "Config.h"
 #include <lvgl.h>
 #include "ui.h"
+#include "ui_hal.h"
 #include "ui_events.h"
 #include <OneWire.h>
 #include <DallasTemperature.h>
@@ -115,6 +116,9 @@ int16_t chart_ptr = 0;
 
 void display_temperature(float v)
 {
+  if (pdTRUE != xSemaphoreTake(xGuiSemaphore, portMAX_DELAY)) {
+    return;
+  }
 
   String stringValue = String(v, 1) + String("°");
   if (v > 0) {
@@ -145,4 +149,7 @@ void display_temperature(float v)
     // lv_chart_set_point_count(ui_Screen1_Chart1, point_count);
     lv_chart_refresh(ui_Screen1_Chart1);
   }
+
+  xSemaphoreGive(xGuiSemaphore);
+  return;
 }

@@ -18,7 +18,11 @@ static lv_disp_draw_buf_t draw_buf;
 static lv_color_t buf1[ TFT_WIDTH * 10 ];
 static lv_color_t buf2[ TFT_WIDTH * 10 ];
 
+SemaphoreHandle_t xGuiSemaphore;
+
 void hal_setup() {
+
+  xGuiSemaphore = xSemaphoreCreateMutex();
 
   // Включить экран
   tft.begin();
@@ -62,16 +66,34 @@ void hal_setup() {
   // инициализация интерфейса
   ui_init();
 
+  /* If you want to use a task to create the graphic, you NEED to create a Pinned task
+   * Otherwise there can be problem such as memory corruption and so on.
+   * NOTE: When not using Wi-Fi nor Bluetooth you can pin the guiTask to core 0 */
+  xTaskCreatePinnedToCore(gui_task, "gui", 4096*2, NULL, 0, NULL, 1);
+}
+
+void gui_task(void *pvParameter) {
+
   // LVGL необходимо уведомлять о течении времени (в основном для анимаций)
   ESP_ERROR_CHECK(esp_register_freertos_tick_hook((esp_freertos_tick_cb_t)lv_tick_task));
 
   // Включить подсветку экрана
   pinMode(TFT_BL, OUTPUT);
   digitalWrite(TFT_BL, 1);
+
+  while (1) {
+    /* Delay 1 tick (assumes FreeRTOS tick is 10ms */
+    // vTaskDelay(pdMS_TO_TICKS(10));
+
+    /* Try to take the semaphore, call lvgl related function on success */
+    if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY)) {
+      lv_task_handler();
+      xSemaphoreGive(xGuiSemaphore);
+    }
+  }
 }
 
 void hal_loop() {
-  lv_task_handler();
 }
 
 void update_touch_position(lv_indev_drv_t * drv, lv_indev_data_t*data) {

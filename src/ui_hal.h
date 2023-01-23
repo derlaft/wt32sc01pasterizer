@@ -2,10 +2,16 @@
 #define _HAL_H
 
 #include "lvgl.h"
+#include <Arduino.h>
+#include "esp_freertos_hooks.h"
+
+extern SemaphoreHandle_t xGuiSemaphore;
 
 void hal_setup();
 
 void hal_loop();
+
+void gui_task(void *pvParameter);
 
 void update_display(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p);
 
