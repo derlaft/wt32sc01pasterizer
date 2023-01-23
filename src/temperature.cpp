@@ -86,6 +86,9 @@ int temperature_loop() {
   if (esp_timer_get_time() - lastTempRequest > delayInMicros) {
 
     if (sensors.getDS18Count() == 0) {
+#ifdef TEMP_DEBUG
+      Serial.println("BUG1");
+#endif
       BUG_DELAY;
       temperature_setup();
       // do not try to init too often
@@ -94,6 +97,9 @@ int temperature_loop() {
     }
 
     if (!sensors.isConnected(deviceAddress)) {
+#ifdef TEMP_DEBUG
+      Serial.println("BUG3");
+#endif
       BUG_DELAY;
       return false;
     }
