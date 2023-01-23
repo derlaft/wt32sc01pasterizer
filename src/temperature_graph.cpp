@@ -6,16 +6,8 @@
 #include "temperature.hpp"
 #include "temperature_graph.hpp"
 
-lv_coord_t * chart_data;
-
 void temperature_graph_task_setup() {
-  if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY)) {
-    chart_data = lv_chart_get_y_array(ui_Screen1_Chart1, ui_Screen1_Chart1_Series);
-    xSemaphoreGive(xGuiSemaphore);
-  }
-
   xTaskCreatePinnedToCore(temperature_graph_task, "temp_graph", 4096*2, NULL, tskIDLE_PRIORITY+5, NULL, 1);
-
 }
 
 void temperature_graph_task(void *pvParameter) {
@@ -32,14 +24,17 @@ void temperature_graph_task(void *pvParameter) {
 
 }
 
-int16_t chart_ptr = 0;
-
 void temperature_graph_add_new_point() {
 
   float current_temp = temperature_get();
 
-  chart_data[chart_ptr] = (int) (current_temp*10);
-  chart_ptr = (chart_ptr+1)%TEMP_CHART_POINT_COUNT;
+  if (chart_ptr == TEMP_CHART_POINT_COUNT) {
+    // конец измерений
+    return;
+  }
+
+  temperature_data[chart_ptr] = (int) (current_temp*10);
+  chart_ptr = chart_ptr+1;
 
   if (pdTRUE != xSemaphoreTake(xGuiSemaphore, portMAX_DELAY)) {
     return;

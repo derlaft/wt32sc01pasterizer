@@ -7,6 +7,7 @@
 extern lv_chart_series_t * ui_Screen1_Chart1_Series;
 extern lv_coord_t temperature_data[TEMP_CHART_POINT_COUNT];
 extern int16_t point_count;
+extern int16_t chart_ptr;
 
 extern void on_main_button_pressed(lv_event_t * e);
 extern void on_manual_heating(lv_event_t * e);

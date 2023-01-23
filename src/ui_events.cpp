@@ -128,6 +128,7 @@ void on_wireless_screen_loaded(lv_event_t * e)
 
 lv_coord_t temperature_data[TEMP_CHART_POINT_COUNT];
 int16_t point_count = 0;
+int16_t chart_ptr = 0;
 
 void on_chart_init() {
   lv_chart_set_type(ui_Screen1_Chart1, LV_CHART_TYPE_LINE);
