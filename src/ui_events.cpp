@@ -191,11 +191,11 @@ void on_chart_draw_cb(lv_event_t * e)
     if (dsc->p1->x == dsc->p2->x) {
       return;
     }
-    if (dsc->id == (100-75)) {
+    if (dsc->id == (100-past_temp_value)) {
       dsc->line_dsc->color = lv_palette_main(LV_PALETTE_RED);
       dsc->line_dsc->opa = LV_OPA_50;
       dsc->line_dsc->width = 1;
-    } else if (dsc->id == (100-42)) {
+    } else if (dsc->id == (100-store_temp_value)) {
       dsc->line_dsc->color = lv_palette_main(LV_PALETTE_BLUE);
       dsc->line_dsc->opa = LV_OPA_50;
       dsc->line_dsc->width = 1;
