@@ -131,23 +131,30 @@ int16_t point_count = 0;
 
 void on_chart_init() {
   lv_chart_set_type(ui_Screen1_Chart1, LV_CHART_TYPE_LINE);
+  lv_obj_set_align( ui_Screen1_Chart1, LV_ALIGN_TOP_LEFT );
+  // lv_obj_set_style_pad_right(ui_Screen1_Chart1, 30, LV_PART_MAIN| LV_STATE_DEFAULT);
   lv_obj_set_height( ui_Screen1_Chart1, 140);
+  lv_obj_set_width( ui_Screen1_Chart1, lv_pct(92));
   lv_chart_set_point_count(ui_Screen1_Chart1, point_count);
-  lv_chart_set_range(ui_Screen1_Chart1, LV_CHART_AXIS_PRIMARY_Y, 0, 1000);
+  lv_chart_set_range(ui_Screen1_Chart1, LV_CHART_AXIS_SECONDARY_Y, 0, 1000);
   lv_chart_set_div_line_count(ui_Screen1_Chart1, 0, 0);
   lv_obj_set_style_size(ui_Screen1_Chart1, 0, LV_PART_INDICATOR);
 
-  ui_Screen1_Chart1_Series = lv_chart_add_series(ui_Screen1_Chart1, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_PRIMARY_Y);
+  // init all the points
+  ui_Screen1_Chart1_Series = lv_chart_add_series(ui_Screen1_Chart1, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_SECONDARY_Y);
   for (int i = 0; i < TEMP_CHART_POINT_COUNT; i++) {
     temperature_data[i] = LV_CHART_POINT_NONE;
   }
+
+  // set tempdata array
   lv_chart_set_ext_y_array(ui_Screen1_Chart1, ui_Screen1_Chart1_Series, (lv_coord_t*)&temperature_data);
   lv_chart_set_x_start_point(ui_Screen1_Chart1, ui_Screen1_Chart1_Series, 0);
 
-  lv_chart_set_axis_tick(ui_Screen1_Chart1, LV_CHART_AXIS_PRIMARY_X, 10, 5, TEMP_CHART_MAJOR_TICKS, 5, true, 60);
-  lv_obj_add_event_cb(ui_Screen1_Chart1, on_chart_draw_cb, LV_EVENT_DRAW_PART_BEGIN, NULL);
+  // configure ticks
+  lv_chart_set_axis_tick(ui_Screen1_Chart1, LV_CHART_AXIS_PRIMARY_X, 10, 5, TEMP_CHART_MAJOR_TICKS_X, 5, true, 60);
+  lv_chart_set_axis_tick(ui_Screen1_Chart1, LV_CHART_AXIS_SECONDARY_Y, 10, 5, TEMP_CHART_MAJOR_TICKS_Y, 2, true, 50);
 
-  lv_obj_set_style_pad_right(ui_Screen1_Chart1, 30, LV_PART_MAIN| LV_STATE_DEFAULT);
+  lv_obj_add_event_cb(ui_Screen1_Chart1, on_chart_draw_cb, LV_EVENT_DRAW_PART_BEGIN, NULL);
 }
 
 void on_chart_draw_cb(lv_event_t * e)
@@ -157,6 +164,12 @@ void on_chart_draw_cb(lv_event_t * e)
       return;
     }
 
+    if(dsc->id == LV_CHART_AXIS_SECONDARY_Y && dsc->text) {
+
+        lv_snprintf(dsc->text, dsc->text_length, "%d", ((lv_coord_t)dsc->value)/10);
+        return;
+    }
+
     if(dsc->id == LV_CHART_AXIS_PRIMARY_X && dsc->text) {
 
       if (dsc->value == 0) {
@@ -164,7 +177,7 @@ void on_chart_draw_cb(lv_event_t * e)
         return;
       }
 
-      uint64_t tick_time_ms = TEMP_CHART_RESOLUTION_MS * point_count * ((uint64_t)dsc->value) / (TEMP_CHART_MAJOR_TICKS-1);
+      uint64_t tick_time_ms = TEMP_CHART_RESOLUTION_MS * point_count * ((uint64_t)dsc->value) / (TEMP_CHART_MAJOR_TICKS_X-1);
       uint16_t mins = (uint16_t) ((tick_time_ms / 60000ll ) % 60);
       uint16_t hrs = (uint16_t) (tick_time_ms / 60000ll / 60l);
 

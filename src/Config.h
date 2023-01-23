@@ -16,7 +16,9 @@
 // разрешение графика температуры
 #define TEMP_CHART_RESOLUTION_MS (1000 * 60)
 // количество отметок на оси X
-#define TEMP_CHART_MAJOR_TICKS 4
+#define TEMP_CHART_MAJOR_TICKS_X 4
+// количество отметок на оси Y
+#define TEMP_CHART_MAJOR_TICKS_Y 5
 // отладка температурного датчика
 #define TEMP_DEBUG
 
