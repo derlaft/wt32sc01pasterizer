@@ -198,7 +198,7 @@ void on_chart_draw_cb(lv_event_t * e)
       dsc->line_dsc->color = lv_palette_main(LV_PALETTE_BLUE);
       dsc->line_dsc->opa = LV_OPA_50;
       dsc->line_dsc->width = 1;
-    } else {
+    } else if (dsc->line_dsc->width > 0){
       dsc->line_dsc->opa = LV_OPA_TRANSP;
       dsc->line_dsc->width = 0;
     }
