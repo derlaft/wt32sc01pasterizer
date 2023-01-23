@@ -164,7 +164,7 @@ void on_chart_draw_cb(lv_event_t * e)
         return;
       }
 
-      uint64_t tick_time_ms = TEMP_CHART_RESOLUTION_MS * point_count * ((uint64_t)dsc->value) / TEMP_CHART_MAJOR_TICKS;
+      uint64_t tick_time_ms = TEMP_CHART_RESOLUTION_MS * point_count * ((uint64_t)dsc->value) / (TEMP_CHART_MAJOR_TICKS-1);
       uint16_t mins = (uint16_t) ((tick_time_ms / 60000ll ) % 60);
       uint16_t hrs = (uint16_t) (tick_time_ms / 60000ll / 60l);
 
