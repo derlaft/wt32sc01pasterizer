@@ -73,5 +73,5 @@ void loop()
     }
 
     hal_loop();
-    delay(1);
+    vTaskDelay(pdMS_TO_TICKS(100));
 }

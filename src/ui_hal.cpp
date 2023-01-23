@@ -91,6 +91,8 @@ void gui_task(void *pvParameter) {
       xSemaphoreGive(xGuiSemaphore);
     }
   }
+  
+  vTaskDelete(NULL);
 }
 
 void hal_loop() {
@@ -145,9 +147,11 @@ void update_display(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *colo
   if (!is_display_open) {
     tft.startWrite();
     is_display_open = true;
+    vTaskPrioritySet(NULL, tskIDLE_PRIORITY + 2);
   }
 
   if (tft.dmaBusy()) {
+    vTaskDelay(2);
     tft.dmaWait();
 #ifdef DISPLAY_DEBUG
     Serial.println("DMA busy, wasting CPU cycles");
@@ -164,6 +168,7 @@ void update_display(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *colo
   if (lv_disp_flush_is_last(disp)) {
     tft.endWrite();
     is_display_open = false;
+    vTaskPrioritySet( NULL, tskIDLE_PRIORITY);
   }
 
   lv_disp_flush_ready(disp);
