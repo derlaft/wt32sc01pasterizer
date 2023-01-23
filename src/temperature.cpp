@@ -111,9 +111,6 @@ float temperature_get() {
   return lastTemp;
 }
 
-unsigned long last_series_insert = 0;
-int16_t chart_ptr = 0;
-
 void display_temperature(float v)
 {
   if (pdTRUE != xSemaphoreTake(xGuiSemaphore, portMAX_DELAY)) {
@@ -129,26 +126,6 @@ void display_temperature(float v)
   lv_label_set_text(ui_TemperatureDisplay2, stringValue.c_str());
   lv_label_set_text(ui_TemperatureDisplay3, stringValue.c_str());
   lv_label_set_text(ui_TemperatureDisplay4, stringValue.c_str());
-
-  if (millis() - last_series_insert > TEMP_CHART_RESOLUTION) {
-    last_series_insert = millis();
-    // lv_chart_set_next_value(ui_Screen1_Chart1, ui_Screen1_Chart1_Series, (int)v);
-    lv_coord_t * chart_data = lv_chart_get_y_array(ui_Screen1_Chart1, ui_Screen1_Chart1_Series);
-    chart_data[chart_ptr] = (int) (v*10);
-    chart_ptr = (chart_ptr+1)%TEMP_CHART_POINT_COUNT;
-
-    lv_chart_set_x_start_point(ui_Screen1_Chart1, ui_Screen1_Chart1_Series, chart_ptr);
-
-    if (chart_ptr > point_count) {
-      point_count = chart_ptr;
-      lv_chart_set_point_count(ui_Screen1_Chart1, point_count);
-      Serial.print("point count: ");
-      Serial.println(point_count);
-    }
-
-    // lv_chart_set_point_count(ui_Screen1_Chart1, point_count);
-    lv_chart_refresh(ui_Screen1_Chart1);
-  }
 
   xSemaphoreGive(xGuiSemaphore);
   return;

@@ -1,5 +1,5 @@
-#ifndef TEMP_H
-#define TEMP_H
+#ifndef _TEMP_H
+#define _TEMP_H
 
 extern void temperature_setup();
 

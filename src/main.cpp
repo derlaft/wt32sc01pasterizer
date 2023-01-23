@@ -4,6 +4,7 @@
 
 #include "Config.h"
 #include "temperature.hpp"
+#include "temperature_graph.hpp"
 #include "logic.hpp"
 #include "ui_hal.h"
 #include "ui_events.h"
@@ -63,6 +64,9 @@ void setup()
 
     // setup lgvl hardware
     hal_setup();
+
+    // setup temperature graph
+    temperature_graph_task_setup();
 }
 
 void loop()
