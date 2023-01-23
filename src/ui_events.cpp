@@ -137,7 +137,7 @@ void on_chart_init() {
   lv_obj_set_width( ui_Screen1_Chart1, lv_pct(92));
   lv_chart_set_point_count(ui_Screen1_Chart1, point_count);
   lv_chart_set_range(ui_Screen1_Chart1, LV_CHART_AXIS_SECONDARY_Y, 0, 1000);
-  lv_chart_set_div_line_count(ui_Screen1_Chart1, 0, 0);
+  lv_chart_set_div_line_count(ui_Screen1_Chart1, 100, 0);
   lv_obj_set_style_size(ui_Screen1_Chart1, 0, LV_PART_INDICATOR);
 
   // init all the points
@@ -159,18 +159,15 @@ void on_chart_init() {
 
 void on_chart_draw_cb(lv_event_t * e)
 {
-    lv_obj_draw_part_dsc_t * dsc = lv_event_get_draw_part_dsc(e);
-    if (!lv_obj_draw_part_check_type(dsc, &lv_chart_class, LV_CHART_DRAW_PART_TICK_LABEL)) {
+  lv_obj_draw_part_dsc_t * dsc = lv_event_get_draw_part_dsc(e);
+  if (lv_obj_draw_part_check_type(dsc, &lv_chart_class, LV_CHART_DRAW_PART_TICK_LABEL)) {
+    if (dsc->id == LV_CHART_AXIS_SECONDARY_Y && dsc->text) {
+
+      lv_snprintf(dsc->text, dsc->text_length, "%d", ((lv_coord_t)dsc->value)/10);
       return;
     }
 
-    if(dsc->id == LV_CHART_AXIS_SECONDARY_Y && dsc->text) {
-
-        lv_snprintf(dsc->text, dsc->text_length, "%d", ((lv_coord_t)dsc->value)/10);
-        return;
-    }
-
-    if(dsc->id == LV_CHART_AXIS_PRIMARY_X && dsc->text) {
+    if (dsc->id == LV_CHART_AXIS_PRIMARY_X && dsc->text) {
 
       if (dsc->value == 0) {
         lv_snprintf(dsc->text, dsc->text_length, "0");
@@ -182,5 +179,29 @@ void on_chart_draw_cb(lv_event_t * e)
       uint16_t hrs = (uint16_t) (tick_time_ms / 60000ll / 60l);
 
       lv_snprintf(dsc->text, dsc->text_length, " %02d:%02d ", hrs, mins);
+      return;
     }
+  }
+
+  if (dsc->part == LV_PART_MAIN) {
+    if (dsc->line_dsc == NULL || dsc->p1 == NULL || dsc->p2 == NULL) {
+      return;
+    }
+    if (dsc->p1->x == dsc->p2->x) {
+      return;
+    }
+    if (dsc->id == (100-75)) {
+      dsc->line_dsc->color = lv_palette_main(LV_PALETTE_RED);
+      dsc->line_dsc->opa = LV_OPA_50;
+      dsc->line_dsc->width = 1;
+    } else if (dsc->id == (100-42)) {
+      dsc->line_dsc->color = lv_palette_main(LV_PALETTE_BLUE);
+      dsc->line_dsc->opa = LV_OPA_50;
+      dsc->line_dsc->width = 1;
+    } else {
+      dsc->line_dsc->opa = LV_OPA_TRANSP;
+      dsc->line_dsc->width = 0;
+    }
+
+  }
 }
