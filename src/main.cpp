@@ -58,9 +58,6 @@ void setup()
   // configure temperature readings
   temperature_task_setup();
 
-  // setup temperature measurement
-  temperature_task_setup();
-
   // setup temperature graph
   temperature_graph_task_setup();
 }
