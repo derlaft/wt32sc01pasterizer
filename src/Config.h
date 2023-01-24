@@ -13,6 +13,8 @@
 #define PIN_PROBE 25
 // разрешение измерений температуры
 #define PROBE_RESOLUTION 12
+// период измерений температуры 
+#define PROBE_INTERVAL_MS 1000
 // разрешение графика температуры
 #define TEMP_CHART_RESOLUTION_MS (1000 * 60)
 // количество отметок на оси X

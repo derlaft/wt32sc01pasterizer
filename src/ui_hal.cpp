@@ -95,9 +95,6 @@ void gui_task(void *pvParameter) {
   vTaskDelete(NULL);
 }
 
-void hal_loop() {
-}
-
 void update_touch_position(lv_indev_drv_t * drv, lv_indev_data_t*data) {
 #ifdef TOUCH_DEBUG
   Serial.println("#");

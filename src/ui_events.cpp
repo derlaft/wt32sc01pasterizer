@@ -3,6 +3,7 @@
 #include "ui.h"
 #include "ui_variables.h"
 #include "ui_events.h"
+#include "ui_hal.h"
 #include "Config.h"
 
 lv_chart_series_t * ui_Screen1_Chart1_Series;
@@ -139,7 +140,7 @@ void on_chart_init() {
   lv_chart_set_point_count(ui_Screen1_Chart1, point_count);
   lv_chart_set_range(ui_Screen1_Chart1, LV_CHART_AXIS_SECONDARY_Y, 0, 1000);
   lv_chart_set_div_line_count(ui_Screen1_Chart1, 100, 0);
-  lv_obj_set_style_size(ui_Screen1_Chart1, 0, LV_PART_INDICATOR);
+  lv_obj_set_style_size(ui_Screen1_Chart1, 1, LV_PART_INDICATOR);
 
   // init all the points
   ui_Screen1_Chart1_Series = lv_chart_add_series(ui_Screen1_Chart1, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_SECONDARY_Y);
@@ -205,4 +206,24 @@ void on_chart_draw_cb(lv_event_t * e)
     }
 
   }
+}
+
+void display_temperature(float v)
+{
+  if (pdTRUE != xSemaphoreTake(xGuiSemaphore, portMAX_DELAY)) {
+    return;
+  }
+
+  String stringValue = String(v, 1) + String("°");
+  if (v > 0) {
+    stringValue = String("+") + stringValue;
+  }
+  lv_label_set_text(ui_TemperatureDisplay, stringValue.c_str());
+  lv_label_set_text(ui_TemperatureDisplay1, stringValue.c_str());
+  lv_label_set_text(ui_TemperatureDisplay2, stringValue.c_str());
+  lv_label_set_text(ui_TemperatureDisplay3, stringValue.c_str());
+  lv_label_set_text(ui_TemperatureDisplay4, stringValue.c_str());
+
+  xSemaphoreGive(xGuiSemaphore);
+  return;
 }

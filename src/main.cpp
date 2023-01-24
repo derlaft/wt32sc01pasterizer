@@ -10,20 +10,6 @@
 #include "ui_events.h"
 #include "ui.h"
 
-
-void setupPlatform() {
-
-  // enable serial
-  Serial.begin(115200);
-
-  // Configure custom pins
-  logic_setup();
-
-  // configure temperature readings
-  temperature_setup();
-}
-
-
 static void on_heat_override(lv_event_t * e)
 {
     lv_event_code_t code = lv_event_get_code(e);
@@ -60,22 +46,27 @@ static void on_mixer_override(lv_event_t * e)
 void setup()
 {
 
-    setupPlatform();
+  // enable serial
+  Serial.begin(115200);
 
-    // setup lgvl hardware
-    hal_setup();
+  // Configure custom pins
+  logic_setup();
 
-    // setup temperature graph
-    temperature_graph_task_setup();
+  // setup lgvl hardware
+  hal_setup();
+
+  // configure temperature readings
+  temperature_task_setup();
+
+  // setup temperature measurement
+  temperature_task_setup();
+
+  // setup temperature graph
+  temperature_graph_task_setup();
 }
+
 
 void loop()
 {
-    if (temperature_loop()) {
-      float t = temperature_get();
-      display_temperature(t);
-    }
-
-    hal_loop();
     vTaskDelay(pdMS_TO_TICKS(100));
 }
