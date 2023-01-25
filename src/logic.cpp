@@ -4,6 +4,7 @@
 #include "ui_hal.h"
 #include "ui_events.hpp"
 #include "temperature.hpp"
+#include "temperature_graph.hpp"
 
 #include <Arduino.h>
 
@@ -103,6 +104,7 @@ void logic_tick() {
       // если температура ниже нормы, включить нагреватель
       // если температура выше нормы, выключить нагреватель
       set_heat(is_temperature_lt((float) store_temp_value));
+      temperature_graph_enabled = false;
       break;
   }
 }
@@ -121,6 +123,8 @@ void on_main_switch_pressed() {
           state = LogicState::Heating;
           set_mixer(true, false);
           activate_state_work();
+          temperature_graph_reset();
+          temperature_graph_enabled = true;
           break;
       case LogicState::Heating:
       case LogicState::Pasterizing:
@@ -128,10 +132,13 @@ void on_main_switch_pressed() {
 #ifdef LOGIC_DEBUG
           Serial.println("logic: emergency abort");
 #endif
+          temperature_graph_enabled = false;
       case LogicState::Storing:
           state = LogicState::Idle;
           activate_state_idle();
           set_mixer(false, false);
+          temperature_graph_reset();
+          temperature_graph_enabled = false;
           break;
       }
   });

@@ -13,8 +13,6 @@ lv_chart_series_t * ui_Screen1_Chart1_Series;
 void on_main_button_pressed(lv_event_t * e)
 {
   Serial.println("main button pressed");
-  temperature_graph_reset();
-  temperature_graph_enabled = true;
   on_main_switch_pressed();
 }
 
