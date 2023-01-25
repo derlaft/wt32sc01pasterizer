@@ -72,9 +72,7 @@ void logic_tick() {
       break;
     case LogicState::Pasterizing:
       // если температура ниже нормы, включить нагреватель
-      // если температура выше нормы, выключить нагреватель
       set_heat(is_temperature_lt((float) past_temp_value));
-      set_cool(is_temperature_gt((float) past_temp_value));
       // если температура такая, как нужно, перейти к следующему этапу
       // TODO: счетчик времени пастеризации
       if (is_temperature_eq((float) past_temp_value) || is_temperature_gt((float) past_temp_value)) {
@@ -119,6 +117,7 @@ void on_main_switch_pressed() {
           Serial.println("logic: idle -> heating");
 #endif
           state = LogicState::Heating;
+          set_cool(false);
           set_mixer(true);
           activate_state_work();
           temperature_graph_reset();
