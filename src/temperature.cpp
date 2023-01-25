@@ -36,6 +36,7 @@ void temperature_measure() {
   } else {
 #ifdef PROBE_DEBUG
     Serial.println("NEWBUG3: read temp fail");
+    last_temp = -127.0;
 #endif
   }
 }
