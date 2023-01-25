@@ -10,6 +10,7 @@ extern int16_t point_count;
 extern int16_t chart_ptr;
 
 extern void display_temperature(float v);
+extern void temperature_graph_reset();
 
 extern void on_main_button_pressed(lv_event_t * e);
 extern void on_manual_heating(lv_event_t * e);

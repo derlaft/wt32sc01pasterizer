@@ -7,4 +7,6 @@ extern void temperature_graph_task(void *pvParameter);
 
 extern void temperature_graph_add_new_point();
 
+extern bool temperature_graph_enabled;
+
 #endif

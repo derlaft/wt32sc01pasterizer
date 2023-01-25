@@ -3,6 +3,6 @@
 
 void logic_setup();
 
-void logic_on_temperature(float);
+extern void logic_task(void *pvParameter);
 
 #endif

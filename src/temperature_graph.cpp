@@ -6,6 +6,8 @@
 #include "temperature.hpp"
 #include "temperature_graph.hpp"
 
+bool temperature_graph_enabled = false;
+
 void temperature_graph_task_setup() {
   xTaskCreatePinnedToCore(temperature_graph_task, "temp_graph", 4096*2, NULL, tskIDLE_PRIORITY+5, NULL, 1);
 }
@@ -19,9 +21,10 @@ void temperature_graph_task(void *pvParameter) {
 
   while(1) {
     vTaskDelayUntil(&xLastWakeTime, xFrequency);
-    temperature_graph_add_new_point();
+    if (temperature_graph_enabled) {
+      temperature_graph_add_new_point();
+    }
   }
-
 }
 
 void temperature_graph_add_new_point() {
@@ -45,8 +48,10 @@ void temperature_graph_add_new_point() {
   if (chart_ptr > point_count) {
     point_count = chart_ptr;
     lv_chart_set_point_count(ui_Screen1_Chart1, point_count);
+#ifdef TEMP_CHART_DEBUG
     Serial.print("point count: ");
     Serial.println(point_count);
+#endif
   }
 
   // lv_chart_set_point_count(ui_Screen1_Chart1, point_count);

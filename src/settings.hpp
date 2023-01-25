@@ -1,5 +1,5 @@
-#ifndef _PAST_UI_VARIABLES_H
-#define _PAST_UI_VARIABLES_H
+#ifndef _PAST_SETTINGS_H
+#define _PAST_SETTINGS_H
 
 #include <Arduino.h>
 

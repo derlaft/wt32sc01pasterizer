@@ -18,7 +18,7 @@ float last_temp = 0;
 void temperature_measure() {
 
   if (!sensor.online()) {
-#ifdef TEMP_DEBUG
+#ifdef PROBE_DEBUG
     Serial.println("NEWBUG1: sensor offline");
 #endif
   }
@@ -28,16 +28,15 @@ void temperature_measure() {
 
   if (sensor.readTemp()) {
     last_temp = sensor.getTemp();
-#ifdef TEMP_DEBUG
+#ifdef PROBE_DEBUG
   Serial.print("Measured ");
   Serial.print(last_temp);
   Serial.println(" degrees C");
 #endif
   } else {
-#ifdef TEMP_DEBUG
+#ifdef PROBE_DEBUG
     Serial.println("NEWBUG3: read temp fail");
 #endif
-    last_temp = -127;
   }
 }
 

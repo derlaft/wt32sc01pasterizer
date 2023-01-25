@@ -1,16 +1,19 @@
 #include <Arduino.h>
 #include <lvgl.h>
 #include "ui.h"
-#include "ui_variables.h"
+#include "settings.hpp"
 #include "ui_events.h"
 #include "ui_hal.h"
 #include "Config.h"
+#include "temperature_graph.hpp"
 
 lv_chart_series_t * ui_Screen1_Chart1_Series;
 
 void on_main_button_pressed(lv_event_t * e)
 {
   Serial.println("main button pressed");
+  temperature_graph_reset();
+  temperature_graph_enabled = true;
 }
 
 void on_manual_heating(lv_event_t * e)
@@ -137,20 +140,19 @@ void on_chart_init() {
   // lv_obj_set_style_pad_right(ui_Screen1_Chart1, 30, LV_PART_MAIN| LV_STATE_DEFAULT);
   lv_obj_set_height( ui_Screen1_Chart1, 140);
   lv_obj_set_width( ui_Screen1_Chart1, lv_pct(92));
-  lv_chart_set_point_count(ui_Screen1_Chart1, point_count);
   lv_chart_set_range(ui_Screen1_Chart1, LV_CHART_AXIS_SECONDARY_Y, 0, 1000);
   lv_chart_set_div_line_count(ui_Screen1_Chart1, 100, 0);
   lv_obj_set_style_size(ui_Screen1_Chart1, 1, LV_PART_INDICATOR);
 
   // init all the points
   ui_Screen1_Chart1_Series = lv_chart_add_series(ui_Screen1_Chart1, lv_palette_main(LV_PALETTE_RED), LV_CHART_AXIS_SECONDARY_Y);
-  for (int i = 0; i < TEMP_CHART_POINT_COUNT; i++) {
-    temperature_data[i] = LV_CHART_POINT_NONE;
-  }
 
   // set tempdata array
   lv_chart_set_ext_y_array(ui_Screen1_Chart1, ui_Screen1_Chart1_Series, (lv_coord_t*)&temperature_data);
   lv_chart_set_x_start_point(ui_Screen1_Chart1, ui_Screen1_Chart1_Series, 0);
+
+  // reset data
+  temperature_graph_reset();
 
   // configure ticks
   lv_chart_set_axis_tick(ui_Screen1_Chart1, LV_CHART_AXIS_PRIMARY_X, 10, 5, TEMP_CHART_MAJOR_TICKS_X, 5, true, 60);
@@ -226,4 +228,17 @@ void display_temperature(float v)
 
   xSemaphoreGive(xGuiSemaphore);
   return;
+}
+
+void temperature_graph_reset() {
+  point_count = 0;
+  chart_ptr = 0;
+
+  lv_chart_set_point_count(ui_Screen1_Chart1, 0);
+
+  for (int i = 0; i < TEMP_CHART_POINT_COUNT; i++) {
+    temperature_data[i] = LV_CHART_POINT_NONE;
+  }
+
+  lv_chart_refresh(ui_Screen1_Chart1);
 }
