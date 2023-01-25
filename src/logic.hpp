@@ -13,7 +13,7 @@ extern void on_main_switch_pressed();
 
 extern void set_heat(bool value);
 extern void set_cool(bool value);
-extern void set_mixer(bool value, bool gui_lock);
+extern void set_mixer(bool value);
 
 extern void on_heat_override(bool value);
 extern void on_cool_override(bool value);

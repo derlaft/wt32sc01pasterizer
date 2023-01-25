@@ -40,9 +40,7 @@ void logic_task(void *pvParameter) {
   while(1) {
     vTaskDelayUntil(&xLastWakeTime, xFrequency);
 
-    _LOGIC_LOCK({
-        logic_tick();
-    });
+    _LOGIC_LOCK(_GUI_LOCK(logic_tick()));
   }
 
   vTaskDelete(NULL);
@@ -101,6 +99,7 @@ void logic_tick() {
       }
       break;
     case LogicState::Storing:
+      set_cool(false);
       // если температура ниже нормы, включить нагреватель
       // если температура выше нормы, выключить нагреватель
       set_heat(is_temperature_lt((float) store_temp_value));
@@ -121,7 +120,7 @@ void on_main_switch_pressed() {
           Serial.println("logic: idle -> heating");
 #endif
           state = LogicState::Heating;
-          set_mixer(true, false);
+          set_mixer(true);
           activate_state_work();
           temperature_graph_reset();
           temperature_graph_enabled = true;
@@ -132,11 +131,14 @@ void on_main_switch_pressed() {
 #ifdef LOGIC_DEBUG
           Serial.println("logic: emergency abort");
 #endif
+          set_cool(false);
+          set_heat(false);
+          set_mixer(false);
           temperature_graph_enabled = false;
       case LogicState::Storing:
           state = LogicState::Idle;
           activate_state_idle();
-          set_mixer(false, false);
+          set_mixer(false);
           temperature_graph_reset();
           temperature_graph_enabled = false;
           break;
@@ -150,7 +152,7 @@ void set_heat(bool value) {
   Serial.println(value);
 #endif
   digitalWrite(PIN_HEATER, value ? HIGH : LOW);
-  _GUI_LOCK(update_manual_heating_button(value));
+  update_manual_heating_button(value);
 }
 
 void set_cool(bool value) {
@@ -159,20 +161,16 @@ void set_cool(bool value) {
   Serial.println(value);
 #endif
   digitalWrite(PIN_COOLER, value ? HIGH : LOW);
-  _GUI_LOCK(update_manual_cooling_button(value));
+  update_manual_cooling_button(value);
 }
 
-void set_mixer(bool value, bool gui_lock=true) {
+void set_mixer(bool value) {
 #ifdef LOGIC_DEBUG
   Serial.print("set_mixer: ");
   Serial.println(value);
 #endif
   digitalWrite(PIN_MIXER, value ? HIGH : LOW);
-  if (gui_lock) {
-    _GUI_LOCK(update_manual_mixing_button(value));
-  } else {
-    update_manual_mixing_button(value);
-  }
+  update_manual_mixing_button(value);
 }
 
 
