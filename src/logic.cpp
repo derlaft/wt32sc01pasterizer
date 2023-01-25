@@ -40,6 +40,7 @@ void logic_task(void *pvParameter) {
   while(1) {
     vTaskDelayUntil(&xLastWakeTime, xFrequency);
 
+    // TODO: more granular lock control?
     _LOGIC_LOCK(_GUI_LOCK(logic_tick()));
   }
 
