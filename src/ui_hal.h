@@ -5,6 +5,11 @@
 #include <Arduino.h>
 #include "esp_freertos_hooks.h"
 
+#define _GUI_LOCK(BODY) if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY)) { \
+      BODY; \
+      xSemaphoreGive(xGuiSemaphore); \
+    } else { ESP.restart(); }
+
 extern SemaphoreHandle_t xGuiSemaphore;
 
 void hal_setup();

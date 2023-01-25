@@ -20,6 +20,10 @@ extern void activate_state_idle();
 extern void activate_state_work();
 extern void activate_state_done();
 
+extern void update_manual_heating_button(bool value);
+extern void update_manual_cooling_button(bool value);
+extern void update_manual_mixing_button(bool value);
+
 extern void on_main_button_pressed(lv_event_t * e);
 extern void on_manual_heating(lv_event_t * e);
 extern void on_manual_cooling(lv_event_t * e);

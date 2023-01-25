@@ -119,7 +119,7 @@ void on_main_switch_pressed() {
           Serial.println("logic: idle -> heating");
 #endif
           state = LogicState::Heating;
-          set_mixer(true);
+          set_mixer(true, false);
           activate_state_work();
           break;
       case LogicState::Heating:
@@ -131,6 +131,7 @@ void on_main_switch_pressed() {
       case LogicState::Storing:
           state = LogicState::Idle;
           activate_state_idle();
+          set_mixer(false, false);
           break;
       }
   });
@@ -142,7 +143,7 @@ void set_heat(bool value) {
   Serial.println(value);
 #endif
   digitalWrite(PIN_HEATER, value ? HIGH : LOW);
-  // TODO: установить статус кнопки в ручном управлении
+  _GUI_LOCK(update_manual_heating_button(value));
 }
 
 void set_cool(bool value) {
@@ -151,16 +152,20 @@ void set_cool(bool value) {
   Serial.println(value);
 #endif
   digitalWrite(PIN_COOLER, value ? HIGH : LOW);
-  // TODO: установить статус кнопки в ручном управлении
+  _GUI_LOCK(update_manual_cooling_button(value));
 }
 
-void set_mixer(bool value) {
+void set_mixer(bool value, bool gui_lock=true) {
 #ifdef LOGIC_DEBUG
   Serial.print("set_mixer: ");
   Serial.println(value);
 #endif
   digitalWrite(PIN_MIXER, value ? HIGH : LOW);
-  // TODO: установить статус кнопки в ручном управлении
+  if (gui_lock) {
+    _GUI_LOCK(update_manual_mixing_button(value));
+  } else {
+    update_manual_mixing_button(value);
+  }
 }
 
 

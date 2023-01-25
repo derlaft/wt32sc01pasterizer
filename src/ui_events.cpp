@@ -48,6 +48,30 @@ void on_manual_mixing(lv_event_t * e)
   }
 }
 
+void update_manual_heating_button(bool value) {
+  if (value) {
+    lv_obj_add_state(ui_HeatingButton, LV_STATE_CHECKED);
+  } else {
+    lv_obj_clear_state(ui_HeatingButton, LV_STATE_CHECKED);
+  }
+}
+
+void update_manual_cooling_button(bool value) {
+  if (value) {
+    lv_obj_add_state(ui_CoolingButton, LV_STATE_CHECKED);
+  } else {
+    lv_obj_clear_state(ui_CoolingButton, LV_STATE_CHECKED);
+  }
+}
+
+void update_manual_mixing_button(bool value) {
+  if (value) {
+    lv_obj_add_state(ui_MixingButton, LV_STATE_CHECKED);
+  } else {
+    lv_obj_clear_state(ui_MixingButton, LV_STATE_CHECKED);
+  }
+}
+
 void on_past_temp_incr(lv_event_t * e)
 {
   past_temp_value += 1;
