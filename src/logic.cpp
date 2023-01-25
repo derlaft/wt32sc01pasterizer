@@ -1,4 +1,5 @@
 #include "Config.h"
+#include "settings.hpp"
 #include "logic.hpp"
 #include "ui_hal.h"
 #include "ui_events.hpp"
@@ -50,28 +51,58 @@ void logic_tick() {
 
   float temp = temperature_get();
 
+  // TODO: проверка безопасности температуры
+  // если температура выше нормы, запретить нагрев
+
   switch (state) {
     case LogicState::Idle:
       // ничего не нужно делать: ждем начала программы
       break;
     case LogicState::Heating:
-      // если температура ниже нормы, включить нагреватель
+      if (is_temperature_lt((float) past_temp_value)) {
+          // если температура ниже нормы, включить нагреватель
+          set_heat(true);
+      } else {
+          // если температура такая, как нужно, выключить нагреватель и перейти к пастеризации
+          set_heat(false);
+          state = LogicState::Pasterizing;
+#ifdef LOGIC_DEBUG
+          Serial.println("logic: heating -> pasterizing");
+#endif
+      }
       // если температура выше нормы, ???
-      // если температура такая, как нужно, перейти к следующему этапу
       break;
     case LogicState::Pasterizing:
       // если температура ниже нормы, включить нагреватель
       // если температура выше нормы, выключить нагреватель
+      set_heat(is_temperature_lt((float) past_temp_value));
       // если температура такая, как нужно, перейти к следующему этапу
+      // TODO: счетчик времени пастеризации
+      if (is_temperature_eq((float) past_temp_value) || is_temperature_gt((float) past_temp_value)) {
+          set_heat(false);
+          state = LogicState::Cooling;
+#ifdef LOGIC_DEBUG
+          Serial.println("logic: pasterizing -> cooling");
+#endif
+      }
       break;
     case LogicState::Cooling:
       // если температура выше нормы, включить охлаждение
+      set_heat(false);
+      set_cool(is_temperature_gt((float) store_temp_value));
       // если температура ниже или равна норме, перейти ко хранению
-      // если температура такая, как нужно, перейти к следующему этапу
+      if (is_temperature_eq((float) store_temp_value) || is_temperature_lt((float) store_temp_value)) {
+        state = LogicState::Storing;
+        activate_state_done();
+#ifdef LOGIC_DEBUG
+          Serial.println("logic: cooling -> storing");
+#endif
+      }
       break;
     case LogicState::Storing:
       // если температура ниже нормы, включить нагреватель
       // если температура выше нормы, выключить нагреватель
+      set_heat(is_temperature_lt((float) store_temp_value));
       break;
   }
 }
@@ -88,6 +119,7 @@ void on_main_switch_pressed() {
           Serial.println("logic: idle -> heating");
 #endif
           state = LogicState::Heating;
+          set_mixer(true);
           activate_state_work();
           break;
       case LogicState::Heating:
@@ -103,6 +135,34 @@ void on_main_switch_pressed() {
       }
   });
 }
+
+void set_heat(bool value) {
+#ifdef LOGIC_DEBUG
+  Serial.print("set_heat: ");
+  Serial.println(value);
+#endif
+  digitalWrite(PIN_HEATER, value ? HIGH : LOW);
+  // TODO: установить статус кнопки в ручном управлении
+}
+
+void set_cool(bool value) {
+#ifdef LOGIC_DEBUG
+  Serial.print("set_cool: ");
+  Serial.println(value);
+#endif
+  digitalWrite(PIN_COOLER, value ? HIGH : LOW);
+  // TODO: установить статус кнопки в ручном управлении
+}
+
+void set_mixer(bool value) {
+#ifdef LOGIC_DEBUG
+  Serial.print("set_mixer: ");
+  Serial.println(value);
+#endif
+  digitalWrite(PIN_MIXER, value ? HIGH : LOW);
+  // TODO: установить статус кнопки в ручном управлении
+}
+
 
 void on_heat_override(bool value) {
   digitalWrite(PIN_HEATER, value ? HIGH : LOW);

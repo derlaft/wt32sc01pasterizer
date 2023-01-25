@@ -38,7 +38,7 @@ void temperature_measure() {
     Serial.println("NEWBUG3: read temp fail");
     last_temp = -127.0;
     // TODO debug
-    last_temp = 40 + random(-20, 20);
+    // last_temp = 40 + random(-20, 20);
 #endif
   }
 }
