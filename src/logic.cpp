@@ -33,6 +33,18 @@ void logic_task(void *pvParameter) {
   }
 }
 
+void on_heat_override(bool value) {
+  digitalWrite(PIN_HEATER, value ? HIGH : LOW);
+}
+
+void on_cool_override(bool value) {
+  digitalWrite(PIN_COOLER, value ? HIGH : LOW);
+}
+
+void on_mixer_override(bool value) {
+  digitalWrite(PIN_MIXER, value ? HIGH : LOW);
+}
+
 void state_machine() {
 
 }

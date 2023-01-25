@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include <lvgl.h>
 #include "ui.h"
+#include "logic.hpp"
 #include "settings.hpp"
 #include "ui_events.hpp"
 #include "ui_hal.h"
@@ -18,17 +19,32 @@ void on_main_button_pressed(lv_event_t * e)
 
 void on_manual_heating(lv_event_t * e)
 {
-  Serial.println("manual heating override");
+  Serial.println("manual heating");
+  lv_event_code_t code = lv_event_get_code(e);
+  lv_obj_t * obj = lv_event_get_target(e);
+  if (code == LV_EVENT_VALUE_CHANGED) {
+    on_heat_override(lv_obj_has_state(obj, LV_STATE_CHECKED));
+  }
 }
 
 void on_manual_cooling(lv_event_t * e)
 {
   Serial.println("manual cooling override");
+  lv_event_code_t code = lv_event_get_code(e);
+  lv_obj_t * obj = lv_event_get_target(e);
+  if (code == LV_EVENT_VALUE_CHANGED) {
+    on_cool_override(lv_obj_has_state(obj, LV_STATE_CHECKED));
+  }
 }
 
 void on_manual_mixing(lv_event_t * e)
 {
   Serial.println("manual mixing override");
+  lv_event_code_t code = lv_event_get_code(e);
+  lv_obj_t * obj = lv_event_get_target(e);
+  if (code == LV_EVENT_VALUE_CHANGED) {
+    on_mixer_override(lv_obj_has_state(obj, LV_STATE_CHECKED));
+  }
 }
 
 void on_past_temp_incr(lv_event_t * e)
