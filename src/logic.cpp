@@ -2,12 +2,21 @@
 #include "logic.hpp"
 #include "ui_hal.h"
 #include "ui_events.hpp"
+#include "temperature.hpp"
 
 #include <Arduino.h>
 
+#define _LOGIC_LOCK(BODY) if (pdTRUE == xSemaphoreTake(xLogicSemaphore, portMAX_DELAY)) { \
+      BODY; \
+      xSemaphoreGive(xLogicSemaphore); \
+    } else { ESP.restart(); }
+
 LogicState state = LogicState::Idle;
+SemaphoreHandle_t xLogicSemaphore;
 
 void logic_setup() {
+  xLogicSemaphore = xSemaphoreCreateMutex();
+
   pinMode(PIN_MIXER, OUTPUT);
   pinMode(PIN_HEATER, OUTPUT);
   pinMode(PIN_COOLER, OUTPUT);
@@ -29,8 +38,70 @@ void logic_task(void *pvParameter) {
   while(1) {
     vTaskDelayUntil(&xLastWakeTime, xFrequency);
 
-    Serial.println("DEBUG");
+    _LOGIC_LOCK({
+        logic_tick();
+    });
   }
+
+  vTaskDelete(NULL);
+}
+
+void logic_tick() {
+
+  float temp = temperature_get();
+
+  switch (state) {
+    case LogicState::Idle:
+      // ничего не нужно делать: ждем начала программы
+      break;
+    case LogicState::Heating:
+      // если температура ниже нормы, включить нагреватель
+      // если температура выше нормы, ???
+      // если температура такая, как нужно, перейти к следующему этапу
+      break;
+    case LogicState::Pasterizing:
+      // если температура ниже нормы, включить нагреватель
+      // если температура выше нормы, выключить нагреватель
+      // если температура такая, как нужно, перейти к следующему этапу
+      break;
+    case LogicState::Cooling:
+      // если температура выше нормы, включить охлаждение
+      // если температура ниже или равна норме, перейти ко хранению
+      // если температура такая, как нужно, перейти к следующему этапу
+      break;
+    case LogicState::Storing:
+      // если температура ниже нормы, включить нагреватель
+      // если температура выше нормы, выключить нагреватель
+      break;
+  }
+}
+
+// следующие методы вызываются из таска интерфейса
+// следовательно, нужно взять logic lock, 
+// но не нужно брать gui lock
+
+void on_main_switch_pressed() {
+  _LOGIC_LOCK({
+      switch (state) {
+      case LogicState::Idle:
+#ifdef LOGIC_DEBUG
+          Serial.println("logic: idle -> heating");
+#endif
+          state = LogicState::Heating;
+          activate_state_work();
+          break;
+      case LogicState::Heating:
+      case LogicState::Pasterizing:
+      case LogicState::Cooling:
+#ifdef LOGIC_DEBUG
+          Serial.println("logic: emergency abort");
+#endif
+      case LogicState::Storing:
+          state = LogicState::Idle;
+          activate_state_idle();
+          break;
+      }
+  });
 }
 
 void on_heat_override(bool value) {

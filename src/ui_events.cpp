@@ -15,6 +15,7 @@ void on_main_button_pressed(lv_event_t * e)
   Serial.println("main button pressed");
   temperature_graph_reset();
   temperature_graph_enabled = true;
+  on_main_switch_pressed();
 }
 
 void on_manual_heating(lv_event_t * e)

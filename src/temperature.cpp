@@ -38,7 +38,7 @@ void temperature_measure() {
     Serial.println("NEWBUG3: read temp fail");
     last_temp = -127.0;
     // TODO debug
-    // last_temp = 40 + random(-20, 20);
+    last_temp = 40 + random(-20, 20);
 #endif
   }
 }
@@ -51,7 +51,18 @@ void temperature_task(void *pvParameter) {
   }
 }
 
-
 float temperature_get() {
   return last_temp;
+}
+
+bool is_temperature_gt(float other) {
+  return last_temp - other > TEMPERATURE_DELTA;
+}
+
+bool is_temperature_lt(float other) {
+  return other - last_temp > TEMPERATURE_DELTA;
+}
+
+bool is_temperature_eq(float other) {
+  return (other > last_temp ? other - last_temp : last_temp - other) < TEMPERATURE_DELTA;
 }

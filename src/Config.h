@@ -17,6 +17,8 @@
 #define PROBE_DEBUG
 // период измерений температуры 
 #define PROBE_INTERVAL_MS 1000
+// дельта сравнения температур
+#define TEMPERATURE_DELTA 1.0
 
 // разрешение графика температуры
 #define TEMP_CHART_RESOLUTION_MS (1000 * 60)
@@ -50,5 +52,6 @@
 #define LOGIC_TASK_INTERVAL_MS 500
 #define LOGIC_SAFE_TEMP_MIN 0
 #define LOGIC_SAFE_TEMP_MAX 99
+#define LOGIC_DEBUG
 
 #endif
