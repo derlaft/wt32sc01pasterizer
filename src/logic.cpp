@@ -59,10 +59,8 @@ void logic_tick() {
       // ничего не нужно делать: ждем начала программы
       break;
     case LogicState::Heating:
-      if (is_temperature_lt((float) past_temp_value)) {
-          // если температура ниже нормы, включить нагреватель
-          set_heat(true);
-      } else {
+      set_heat(true);
+      if (!is_temperature_lt((float) past_temp_value)) {
           // если температура такая, как нужно, выключить нагреватель и перейти к пастеризации
           set_heat(false);
           state = LogicState::Pasterizing;
@@ -76,6 +74,7 @@ void logic_tick() {
       // если температура ниже нормы, включить нагреватель
       // если температура выше нормы, выключить нагреватель
       set_heat(is_temperature_lt((float) past_temp_value));
+      set_cool(is_temperature_gt((float) past_temp_value));
       // если температура такая, как нужно, перейти к следующему этапу
       // TODO: счетчик времени пастеризации
       if (is_temperature_eq((float) past_temp_value) || is_temperature_gt((float) past_temp_value)) {
@@ -100,11 +99,10 @@ void logic_tick() {
       }
       break;
     case LogicState::Storing:
-      set_cool(false);
+      // если температура выше нормы, включить охлаждение
+      set_cool(is_temperature_gt((float) store_temp_value));
       // если температура ниже нормы, включить нагреватель
-      // если температура выше нормы, выключить нагреватель
       set_heat(is_temperature_lt((float) store_temp_value));
-      temperature_graph_enabled = false;
       break;
   }
 }
