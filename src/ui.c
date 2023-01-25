@@ -322,7 +322,7 @@ lv_obj_set_height( ui_StartStopLabel, LV_SIZE_CONTENT);   /// 1
 lv_obj_set_x( ui_StartStopLabel, 0 );
 lv_obj_set_y( ui_StartStopLabel, 3 );
 lv_obj_set_align( ui_StartStopLabel, LV_ALIGN_TOP_MID );
-lv_label_set_text(ui_StartStopLabel,"Завершить хранение");
+lv_label_set_text(ui_StartStopLabel,"");
 lv_obj_set_style_text_font(ui_StartStopLabel, &ui_font_bigfont, LV_PART_MAIN| LV_STATE_DEFAULT);
 
 ui_TopPanel = lv_label_create(ui_MainScreen);

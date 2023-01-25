@@ -4,6 +4,10 @@
 #include <lvgl.h>
 #include "Config.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern lv_chart_series_t * ui_Screen1_Chart1_Series;
 extern lv_coord_t temperature_data[TEMP_CHART_POINT_COUNT];
 extern int16_t point_count;
@@ -11,6 +15,10 @@ extern int16_t chart_ptr;
 
 extern void display_temperature(float v);
 extern void temperature_graph_reset();
+
+extern void activate_state_idle();
+extern void activate_state_work();
+extern void activate_state_done();
 
 extern void on_main_button_pressed(lv_event_t * e);
 extern void on_manual_heating(lv_event_t * e);
@@ -35,5 +43,9 @@ extern void on_wireless_screen_loaded(lv_event_t * e);
 extern void on_chart_init();
 extern void on_next_temperature(float data);
 extern void on_chart_draw_cb(lv_event_t * e);
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif

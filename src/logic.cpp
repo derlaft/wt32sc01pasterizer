@@ -1,6 +1,11 @@
 #include "Config.h"
 #include "logic.hpp"
+#include "ui_hal.h"
+#include "ui_events.hpp"
+
 #include <Arduino.h>
+
+LogicState state = LogicState::Idle;
 
 void logic_setup() {
   pinMode(PIN_MIXER, OUTPUT);
@@ -12,9 +17,13 @@ void logic_setup() {
 
 void logic_task(void *pvParameter) {
 
+  // инициализация
+  xSemaphoreTake(xGuiSemaphore, portMAX_DELAY); // TODO
+  activate_state_idle();
+  xSemaphoreGive(xGuiSemaphore);
+
   TickType_t xLastWakeTime;
   const TickType_t xFrequency = pdMS_TO_TICKS(LOGIC_TASK_INTERVAL_MS);
-
   xLastWakeTime = xTaskGetTickCount();
 
   while(1) {

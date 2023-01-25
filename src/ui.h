@@ -18,7 +18,7 @@ extern "C" {
   #include "lvgl.h"
 #endif
 
-#include "ui_events.h"
+#include "ui_events.hpp"
 
 void ui_event_MainScreen( lv_event_t * e);
 extern lv_obj_t *ui_MainScreen;

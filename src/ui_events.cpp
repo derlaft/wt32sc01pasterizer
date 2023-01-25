@@ -2,7 +2,7 @@
 #include <lvgl.h>
 #include "ui.h"
 #include "settings.hpp"
-#include "ui_events.h"
+#include "ui_events.hpp"
 #include "ui_hal.h"
 #include "Config.h"
 #include "temperature_graph.hpp"
@@ -241,4 +241,19 @@ void temperature_graph_reset() {
   }
 
   lv_chart_refresh(ui_Screen1_Chart1);
+}
+
+void activate_state_idle() {
+  lv_obj_set_style_bg_color(ui_StartStopButton, lv_palette_main(LV_PALETTE_BLUE), LV_PART_MAIN | LV_STATE_DEFAULT );
+  lv_label_set_text(ui_StartStopLabel,"Пастеризация");
+}
+
+void activate_state_work() {
+  lv_obj_set_style_bg_color(ui_StartStopButton, lv_palette_main(LV_PALETTE_RED), LV_PART_MAIN | LV_STATE_DEFAULT );
+  lv_label_set_text(ui_StartStopLabel,"Стоп");
+}
+
+void activate_state_done() {
+  lv_obj_set_style_bg_color(ui_StartStopButton, lv_palette_main(LV_PALETTE_GREEN), LV_PART_MAIN | LV_STATE_DEFAULT );
+  lv_label_set_text(ui_StartStopLabel,"Завершить хранение");
 }

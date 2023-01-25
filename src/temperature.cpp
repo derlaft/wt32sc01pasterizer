@@ -3,7 +3,7 @@
 #include <lvgl.h>
 #include "ui.h"
 #include "ui_hal.h"
-#include "ui_events.h"
+#include "ui_events.hpp"
 #include <microDS18B20.h>
 
 MicroDS18B20<PIN_PROBE> sensor;
@@ -37,6 +37,8 @@ void temperature_measure() {
 #ifdef PROBE_DEBUG
     Serial.println("NEWBUG3: read temp fail");
     last_temp = -127.0;
+    // TODO debug
+    // last_temp = 40 + random(-20, 20);
 #endif
   }
 }

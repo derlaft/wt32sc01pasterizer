@@ -5,10 +5,10 @@
 #include "Config.h"
 #include "temperature.hpp"
 #include "temperature_graph.hpp"
-#include "logic.hpp"
+#include "ui_events.hpp"
 #include "ui_hal.h"
-#include "ui_events.h"
 #include "ui.h"
+#include "logic.hpp"
 
 static void on_heat_override(lv_event_t * e)
 {
@@ -49,11 +49,11 @@ void setup()
   // enable serial
   Serial.begin(115200);
 
-  // Configure custom pins
-  logic_setup();
-
   // setup lgvl hardware
   hal_setup();
+
+  // Initialize logic
+  logic_setup();
 
   // configure temperature readings
   temperature_task_setup();
