@@ -65,7 +65,7 @@ void logic_tick() {
       break;
     case LogicState::Heating:
       set_heat(true);
-      if (!is_temperature_lt((float) past_temp_value)) {
+      if (temperature_get() >= (float) past_temp_value) {
           // если температура такая, как нужно, выключить нагреватель и перейти к пастеризации
           set_heat(false);
           state = LogicState::Pasterizing;
@@ -106,20 +106,9 @@ void logic_tick() {
       break;
     case LogicState::Storing:
       // если температура выше нормы, включить охлаждение
-      if (!is_temperature_lt((float) store_temp_value)) {
-        set_cool(true);
-        set_heat(false);
-        break;
-      }
+      set_cool(temperature_get() >= (float) store_temp_value + TEMPERATURE_DELTA);
       // если температура ниже нормы, включить нагреватель
-      if (!is_temperature_gt((float) store_temp_value)) {
-        set_heat(true);
-        set_cool(false);
-        break;
-      }
-      // температура в пределах нормы - хранение
-      set_heat(false);
-      set_cool(false);
+      set_heat(temperature_get() <= (float) store_temp_value - TEMPERATURE_DELTA);
       break;
   }
 }
