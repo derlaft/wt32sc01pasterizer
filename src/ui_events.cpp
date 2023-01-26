@@ -1,7 +1,6 @@
 #include <Arduino.h>
 #include <lvgl.h>
 #include "ui.h"
-#include "logic.hpp"
 #include "settings.hpp"
 #include "ui_events.hpp"
 #include "ui_hal.h"

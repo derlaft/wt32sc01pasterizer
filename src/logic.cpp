@@ -16,6 +16,7 @@
 bool heat_enabled = false;
 bool cool_enabled = false;
 bool mixer_enabled = false;
+int64_t cycles_in_pasterization = 0;
 
 LogicState state = LogicState::Idle;
 SemaphoreHandle_t xLogicSemaphore;
@@ -120,7 +121,7 @@ void logic_tick() {
       }
       break;
     case LogicState::Storing:
-      if (is_heating && temp > store_temp) {
+      if (is_heating && temp >= store_temp) {
         // если нагреватель был включен, и мы перепрыгнули цель,
         // то нужно выключить нагреватель
         set_heat(false);
@@ -130,7 +131,7 @@ void logic_tick() {
         set_heat(true);
       }
 
-      if (is_cooling && temp < store_temp) {
+      if (is_cooling && temp <= store_temp) {
         // если охлаждение было включено, и мы перепрыгнули цель,
         // то нужно выключить охлаждение
         set_cool(false);
@@ -144,36 +145,52 @@ void logic_tick() {
   }
 }
 
-// следующие методы вызываются из таска интерфейса
-// следовательно, нужно взять logic lock, 
-// но не нужно брать gui lock
-
 void on_main_switch_pressed() {
+  // этот метод вызывается из таска интерфейса
+  // когда нажата "главная кнопка"
+  // следовательно, нужно взять logic lock, 
+  // но не нужно брать gui lock
   _LOGIC_LOCK({
+      // проверяем текущее состояние
       switch (state) {
+      // кнопка нажата в режиме простоя
       case LogicState::Idle:
 #ifdef LOGIC_DEBUG
           Serial.println("logic: idle -> heating");
 #endif
+          // инициализация и начало программы
+          cycles_in_pasterization = 0;
+          // первый этап: нагрев
           state = LogicState::Heating;
+          // на всякий случай выключить охлаждение
           set_cool(false);
+          // включить перемешивание (будет включено практически до конца)
           set_mixer(true);
+          // сбросить график, включить его
           temperature_graph_reset();
           temperature_graph_enabled = true;
           break;
+
+      // кнопка нажата в одном из рабочих состояний
       case LogicState::Heating:
       case LogicState::Pasterizing:
       case LogicState::Cooling:
 #ifdef LOGIC_DEBUG
           Serial.println("logic: emergency abort");
 #endif
+          // была нажата кнопка "стоп", экстренная остановка
           state = LogicState::Idle;
+          // выключить все
           set_cool(false);
           set_heat(false);
           set_mixer(false);
           break;
+
+      // кнопка нажата в режиме хранения
       case LogicState::Storing:
+          // была нажата кнопка "готово"
           state = LogicState::Idle;
+          // выключить все
           set_mixer(false);
           set_heat(false);
           break;
@@ -206,12 +223,14 @@ void set_mixer(bool value) {
 }
 
 void logic_sync_pins() {
+  // синхронизировать желаемое состояние пинов с реальным
   digitalWrite(PIN_HEATER, heat_enabled ? HIGH : LOW);
   digitalWrite(PIN_MIXER, mixer_enabled ? HIGH : LOW);
   digitalWrite(PIN_COOLER, cool_enabled ? HIGH : LOW);
 }
 
 void logic_sync_ui() {
+  // синхронизировать состояние логического модуля с интерфейсом пользователя
   update_state_label(state);
   update_manual_heating_button(heat_enabled);
   update_manual_cooling_button(cool_enabled);
