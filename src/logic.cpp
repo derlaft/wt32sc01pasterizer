@@ -13,6 +13,10 @@
       xSemaphoreGive(xLogicSemaphore); \
     } else { ESP.restart(); }
 
+bool heat_enabled = false;
+bool cool_enabled = false;
+bool mixer_enabled = false;
+
 LogicState state = LogicState::Idle;
 SemaphoreHandle_t xLogicSemaphore;
 
@@ -38,13 +42,11 @@ void logic_task(void *pvParameter) {
   while(1) {
     vTaskDelayUntil(&xLastWakeTime, xFrequency);
 
-    // TODO: more granular lock control?
     _LOGIC_LOCK(
-          logic_tick();
+        logic_tick();
+        logic_sync_pins();
     );
-    _GUI_LOCK(
-        logic_sync_ui();
-    );
+    _GUI_LOCK(logic_sync_ui());
   }
 
   vTaskDelete(NULL);
@@ -53,56 +55,91 @@ void logic_task(void *pvParameter) {
 void logic_tick() {
 
   float temp = temperature_get();
+  float past_temp = (float) past_temp_value;
+  float store_temp = (float) store_temp_value;
+  bool is_heating = heat_enabled;
+  bool is_cooling = cool_enabled;
 
   // TODO: проверка безопасности температуры
   // если температура выше нормы, запретить нагрев
 
   switch (state) {
+    
+    // текущее состояние: ожидание начала программы
     case LogicState::Idle:
-      // ничего не нужно делать: ждем начала программы
+      // ничего не нужно делать: ждем
       break;
+
+    // текущее состояние: нагрев
     case LogicState::Heating:
+      // нагреватель в этом режиме постоянно включен
       set_heat(true);
-      if (temperature_get() >= (float) past_temp_value) {
-          // если температура такая, как нужно, выключить нагреватель и перейти к пастеризации
+      // как только достигли температуры пастеризации, переходим в следующее состояние
+      if (temp >= past_temp) {
+          // выключаем нагреватель
           set_heat(false);
+          // переходим в следующее состояние
           state = LogicState::Pasterizing;
 #ifdef LOGIC_DEBUG
           Serial.println("logic: heating -> pasterizing");
 #endif
       }
-      // если температура выше нормы, ???
       break;
     case LogicState::Pasterizing:
-      // если температура ниже нормы, включить нагреватель
-      set_heat(is_temperature_lt((float) past_temp_value));
-      // если температура такая, как нужно, перейти к следующему этапу
-      // TODO: счетчик времени пастеризации
-      if (is_temperature_eq((float) past_temp_value) || is_temperature_gt((float) past_temp_value)) {
-          set_heat(false);
-          state = LogicState::Cooling;
+      // нагреватель уже включен, выключить по достижении температуры градусом выше
+      if (is_heating && temp > past_temp + TEMPERATURE_DELTA) {
+        set_heat(false);
+      }
+      // нагреватель выключен, температура упала ниже допустимой
+      else if (!is_heating && temp < past_temp - TEMPERATURE_DELTA) {
+        set_heat(true);
+      } 
+      // в ином случае - продолжить делать то, что уже было сделано
+
+      // TODO - пастеризация пока не реализована
+      {
 #ifdef LOGIC_DEBUG
-          Serial.println("logic: pasterizing -> cooling");
+        Serial.println("logic: pasterizing -> cooling");
 #endif
+        set_heat(false);
+        state = LogicState::Cooling;
       }
       break;
     case LogicState::Cooling:
       // если температура выше нормы, включить охлаждение
       set_heat(false);
-      set_cool(is_temperature_gt((float) store_temp_value));
-      // если температура ниже или равна норме, перейти ко хранению
-      if (is_temperature_eq((float) store_temp_value) || is_temperature_lt((float) store_temp_value)) {
+      // в этом режиме постоянно включено охлаждение
+      set_cool(true);
+      // если температура хранения достигнута, перейти ко хранению
+      if (temp <= store_temp) {
         state = LogicState::Storing;
+        set_cool(false);
 #ifdef LOGIC_DEBUG
           Serial.println("logic: cooling -> storing");
 #endif
       }
       break;
     case LogicState::Storing:
-      // если температура выше нормы, включить охлаждение
-      set_cool(temperature_get() > (float) store_temp_value + TEMPERATURE_DELTA);
-      // если температура ниже нормы, включить нагреватель
-      set_heat(temperature_get() < (float) store_temp_value - TEMPERATURE_DELTA);
+      if (is_heating && temp > store_temp) {
+        // если нагреватель был включен, и мы перепрыгнули цель,
+        // то нужно выключить нагреватель
+        set_heat(false);
+      } else if (!is_heating && temp < store_temp - TEMPERATURE_DELTA) {
+        // если нагреватель был выключен, и мы перепрыгнули цель больше, чем на дельту
+        // то нужно включить нагреватель
+        set_heat(true);
+      }
+
+      if (is_cooling && temp < store_temp) {
+        // если охлаждение было включено, и мы перепрыгнули цель,
+        // то нужно выключить охлаждение
+        set_heat(false);
+      } else if (!is_cooling && temp > store_temp + TEMPERATURE_DELTA) {
+        // если охладитель был выключен, и мы перепрыгнули цель больше, чем на дельту
+        // то нужно выключить охладитель
+        set_heat(true);
+      }
+
       break;
   }
 }
@@ -130,24 +167,19 @@ void on_main_switch_pressed() {
 #ifdef LOGIC_DEBUG
           Serial.println("logic: emergency abort");
 #endif
+          state = LogicState::Idle;
           set_cool(false);
           set_heat(false);
           set_mixer(false);
-          temperature_graph_enabled = false;
+          break;
       case LogicState::Storing:
           state = LogicState::Idle;
           set_mixer(false);
           set_heat(false);
-          temperature_graph_reset();
-          temperature_graph_enabled = false;
           break;
       }
   });
 }
-
-bool heat_enabled = false;
-bool cool_enabled = false;
-bool mixer_enabled = false;
 
 void set_heat(bool value) {
 #ifdef LOGIC_DEBUG
@@ -171,6 +203,12 @@ void set_mixer(bool value) {
   Serial.println(value);
 #endif
   mixer_enabled = value;
+}
+
+void logic_sync_pins() {
+  digitalWrite(PIN_HEATER, heat_enabled ? HIGH : LOW);
+  digitalWrite(PIN_MIXER, mixer_enabled ? HIGH : LOW);
+  digitalWrite(PIN_COOLER, cool_enabled ? HIGH : LOW);
 }
 
 void logic_sync_ui() {
