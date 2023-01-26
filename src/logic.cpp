@@ -133,11 +133,11 @@ void logic_tick() {
       if (is_cooling && temp < store_temp) {
         // если охлаждение было включено, и мы перепрыгнули цель,
         // то нужно выключить охлаждение
-        set_heat(false);
+        set_cool(false);
       } else if (!is_cooling && temp > store_temp + TEMPERATURE_DELTA) {
         // если охладитель был выключен, и мы перепрыгнули цель больше, чем на дельту
         // то нужно выключить охладитель
-        set_heat(true);
+        set_cool(true);
       }
 
       break;
