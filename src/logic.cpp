@@ -61,6 +61,8 @@ void logic_tick() {
   bool is_heating = heat_enabled;
   bool is_cooling = cool_enabled;
 
+  int64_t past_time_ms = ((int64_t)past_time_value) * 60 * 1000;
+
   // TODO: проверка безопасности температуры
   // если температура выше нормы, запретить нагрев
 
@@ -87,6 +89,18 @@ void logic_tick() {
       }
       break;
     case LogicState::Pasterizing:
+
+      cycles_in_pasterization++;
+
+      // время пастеризации истекло, переход в режим охлаждения
+      if (cycles_in_pasterization * LOGIC_TASK_INTERVAL_MS >= past_time_ms) {
+#ifdef LOGIC_DEBUG
+        Serial.println("logic: pasterizing -> cooling");
+#endif
+        set_heat(false);
+        state = LogicState::Cooling;
+      }
+
       // нагреватель уже включен, выключить по достижении температуры градусом выше
       if (is_heating && temp > past_temp + TEMPERATURE_DELTA) {
         set_heat(false);
@@ -96,15 +110,7 @@ void logic_tick() {
         set_heat(true);
       } 
       // в ином случае - продолжить делать то, что уже было сделано
-
-      // TODO - пастеризация пока не реализована
-      {
-#ifdef LOGIC_DEBUG
-        Serial.println("logic: pasterizing -> cooling");
-#endif
-        set_heat(false);
-        state = LogicState::Cooling;
-      }
+      
       break;
     case LogicState::Cooling:
       // если температура выше нормы, включить охлаждение
