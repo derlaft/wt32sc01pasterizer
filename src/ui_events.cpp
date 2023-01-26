@@ -22,7 +22,7 @@ void on_manual_heating(lv_event_t * e)
   lv_event_code_t code = lv_event_get_code(e);
   lv_obj_t * obj = lv_event_get_target(e);
   if (code == LV_EVENT_VALUE_CHANGED) {
-    on_heat_override(lv_obj_has_state(obj, LV_STATE_CHECKED));
+    set_heat(lv_obj_has_state(obj, LV_STATE_CHECKED));
   }
 }
 
@@ -32,7 +32,7 @@ void on_manual_cooling(lv_event_t * e)
   lv_event_code_t code = lv_event_get_code(e);
   lv_obj_t * obj = lv_event_get_target(e);
   if (code == LV_EVENT_VALUE_CHANGED) {
-    on_cool_override(lv_obj_has_state(obj, LV_STATE_CHECKED));
+    set_cool(lv_obj_has_state(obj, LV_STATE_CHECKED));
   }
 }
 
@@ -42,7 +42,7 @@ void on_manual_mixing(lv_event_t * e)
   lv_event_code_t code = lv_event_get_code(e);
   lv_obj_t * obj = lv_event_get_target(e);
   if (code == LV_EVENT_VALUE_CHANGED) {
-    on_mixer_override(lv_obj_has_state(obj, LV_STATE_CHECKED));
+    set_mixer(lv_obj_has_state(obj, LV_STATE_CHECKED));
   }
 }
 
@@ -302,18 +302,23 @@ void update_state_label(LogicState state) {
 
     case LogicState::Idle:
       lv_label_set_text(ui_ChartCommentLabel,"Готов к работе");
+      activate_state_idle();
       break;
     case LogicState::Heating:
       lv_label_set_text(ui_ChartCommentLabel,"Нагрев");
+      activate_state_work();
       break;
     case LogicState::Pasterizing:
       lv_label_set_text(ui_ChartCommentLabel,"Пастеризация");
+      activate_state_work();
       break;
     case LogicState::Cooling:
       lv_label_set_text(ui_ChartCommentLabel,"Охлаждение");
+      activate_state_work();
       break;
     case LogicState::Storing:
       lv_label_set_text(ui_ChartCommentLabel,"Хранение");
+      activate_state_done();
       break;
   }
 }

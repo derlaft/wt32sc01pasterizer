@@ -28,25 +28,23 @@ void logic_setup() {
 
 void logic_task(void *pvParameter) {
 
-  // инициализация
-  xSemaphoreTake(xGuiSemaphore, portMAX_DELAY); // TODO
-  activate_state_idle();
-  xSemaphoreGive(xGuiSemaphore);
+  // инициализировать начальное состояние интерфейса
+  _GUI_LOCK(logic_sync_ui());
 
   TickType_t xLastWakeTime;
   const TickType_t xFrequency = pdMS_TO_TICKS(LOGIC_TASK_INTERVAL_MS);
   xLastWakeTime = xTaskGetTickCount();
 
-  // update label with initial state
-  _GUI_LOCK(update_state_label(state));
-
   while(1) {
     vTaskDelayUntil(&xLastWakeTime, xFrequency);
 
     // TODO: more granular lock control?
-    _LOGIC_LOCK(_GUI_LOCK(
+    _LOGIC_LOCK(
           logic_tick();
-    ));
+    );
+    _GUI_LOCK(
+        logic_sync_ui();
+    );
   }
 
   vTaskDelete(NULL);
@@ -69,7 +67,6 @@ void logic_tick() {
           // если температура такая, как нужно, выключить нагреватель и перейти к пастеризации
           set_heat(false);
           state = LogicState::Pasterizing;
-          update_state_label(state);
 #ifdef LOGIC_DEBUG
           Serial.println("logic: heating -> pasterizing");
 #endif
@@ -84,7 +81,6 @@ void logic_tick() {
       if (is_temperature_eq((float) past_temp_value) || is_temperature_gt((float) past_temp_value)) {
           set_heat(false);
           state = LogicState::Cooling;
-          update_state_label(state);
 #ifdef LOGIC_DEBUG
           Serial.println("logic: pasterizing -> cooling");
 #endif
@@ -97,8 +93,6 @@ void logic_tick() {
       // если температура ниже или равна норме, перейти ко хранению
       if (is_temperature_eq((float) store_temp_value) || is_temperature_lt((float) store_temp_value)) {
         state = LogicState::Storing;
-        update_state_label(state);
-        activate_state_done();
 #ifdef LOGIC_DEBUG
           Serial.println("logic: cooling -> storing");
 #endif
@@ -125,10 +119,8 @@ void on_main_switch_pressed() {
           Serial.println("logic: idle -> heating");
 #endif
           state = LogicState::Heating;
-          update_state_label(state);
           set_cool(false);
           set_mixer(true);
-          activate_state_work();
           temperature_graph_reset();
           temperature_graph_enabled = true;
           break;
@@ -144,9 +136,8 @@ void on_main_switch_pressed() {
           temperature_graph_enabled = false;
       case LogicState::Storing:
           state = LogicState::Idle;
-          update_state_label(state);
-          activate_state_idle();
           set_mixer(false);
+          set_heat(false);
           temperature_graph_reset();
           temperature_graph_enabled = false;
           break;
@@ -154,13 +145,16 @@ void on_main_switch_pressed() {
   });
 }
 
+bool heat_enabled = false;
+bool cool_enabled = false;
+bool mixer_enabled = false;
+
 void set_heat(bool value) {
 #ifdef LOGIC_DEBUG
   Serial.print("set_heat: ");
   Serial.println(value);
 #endif
-  digitalWrite(PIN_HEATER, value ? HIGH : LOW);
-  update_manual_heating_button(value);
+  heat_enabled = value;
 }
 
 void set_cool(bool value) {
@@ -168,8 +162,7 @@ void set_cool(bool value) {
   Serial.print("set_cool: ");
   Serial.println(value);
 #endif
-  digitalWrite(PIN_COOLER, value ? HIGH : LOW);
-  update_manual_cooling_button(value);
+  cool_enabled = value;
 }
 
 void set_mixer(bool value) {
@@ -177,23 +170,12 @@ void set_mixer(bool value) {
   Serial.print("set_mixer: ");
   Serial.println(value);
 #endif
-  digitalWrite(PIN_MIXER, value ? HIGH : LOW);
-  update_manual_mixing_button(value);
+  mixer_enabled = value;
 }
 
-
-void on_heat_override(bool value) {
-  digitalWrite(PIN_HEATER, value ? HIGH : LOW);
-}
-
-void on_cool_override(bool value) {
-  digitalWrite(PIN_COOLER, value ? HIGH : LOW);
-}
-
-void on_mixer_override(bool value) {
-  digitalWrite(PIN_MIXER, value ? HIGH : LOW);
-}
-
-void state_machine() {
-
+void logic_sync_ui() {
+  update_state_label(state);
+  update_manual_heating_button(heat_enabled);
+  update_manual_cooling_button(cool_enabled);
+  update_manual_mixing_button(mixer_enabled);
 }
