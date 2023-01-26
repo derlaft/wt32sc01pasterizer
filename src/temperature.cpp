@@ -44,11 +44,24 @@ void temperature_measure() {
 }
 
 void temperature_task(void *pvParameter) {
-
+#ifdef DEBUG_SERIAL_TEMPERATURE
+  while (1) {
+    while (Serial.available () == 0) {
+      vTaskDelay(pdMS_TO_TICKS(100));
+    }
+    float n = Serial.parseFloat();
+    if (n != 0) {
+      last_temp = n;
+      display_temperature(last_temp);
+    }
+    vTaskDelay(pdMS_TO_TICKS(1000));
+  }
+#else
   while(1) {
     temperature_measure();
     display_temperature(last_temp);
   }
+#endif
 }
 
 float temperature_get() {
