@@ -61,7 +61,7 @@ void logic_tick() {
   bool is_heating = heat_enabled;
   bool is_cooling = cool_enabled;
 
-  int64_t past_time_ms = ((int64_t)past_time_value) * 60 * 1000;
+  int64_t past_time_ms = ((int64_t)past_time_value) * 60ll * 1000ll;
 
   // TODO: проверка безопасности температуры
   // если температура выше нормы, запретить нагрев
@@ -237,7 +237,7 @@ void logic_sync_pins() {
 
 void logic_sync_ui() {
   // синхронизировать состояние логического модуля с интерфейсом пользователя
-  update_state_label(state);
+  update_state_label(state, cycles_in_pasterization * LOGIC_TASK_INTERVAL_MS);
   update_manual_heating_button(heat_enabled);
   update_manual_cooling_button(cool_enabled);
   update_manual_mixing_button(mixer_enabled);

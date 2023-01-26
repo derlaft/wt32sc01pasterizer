@@ -26,7 +26,7 @@ extern void update_manual_heating_button(bool value);
 extern void update_manual_cooling_button(bool value);
 extern void update_manual_mixing_button(bool value);
 
-extern void update_state_label(LogicState_t state);
+extern void update_state_label(LogicState_t state, int64_t in_past_ms);
 
 extern void on_main_button_pressed(lv_event_t * e);
 extern void on_manual_heating(lv_event_t * e);
