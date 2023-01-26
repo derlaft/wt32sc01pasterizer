@@ -296,7 +296,7 @@ void activate_state_done() {
   lv_label_set_text(ui_StartStopLabel,"Завершить хранение");
 }
 
-void update_state_label(LogicState state, int64_t current_past_time_ms) {
+void update_state_label(LogicState state, int64_t past_time_left_ms) {
   int mins;
   int secs;
 
@@ -311,8 +311,8 @@ void update_state_label(LogicState state, int64_t current_past_time_ms) {
       activate_state_work();
       break;
     case LogicState::Pasterizing:
-      mins = (uint16_t) (current_past_time_ms / 60000ll);
-      secs = (uint16_t) ((current_past_time_ms / 1000L) % 60l);
+      mins = (uint16_t) (past_time_left_ms / 60000ll);
+      secs = (uint16_t) ((past_time_left_ms / 1000L) % 60l);
       lv_label_set_text_fmt(ui_ChartCommentLabel, "Пастеризация (%02d:%02d)", mins, secs);
       activate_state_work();
       break;

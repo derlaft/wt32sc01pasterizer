@@ -237,7 +237,8 @@ void logic_sync_pins() {
 
 void logic_sync_ui() {
   // синхронизировать состояние логического модуля с интерфейсом пользователя
-  update_state_label(state, cycles_in_pasterization * LOGIC_TASK_INTERVAL_MS);
+  int64_t past_time_left_ms = ((int64_t)past_time_value) * 60ll * 1000ll - cycles_in_pasterization * LOGIC_TASK_INTERVAL_MS;
+  update_state_label(state, past_time_left_ms);
   update_manual_heating_button(heat_enabled);
   update_manual_cooling_button(cool_enabled);
   update_manual_mixing_button(mixer_enabled);
