@@ -9,6 +9,7 @@
 #include "ui_hal.h"
 #include "ui.h"
 #include "logic.hpp"
+#include "settings.hpp"
 
 void setup()
 {
@@ -18,6 +19,9 @@ void setup()
 
   // setup lgvl hardware
   hal_setup();
+
+  // read settings
+  _GUI_LOCK(settings_setup());
 
   // Initialize logic
   logic_setup();

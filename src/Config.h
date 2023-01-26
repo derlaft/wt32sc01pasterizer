@@ -39,14 +39,17 @@
 #define PIN_COOLER 27
 
 // Диапазон температуры пастеризации
+#define DEF_PAST_TEMP 70
 #define MIN_PAST_TEMP 0
 #define MAX_PAST_TEMP 94
 
 // Диапазон времени пастеризации
+#define DEF_PAST_TIME 30
 #define MIN_PAST_TIME 0
 #define MAX_PAST_TIME 60
 
 // Диапазон температуры хранения
+#define DEF_STORAGE_TEMP 42
 #define MIN_STORAGE_TEMP 4
 #define MAX_STORAGE_TEMP 90
 
@@ -54,5 +57,8 @@
 #define LOGIC_TASK_INTERVAL_MS 500
 #define LOGIC_SAFE_TEMP_MAX 95
 #define LOGIC_DEBUG
+
+// Отладка настроек
+#define SETTINGS_DEBUG
 
 #endif

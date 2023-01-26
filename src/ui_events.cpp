@@ -105,14 +105,20 @@ void on_past_time_decr(lv_event_t * e)
   lv_textarea_set_text(ui_PastTime, String(past_time_value).c_str());
 }
 
-void on_save_settings(lv_event_t * e)
-{
-  Serial.println("test: applied settings");
+void update_settings_values() {
+  lv_textarea_set_text(ui_PastTemp, String(past_temp_value).c_str());
+  lv_textarea_set_text(ui_PastTime, String(past_time_value).c_str());
+  lv_textarea_set_text(ui_StorageTemp1, String(store_temp_value).c_str());
 }
 
-void on_abort_settings(lv_event_t * e)
+void on_save_settings(lv_event_t * e)
 {
-  Serial.println("test: aborted settings");
+  settings_update();
+}
+
+void on_keyboard_press(lv_event_t * e)
+{
+  settings_update();
 }
 
 void on_storage_temp_incr(lv_event_t * e)
@@ -133,11 +139,6 @@ void on_storage_temp_decr(lv_event_t * e)
   lv_textarea_set_text(ui_StorageTemp1, String(store_temp_value).c_str());
 }
 
-void on_keyboard_press(lv_event_t * e)
-{
-  Serial.println("test: applied wifi settings");
-}
-
 void on_ap_focused(lv_event_t * e)
 {
   lv_keyboard_set_textarea(ui_WifiKeyboard,ui_WifiName);
@@ -150,6 +151,7 @@ void on_password_focused(lv_event_t * e)
 
 void on_main_screen_loaded(lv_event_t * e)
 {
+  settings_setup();
 }
 
 void on_manual_control_screen_loaded(lv_event_t * e)
