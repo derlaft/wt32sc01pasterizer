@@ -101,12 +101,12 @@ void logic_tick() {
         state = LogicState::Cooling;
       }
 
-      // нагреватель уже включен, выключить по достижении температуры градусом выше
-      if (is_heating && temp > past_temp + TEMPERATURE_DELTA) {
+      // нагреватель уже включен, выключить по достижении температуры чуть выше
+      if (is_heating && temp > past_temp + TEMPERATURE_DELTA/2) {
         set_heat(false);
       }
       // нагреватель выключен, температура упала ниже допустимой
-      else if (!is_heating && temp < past_temp - TEMPERATURE_DELTA) {
+      else if (!is_heating && temp < past_temp - TEMPERATURE_DELTA/2) {
         set_heat(true);
       } 
       // в ином случае - продолжить делать то, что уже было сделано
