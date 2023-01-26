@@ -1,3 +1,4 @@
+
 #include "ui.h"
 #include "ui_helpers.h"
 
@@ -6,6 +7,7 @@ void ui_event_MainScreen( lv_event_t * e);
 lv_obj_t *ui_MainScreen;
 lv_obj_t *ui_MainScreenPanel;
 lv_obj_t *ui_Screen1_Chart1;
+lv_obj_t *ui_ChartCommentLabel;
 void ui_event_StartStopButton( lv_event_t * e);
 lv_obj_t *ui_StartStopButton;
 lv_obj_t *ui_StartStopLabel;
@@ -305,6 +307,14 @@ lv_obj_set_align( ui_Screen1_Chart1, LV_ALIGN_TOP_MID );
 lv_obj_set_style_radius(ui_Screen1_Chart1, 0, LV_PART_MAIN| LV_STATE_DEFAULT);
 lv_obj_set_style_border_width(ui_Screen1_Chart1, 1, LV_PART_MAIN| LV_STATE_DEFAULT);
 on_chart_init();
+
+ui_ChartCommentLabel = lv_label_create(ui_Screen1_Chart1);
+lv_obj_set_width( ui_ChartCommentLabel, LV_SIZE_CONTENT);  /// 1
+lv_obj_set_height( ui_ChartCommentLabel, LV_SIZE_CONTENT);   /// 1
+lv_label_set_text(ui_ChartCommentLabel,"Готов к работе");
+lv_obj_set_style_text_color(ui_ChartCommentLabel, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DEFAULT );
+lv_obj_set_style_text_opa(ui_ChartCommentLabel, 240, LV_PART_MAIN| LV_STATE_DEFAULT);
+lv_obj_set_style_text_font(ui_ChartCommentLabel, &ui_font_hack, LV_PART_MAIN| LV_STATE_DEFAULT);
 
 ui_StartStopButton = lv_btn_create(ui_MainScreenPanel);
 lv_obj_set_width( ui_StartStopButton, lv_pct(100));
@@ -818,8 +828,8 @@ lv_obj_set_style_text_font(ui_StoreTempIncrLabel, &ui_font_bigfont, LV_PART_MAIN
 ui_Screen3_Label22 = lv_label_create(ui_StoreTimePanel);
 lv_obj_set_width( ui_Screen3_Label22, lv_pct(50));
 lv_obj_set_height( ui_Screen3_Label22, LV_SIZE_CONTENT);   /// 1
-lv_obj_set_x( ui_Screen3_Label22, 17 );
-lv_obj_set_y( ui_Screen3_Label22, 2 );
+lv_obj_set_x( ui_Screen3_Label22, 15 );
+lv_obj_set_y( ui_Screen3_Label22, 0 );
 lv_label_set_text(ui_Screen3_Label22,"Температура\nхранения");
 lv_obj_set_style_text_font(ui_Screen3_Label22, &ui_font_hack, LV_PART_MAIN| LV_STATE_DEFAULT);
 lv_obj_set_style_pad_left(ui_Screen3_Label22, 5, LV_PART_MAIN| LV_STATE_DEFAULT);

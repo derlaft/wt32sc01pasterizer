@@ -24,6 +24,7 @@ void ui_event_MainScreen( lv_event_t * e);
 extern lv_obj_t *ui_MainScreen;
 extern lv_obj_t *ui_MainScreenPanel;
 extern lv_obj_t *ui_Screen1_Chart1;
+extern lv_obj_t *ui_ChartCommentLabel;
 void ui_event_StartStopButton( lv_event_t * e);
 extern lv_obj_t *ui_StartStopButton;
 extern lv_obj_t *ui_StartStopLabel;
@@ -123,8 +124,8 @@ extern lv_obj_t *ui_ManualControlButton4;
 
 LV_FONT_DECLARE( ui_font_bigfont);
 LV_FONT_DECLARE( ui_font_hack);
-LV_FONT_DECLARE( ui_font_tempfont);
 LV_FONT_DECLARE( ui_font_symbols);
+LV_FONT_DECLARE( ui_font_tempfont);
 
 
 void ui_init(void);
