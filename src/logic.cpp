@@ -98,9 +98,20 @@ void logic_tick() {
       break;
     case LogicState::Storing:
       // если температура выше нормы, включить охлаждение
-      set_cool(is_temperature_gt((float) store_temp_value));
+      if (!is_temperature_lt((float) store_temp_value)) {
+        set_cool(true);
+        set_heat(false);
+        break;
+      }
       // если температура ниже нормы, включить нагреватель
-      set_heat(is_temperature_lt((float) store_temp_value));
+      if (!is_temperature_gt((float) store_temp_value)) {
+        set_heat(true);
+        set_cool(false);
+        break;
+      }
+      // температура в пределах нормы - хранение
+      set_heat(false);
+      set_cool(false);
       break;
   }
 }
