@@ -37,11 +37,16 @@ void logic_task(void *pvParameter) {
   const TickType_t xFrequency = pdMS_TO_TICKS(LOGIC_TASK_INTERVAL_MS);
   xLastWakeTime = xTaskGetTickCount();
 
+  // update label with initial state
+  _GUI_LOCK(update_state_label(state));
+
   while(1) {
     vTaskDelayUntil(&xLastWakeTime, xFrequency);
 
     // TODO: more granular lock control?
-    _LOGIC_LOCK(_GUI_LOCK(logic_tick()));
+    _LOGIC_LOCK(_GUI_LOCK(
+          logic_tick();
+    ));
   }
 
   vTaskDelete(NULL);
@@ -64,6 +69,7 @@ void logic_tick() {
           // если температура такая, как нужно, выключить нагреватель и перейти к пастеризации
           set_heat(false);
           state = LogicState::Pasterizing;
+          update_state_label(state);
 #ifdef LOGIC_DEBUG
           Serial.println("logic: heating -> pasterizing");
 #endif
@@ -78,6 +84,7 @@ void logic_tick() {
       if (is_temperature_eq((float) past_temp_value) || is_temperature_gt((float) past_temp_value)) {
           set_heat(false);
           state = LogicState::Cooling;
+          update_state_label(state);
 #ifdef LOGIC_DEBUG
           Serial.println("logic: pasterizing -> cooling");
 #endif
@@ -90,6 +97,7 @@ void logic_tick() {
       // если температура ниже или равна норме, перейти ко хранению
       if (is_temperature_eq((float) store_temp_value) || is_temperature_lt((float) store_temp_value)) {
         state = LogicState::Storing;
+        update_state_label(state);
         activate_state_done();
 #ifdef LOGIC_DEBUG
           Serial.println("logic: cooling -> storing");
@@ -128,6 +136,7 @@ void on_main_switch_pressed() {
           Serial.println("logic: idle -> heating");
 #endif
           state = LogicState::Heating;
+          update_state_label(state);
           set_cool(false);
           set_mixer(true);
           activate_state_work();
@@ -146,6 +155,7 @@ void on_main_switch_pressed() {
           temperature_graph_enabled = false;
       case LogicState::Storing:
           state = LogicState::Idle;
+          update_state_label(state);
           activate_state_idle();
           set_mixer(false);
           temperature_graph_reset();

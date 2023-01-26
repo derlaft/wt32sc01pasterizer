@@ -296,3 +296,24 @@ void activate_state_done() {
   lv_obj_set_style_bg_color(ui_StartStopButton, lv_palette_main(LV_PALETTE_GREEN), LV_PART_MAIN | LV_STATE_DEFAULT );
   lv_label_set_text(ui_StartStopLabel,"Завершить хранение");
 }
+
+void update_state_label(LogicState state) {
+  switch (state) {
+
+    case LogicState::Idle:
+      lv_label_set_text(ui_ChartCommentLabel,"Готов к работе");
+      break;
+    case LogicState::Heating:
+      lv_label_set_text(ui_ChartCommentLabel,"Нагрев");
+      break;
+    case LogicState::Pasterizing:
+      lv_label_set_text(ui_ChartCommentLabel,"Пастеризация");
+      break;
+    case LogicState::Cooling:
+      lv_label_set_text(ui_ChartCommentLabel,"Охлаждение");
+      break;
+    case LogicState::Storing:
+      lv_label_set_text(ui_ChartCommentLabel,"Хранение");
+      break;
+  }
+}

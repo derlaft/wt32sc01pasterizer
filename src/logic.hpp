@@ -1,7 +1,9 @@
 #ifndef _LOGIC_H
 #define _LOGIC_H
 
-#include "ui_events.hpp"
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void logic_setup();
 
@@ -26,5 +28,10 @@ enum LogicState {
   Cooling,
   Storing,
 };
+typedef enum LogicState LogicState_t;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif
