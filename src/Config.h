@@ -20,6 +20,9 @@
 // дельта сравнения температур
 #define TEMPERATURE_DELTA 1.0
 
+// DEBUG
+// #define DEBUG_SERIAL_TEMPERATURE
+
 // разрешение графика температуры
 #define TEMP_CHART_RESOLUTION_MS (1000 * 60)
 // количество отметок на оси X
@@ -29,7 +32,6 @@
 // отладка температурного графика
 #define TEMP_CHART_DEBUG
 
-
 // максимальное количество точек в графике температуры
 #define TEMP_CHART_POINT_COUNT (60 * 12)
 
@@ -38,7 +40,7 @@
 
 // Диапазон температуры пастеризации
 #define MIN_PAST_TEMP 0
-#define MAX_PAST_TEMP 99
+#define MAX_PAST_TEMP 94
 
 // Диапазон времени пастеризации
 #define MIN_PAST_TIME 0
@@ -50,8 +52,7 @@
 
 // Интервал работы логики
 #define LOGIC_TASK_INTERVAL_MS 500
-#define LOGIC_SAFE_TEMP_MIN 0
-#define LOGIC_SAFE_TEMP_MAX 99
+#define LOGIC_SAFE_TEMP_MAX 95
 #define LOGIC_DEBUG
 
 #endif

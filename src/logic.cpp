@@ -45,6 +45,7 @@ void logic_task(void *pvParameter) {
 
     _LOGIC_LOCK(
         logic_tick();
+        logic_safety_check();
         logic_sync_pins();
     );
     _GUI_LOCK(logic_sync_ui());
@@ -226,6 +227,15 @@ void set_mixer(bool value) {
   Serial.println(value);
 #endif
   mixer_enabled = value;
+}
+
+void logic_safety_check() {
+  if (temperature_get() > LOGIC_SAFE_TEMP_MAX) {
+#ifdef LOGIC_DEBUG
+    Serial.println("overheating, turning the heater off");
+#endif
+    heat_enabled = false;
+  }
 }
 
 void logic_sync_pins() {

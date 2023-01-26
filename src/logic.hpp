@@ -18,6 +18,7 @@ extern void set_mixer(bool value);
 
 extern void logic_sync_ui();
 extern void logic_sync_pins();
+extern void logic_safety_check();
 
 enum LogicState {
   Idle,
