@@ -28,6 +28,8 @@ void logic_setup() {
   pinMode(PIN_HEATER, OUTPUT);
   pinMode(PIN_COOLER, OUTPUT);
 
+  logic_restore_state();
+
   xTaskCreatePinnedToCore(logic_task, "logic", 4096*2, NULL, tskIDLE_PRIORITY+10, NULL, 1);
 }
 
@@ -84,6 +86,7 @@ void logic_tick() {
           set_heat(false);
           // переходим в следующее состояние
           state = LogicState::Pasterizing;
+          logic_backup_state();
 #ifdef LOGIC_DEBUG
           Serial.println("logic: heating -> pasterizing");
 #endif
@@ -100,6 +103,9 @@ void logic_tick() {
 #endif
         set_heat(false);
         state = LogicState::Cooling;
+        cycles_in_pasterization = 0;
+        logic_backup_state();
+        break;
       }
 
       // нагреватель уже включен, выключить по достижении температуры чуть выше
@@ -112,6 +118,7 @@ void logic_tick() {
       } 
       // в ином случае - продолжить делать то, что уже было сделано
       
+      logic_backup_state();
       break;
     case LogicState::Cooling:
       // если температура выше нормы, включить охлаждение
@@ -121,6 +128,7 @@ void logic_tick() {
       // если температура хранения достигнута, перейти ко хранению
       if (temp <= store_temp) {
         state = LogicState::Storing;
+        logic_backup_state();
         set_cool(false);
 #ifdef LOGIC_DEBUG
           Serial.println("logic: cooling -> storing");
@@ -169,6 +177,7 @@ void on_main_switch_pressed() {
           cycles_in_pasterization = 0;
           // первый этап: нагрев
           state = LogicState::Heating;
+          logic_backup_state();
           // на всякий случай выключить охлаждение
           set_cool(false);
           // включить перемешивание (будет включено практически до конца)
@@ -187,6 +196,7 @@ void on_main_switch_pressed() {
 #endif
           // была нажата кнопка "стоп", экстренная остановка
           state = LogicState::Idle;
+          logic_backup_state();
           // выключить все
           set_cool(false);
           set_heat(false);
@@ -197,6 +207,7 @@ void on_main_switch_pressed() {
       case LogicState::Storing:
           // была нажата кнопка "готово"
           state = LogicState::Idle;
+          logic_backup_state();
           // выключить все
           set_mixer(false);
           set_heat(false);
@@ -253,3 +264,21 @@ void logic_sync_ui() {
   update_manual_cooling_button(cool_enabled);
   update_manual_mixing_button(mixer_enabled);
 }
+
+Preferences backup;
+
+void logic_backup_state() {
+  backup.begin("logic", false);
+  backup.putShort(_BACKUP_STATE_KEY, (int16_t) state);
+  //backup.putLong64(_BACKUP_STATE_PAST_CYCLES, cycles_in_pasterization);
+  backup.end();
+}
+
+void logic_restore_state() {
+  backup.begin("logic", true);
+  state = (LogicState_t) backup.getShort(_BACKUP_STATE_KEY, (int16_t) LogicState::Idle);
+  // cycles_in_pasterization = backup.getLong64(_BACKUP_STATE_PAST_CYCLES, 0);
+  backup.end();
+}
+
+

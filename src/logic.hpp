@@ -20,6 +20,9 @@ extern void logic_sync_ui();
 extern void logic_sync_pins();
 extern void logic_safety_check();
 
+extern void logic_restore_state();
+extern void logic_backup_state();
+
 enum LogicState {
   Idle,
   Heating,
@@ -28,6 +31,9 @@ enum LogicState {
   Storing,
 };
 typedef enum LogicState LogicState_t;
+
+#define _BACKUP_STATE_KEY "state"
+#define _BACKUP_STATE_PAST_CYCLES "past_cycles"
 
 #ifdef __cplusplus
 }
