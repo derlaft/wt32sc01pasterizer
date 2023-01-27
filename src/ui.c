@@ -948,7 +948,7 @@ lv_obj_set_x( ui_WifiName, -10 );
 lv_obj_set_y( ui_WifiName, 10 );
 lv_obj_set_align( ui_WifiName, LV_ALIGN_TOP_RIGHT );
 lv_textarea_set_text(ui_WifiName,"WifiAPVerySecure");
-lv_textarea_set_placeholder_text(ui_WifiName,"Placeholder...");
+lv_textarea_set_placeholder_text(ui_WifiName,"SSID...");
 lv_textarea_set_one_line(ui_WifiName,true);
 lv_obj_clear_flag( ui_WifiName, LV_OBJ_FLAG_SCROLLABLE );    /// Flags
 lv_obj_set_scrollbar_mode(ui_WifiName, LV_SCROLLBAR_MODE_OFF);
@@ -960,7 +960,7 @@ lv_obj_set_x( ui_WifiPassword, -10 );
 lv_obj_set_y( ui_WifiPassword, 60 );
 lv_obj_set_align( ui_WifiPassword, LV_ALIGN_TOP_RIGHT );
 lv_textarea_set_text(ui_WifiPassword,"WifiPasswordVerySecure");
-lv_textarea_set_placeholder_text(ui_WifiPassword,"Placeholder...");
+lv_textarea_set_placeholder_text(ui_WifiPassword,"Password...");
 lv_textarea_set_one_line(ui_WifiPassword,true);
 lv_textarea_set_password_mode(ui_WifiPassword, true);
 lv_obj_clear_flag( ui_WifiPassword, LV_OBJ_FLAG_SCROLLABLE );    /// Flags

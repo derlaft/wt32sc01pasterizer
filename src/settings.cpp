@@ -5,8 +5,9 @@ Preferences preferences;
 int16_t past_temp_value;
 int16_t past_time_value;
 int16_t store_temp_value;
-String wifi_ap;
-String wifi_pw;
+
+char wifi_ap[128];
+char wifi_pw[128];
 
 void settings_setup() {
 #ifdef SETTINGS_DEBUG
@@ -29,8 +30,9 @@ void settings_setup() {
     store_temp_value = DEF_STORAGE_TEMP;
   }
 
-  wifi_ap = preferences.getString(_WIFI_AP_KEY, "");
-  wifi_pw = preferences.getString(_WIFI_PW_KEY, "");
+  preferences.getString(_WIFI_AP_KEY, wifi_ap, 128);
+  preferences.getString(_WIFI_PW_KEY, wifi_pw, 128);
+
   preferences.end();
 
   update_settings_values();

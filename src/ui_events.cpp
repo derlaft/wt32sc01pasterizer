@@ -109,15 +109,22 @@ void update_settings_values() {
   lv_textarea_set_text(ui_PastTemp, String(past_temp_value).c_str());
   lv_textarea_set_text(ui_PastTime, String(past_time_value).c_str());
   lv_textarea_set_text(ui_StorageTemp1, String(store_temp_value).c_str());
+
+  lv_textarea_set_text(ui_WifiName, wifi_ap);
+  lv_textarea_set_text(ui_WifiPassword, wifi_pw);
 }
 
 void on_save_settings(lv_event_t * e)
 {
+  strcpy(wifi_ap, lv_textarea_get_text(ui_WifiName));
+  strcpy(wifi_pw, lv_textarea_get_text(ui_WifiPassword));
   settings_update();
 }
 
 void on_keyboard_press(lv_event_t * e)
 {
+  strcpy(wifi_ap, lv_textarea_get_text(ui_WifiName));
+  strcpy(wifi_pw, lv_textarea_get_text(ui_WifiPassword));
   settings_update();
 }
 

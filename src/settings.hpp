@@ -13,6 +13,9 @@ extern int16_t store_temp_value;
 extern void settings_setup();
 extern void settings_update();
 
+extern char wifi_ap[128];
+extern char wifi_pw[128];
+
 #define _PAST_TEMP_KEY "past_temp"
 #define _PAST_TIME_KEY "past_time"
 #define _STORE_TEMP_KEY "store_temp"
