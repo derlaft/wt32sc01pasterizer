@@ -9,7 +9,7 @@ int16_t DRAM_ATTR store_temp_value = DEF_STORAGE_TEMP;
 char DRAM_ATTR wifi_ap[128] = "";
 char DRAM_ATTR wifi_pw[128] = "";
 
-void IRAM_ATTR settings_setup() {
+void settings_setup() {
 #ifdef SETTINGS_DEBUG
   Serial.println("settings: reloading");
 #endif
@@ -44,17 +44,10 @@ void IRAM_ATTR settings_setup() {
   update_settings_values();
 }
 
-void IRAM_ATTR settings_update() {
-#ifdef SETTINGS_DEBUG
-  Serial.println("settings: saving");
-#endif
-
+void settings_update() {
   // запретить прерывания на время работы с flash
   noInterrupts();
   if (!preferences.begin("pasterizer", false)) {
-#ifdef SETTINGS_DEBUG
-    Serial.println("settings: failed to open for saving");
-#endif
     // не забыть включить прерывание обратно
     interrupts();
     return;

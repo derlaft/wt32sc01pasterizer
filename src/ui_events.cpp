@@ -11,13 +11,11 @@ lv_chart_series_t * ui_Screen1_Chart1_Series;
 
 void on_main_button_pressed(lv_event_t * e)
 {
-  Serial.println("main button pressed");
   on_main_switch_pressed();
 }
 
 void on_manual_heating(lv_event_t * e)
 {
-  Serial.println("manual heating");
   lv_event_code_t code = lv_event_get_code(e);
   lv_obj_t * obj = lv_event_get_target(e);
   if (code == LV_EVENT_VALUE_CHANGED) {
@@ -27,7 +25,6 @@ void on_manual_heating(lv_event_t * e)
 
 void on_manual_cooling(lv_event_t * e)
 {
-  Serial.println("manual cooling override");
   lv_event_code_t code = lv_event_get_code(e);
   lv_obj_t * obj = lv_event_get_target(e);
   if (code == LV_EVENT_VALUE_CHANGED) {
@@ -37,7 +34,6 @@ void on_manual_cooling(lv_event_t * e)
 
 void on_manual_mixing(lv_event_t * e)
 {
-  Serial.println("manual mixing override");
   lv_event_code_t code = lv_event_get_code(e);
   lv_obj_t * obj = lv_event_get_target(e);
   if (code == LV_EVENT_VALUE_CHANGED) {

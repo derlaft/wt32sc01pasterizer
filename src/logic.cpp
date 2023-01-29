@@ -16,6 +16,7 @@
 bool heat_enabled = false;
 bool cool_enabled = false;
 bool mixer_enabled = false;
+bool need_state_backup = false;
 
 static int64_t DRAM_ATTR cycles_in_pasterization = 0;
 LogicState DRAM_ATTR state = LogicState::Idle;
@@ -52,6 +53,11 @@ void logic_task(void *pvParameter) {
         logic_sync_pins();
     );
     _GUI_LOCK(logic_sync_ui());
+
+    if (need_state_backup) {
+      logic_backup_state();
+      need_state_backup = false;
+    }
   }
 
   vTaskDelete(NULL);
@@ -85,7 +91,7 @@ void logic_tick() {
           set_heat(false);
           // переходим в следующее состояние
           state = LogicState::Pasterizing;
-          logic_backup_state();
+          need_state_backup = true;
 #ifdef LOGIC_DEBUG
           Serial.println("logic: heating -> pasterizing");
 #endif
@@ -107,7 +113,7 @@ void logic_tick() {
         set_heat(false);
         state = LogicState::Cooling;
         cycles_in_pasterization = 0;
-        logic_backup_state();
+        need_state_backup = true;
         break;
       }
 
@@ -123,7 +129,7 @@ void logic_tick() {
       
       // время от времени сохранить счетчик пастеризации
       if (cycles_in_pasterization % LOGIC_BACKUP_EVERY_N_TICK == 0) {
-        logic_backup_state();
+        need_state_backup = true;
       }
 
       break;
@@ -135,7 +141,7 @@ void logic_tick() {
       // если температура хранения достигнута, перейти ко хранению
       if (temp <= store_temp) {
         state = LogicState::Storing;
-        logic_backup_state();
+        need_state_backup = true;
         set_cool(false);
 #ifdef LOGIC_DEBUG
           Serial.println("logic: cooling -> storing");
@@ -184,7 +190,7 @@ void on_main_switch_pressed() {
           cycles_in_pasterization = 0;
           // первый этап: нагрев
           state = LogicState::Heating;
-          logic_backup_state();
+          need_state_backup = true;
           // на всякий случай выключить охлаждение
           set_cool(false);
           // включить перемешивание (будет включено практически до конца)
@@ -203,7 +209,7 @@ void on_main_switch_pressed() {
 #endif
           // была нажата кнопка "стоп", экстренная остановка
           state = LogicState::Idle;
-          logic_backup_state();
+          need_state_backup = true;
           // выключить все
           set_cool(false);
           set_heat(false);
@@ -214,13 +220,14 @@ void on_main_switch_pressed() {
       case LogicState::Storing:
           // была нажата кнопка "готово"
           state = LogicState::Idle;
-          logic_backup_state();
+          need_state_backup = true;
           // выключить все
           set_mixer(false);
           set_heat(false);
           break;
       }
   });
+  logic_sync_ui();
 }
 
 void set_heat(bool value) {
@@ -280,44 +287,29 @@ void logic_sync_ui() {
 
 Preferences backup;
 
-void IRAM_ATTR logic_backup_state() {
+void logic_backup_state() {
+  int16_t v = (int16_t) ((cycles_in_pasterization)/LOGIC_BACKUP_EVERY_N_TICK);
 
-#ifdef LOGIC_DEBUG
-  Serial.println("logic_backup_state: begin");
-#endif
-
-  // запретить прерывания на время работы с flash
   noInterrupts();
+
   if (!backup.begin("logic", false)) {
-#ifdef LOGIC_DEBUG
-    Serial.println("logic_backup_state: failed to open settings");
-#endif
-    
     // не забыть включить прерывания обратно
     interrupts();
     return;
   }
 
   backup.putShort(_BACKUP_STATE_KEY, (int16_t) state);
-
-  int16_t v = (int16_t) ((cycles_in_pasterization)/LOGIC_BACKUP_EVERY_N_TICK);
   backup.putShort(_BACKUP_STATE_PAST_CYCLES, v);
-
   backup.end();
+
   // не забыть включить прерывания обратно
   interrupts();
 }
 
 
-void IRAM_ATTR logic_restore_state() {
-#ifdef LOGIC_DEBUG
-  Serial.println("logic_restore_state: begin");
-#endif
+void logic_restore_state() {
 
   if (!backup.begin("logic", true)) {
-#ifdef LOGIC_DEBUG
-    Serial.println("logic_restore_state: failed to open settings");
-#endif
     return;
   }
 
@@ -338,9 +330,6 @@ void IRAM_ATTR logic_restore_state() {
     case Unknown:
     default:
       state = LogicState::Idle;
-#ifdef LOGIC_DEBUG
-      Serial.println("logic_restore_state: restored invalid state");
-#endif
       break;
   }
 
