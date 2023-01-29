@@ -13,7 +13,7 @@ void temperature_task_setup() {
   xTaskCreatePinnedToCore(temperature_task, "temp", 4096*2, NULL, tskIDLE_PRIORITY+10, NULL, 1);
 }
 
-float last_temp = 0;
+float last_temp = -127.0;
 
 void temperature_measure() {
 
