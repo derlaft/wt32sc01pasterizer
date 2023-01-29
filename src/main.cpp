@@ -11,8 +11,18 @@
 #include "logic.hpp"
 #include "settings.hpp"
 
+#ifdef DEBUG_WIPE_PREFERENCES
+#include <nvs_flash.h>
+#endif
+
 void setup()
 {
+
+#ifdef DEBUG_WIPE_PREFERENCES
+  nvs_flash_erase(); // erase the NVS partition and...
+  nvs_flash_init(); // initialize the NVS partition.
+  while(true);
+#endif
 
   // enable serial
   Serial.begin(115200);

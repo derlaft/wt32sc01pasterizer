@@ -1,11 +1,4 @@
-#include <Arduino.h>
-#include <SPI.h>
-#include <TFT_eSPI.h> 
-#include <Adafruit_FT6206.h>
-
-#include "ui.h"
 #include "ui_hal.h"
-#include "esp_freertos_hooks.h"
 
 // Интерфейсы экрана и тачскрина
 TFT_eSPI tft = TFT_eSPI();

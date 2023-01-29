@@ -56,7 +56,9 @@
 // Интервал работы логики
 #define LOGIC_TASK_INTERVAL_MS 500
 #define LOGIC_SAFE_TEMP_MAX 95
+#define LOGIC_SAFE_TEMP_MIN -50
 #define LOGIC_DEBUG
+#define LOGIC_BACKUP_EVERY_N_TICK 120
 
 // Отладка настроек
 #define SETTINGS_DEBUG

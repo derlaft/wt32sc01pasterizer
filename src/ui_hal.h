@@ -1,9 +1,14 @@
 #ifndef _HAL_H
 #define _HAL_H
 
-#include "lvgl.h"
 #include <Arduino.h>
-#include "esp_freertos_hooks.h"
+#include <lvgl.h>
+#include <esp_freertos_hooks.h>
+#include <SPI.h>
+#include <TFT_eSPI.h> 
+#include <Adafruit_FT6206.h>
+
+#include "ui.h"
 
 #define _GUI_LOCK(BODY) if (pdTRUE == xSemaphoreTake(xGuiSemaphore, portMAX_DELAY)) { \
       BODY; \

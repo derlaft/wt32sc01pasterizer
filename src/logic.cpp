@@ -16,9 +16,10 @@
 bool heat_enabled = false;
 bool cool_enabled = false;
 bool mixer_enabled = false;
-int64_t cycles_in_pasterization = 0;
 
-LogicState state = LogicState::Idle;
+static int64_t DRAM_ATTR cycles_in_pasterization = 0;
+LogicState DRAM_ATTR state = LogicState::Idle;
+
 SemaphoreHandle_t xLogicSemaphore;
 
 void logic_setup() {
@@ -78,8 +79,6 @@ void logic_tick() {
 
     // текущее состояние: нагрев
     case LogicState::Heating:
-      // нагреватель в этом режиме постоянно включен
-      set_heat(true);
       // как только достигли температуры пастеризации, переходим в следующее состояние
       if (temp >= past_temp) {
           // выключаем нагреватель
@@ -91,6 +90,10 @@ void logic_tick() {
           Serial.println("logic: heating -> pasterizing");
 #endif
       }
+
+      // нагреватель в этом режиме постоянно включен
+      set_heat(true);
+
       break;
     case LogicState::Pasterizing:
 
@@ -118,7 +121,11 @@ void logic_tick() {
       } 
       // в ином случае - продолжить делать то, что уже было сделано
       
-      logic_backup_state();
+      // время от времени сохранить счетчик пастеризации
+      if (cycles_in_pasterization % LOGIC_BACKUP_EVERY_N_TICK == 0) {
+        logic_backup_state();
+      }
+
       break;
     case LogicState::Cooling:
       // если температура выше нормы, включить охлаждение
@@ -247,6 +254,12 @@ void logic_safety_check() {
 #endif
     heat_enabled = false;
   }
+  if (temperature_get() < LOGIC_SAFE_TEMP_MIN) {
+#ifdef LOGIC_DEBUG
+    Serial.println("invalid measurement, turning the heater off for now");
+#endif
+    heat_enabled = false;
+  }
 }
 
 void logic_sync_pins() {
@@ -267,18 +280,69 @@ void logic_sync_ui() {
 
 Preferences backup;
 
-void logic_backup_state() {
-  backup.begin("logic", false);
+void IRAM_ATTR logic_backup_state() {
+
+#ifdef LOGIC_DEBUG
+  Serial.println("logic_backup_state: begin");
+#endif
+
+  // запретить прерывания на время работы с flash
+  noInterrupts();
+  if (!backup.begin("logic", false)) {
+#ifdef LOGIC_DEBUG
+    Serial.println("logic_backup_state: failed to open settings");
+#endif
+    
+    // не забыть включить прерывания обратно
+    interrupts();
+    return;
+  }
+
   backup.putShort(_BACKUP_STATE_KEY, (int16_t) state);
-  //backup.putLong64(_BACKUP_STATE_PAST_CYCLES, cycles_in_pasterization);
+
+  int16_t v = (int16_t) ((cycles_in_pasterization)/LOGIC_BACKUP_EVERY_N_TICK);
+  backup.putShort(_BACKUP_STATE_PAST_CYCLES, v);
+
   backup.end();
+  // не забыть включить прерывания обратно
+  interrupts();
 }
 
-void logic_restore_state() {
-  backup.begin("logic", true);
+
+void IRAM_ATTR logic_restore_state() {
+#ifdef LOGIC_DEBUG
+  Serial.println("logic_restore_state: begin");
+#endif
+
+  if (!backup.begin("logic", true)) {
+#ifdef LOGIC_DEBUG
+    Serial.println("logic_restore_state: failed to open settings");
+#endif
+    return;
+  }
+
+  int16_t v;
   state = (LogicState_t) backup.getShort(_BACKUP_STATE_KEY, (int16_t) LogicState::Idle);
-  // cycles_in_pasterization = backup.getLong64(_BACKUP_STATE_PAST_CYCLES, 0);
+  switch (state) {
+    case Pasterizing:
+      v = backup.getShort(_BACKUP_STATE_PAST_CYCLES, 0);
+      if (v > 0) {
+        cycles_in_pasterization = ((int64_t)v) * LOGIC_BACKUP_EVERY_N_TICK;
+      }
+      state = LogicState::Heating;
+    case Idle:
+    case Heating:
+    case Cooling:
+    case Storing:
+      break;
+    case Unknown:
+    default:
+      state = LogicState::Idle;
+#ifdef LOGIC_DEBUG
+      Serial.println("logic_restore_state: restored invalid state");
+#endif
+      break;
+  }
+
   backup.end();
 }
-
-

@@ -24,16 +24,17 @@ extern void logic_restore_state();
 extern void logic_backup_state();
 
 enum LogicState {
-  Idle,
-  Heating,
-  Pasterizing,
-  Cooling,
-  Storing,
+  Unknown = 0,
+  Idle = 1,
+  Heating = 2,
+  Pasterizing = 3,
+  Cooling = 4,
+  Storing = 5,
 };
 typedef enum LogicState LogicState_t;
 
-#define _BACKUP_STATE_KEY "state"
-#define _BACKUP_STATE_PAST_CYCLES "past_cycles"
+#define _BACKUP_STATE_KEY "s"
+#define _BACKUP_STATE_PAST_CYCLES "c"
 
 #ifdef __cplusplus
 }
