@@ -288,13 +288,15 @@ int16_t logic_backup_state() {
     v = 0;
   }
 
-  v << 8;
+  Serial.printf("logic_backup_state 1 %hd\n", v);
 
-  v |= (uint8_t) state;
+  uint16_t r = v << 8 | (uint8_t) state;
 
-  Serial.printf("logic_backup_state %d\n", (int16_t) v);
+  Serial.printf("logic_backup_state 2 %d\n", r);
 
-  return (int16_t) v;
+  Serial.printf("logic_backup_state %d\n", r);
+
+  return (int16_t) r;
 }
 
 
@@ -307,20 +309,26 @@ void logic_restore_state(int16_t st) {
 
   switch (restored) {
     case Pasterizing:
-      v = (int64_t) ((st>>8) & 0xff);
+      v = (int64_t) ((st>>8));
+      Serial.printf("logic_restore_state ticks %lld\n", v);
       v *= LOGIC_BACKUP_EVERY_N_TICK;
+      Serial.printf("logic_restore_state ticks2 %lld\n", v);
       if (v < 0) {
         v = 0;
       }
+      cycles_in_pasterization = v;
+      Serial.println("restored to heating");
       state = LogicState::Heating;
     case Idle:
     case Heating:
     case Cooling:
     case Storing:
+      Serial.println("restored to good");
       state = restored;
       break;
     case Unknown:
     default:
+      Serial.println("restored to unknown");
       state = LogicState::Idle;
       break;
   }
