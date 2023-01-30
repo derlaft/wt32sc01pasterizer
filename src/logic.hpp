@@ -5,7 +5,10 @@
 extern "C" {
 #endif
 
-void logic_setup();
+extern bool need_state_backup;
+extern bool need_state_restore;
+
+extern void logic_setup();
 
 extern void logic_task(void *pvParameter);
 extern void logic_tick();
@@ -20,8 +23,8 @@ extern void logic_sync_ui();
 extern void logic_sync_pins();
 extern void logic_safety_check();
 
-extern void logic_restore_state();
-extern void logic_backup_state();
+extern void logic_restore_state(int16_t st);
+extern int16_t logic_backup_state();
 
 enum LogicState {
   Unknown = 0,

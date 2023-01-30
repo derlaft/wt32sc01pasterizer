@@ -12,7 +12,7 @@ DallasTemperature sensor(&oneWire);
 DeviceAddress addr;
 
 void temperature_task_setup() {
-  sensor.setResolution(PROBE_RESOLUTION);
+  sensor.setAutoSaveScratchPad(false);
   xTaskCreatePinnedToCore(temperature_task, "temp", 4096*2, NULL, tskIDLE_PRIORITY+10, NULL, 1);
 }
 
@@ -21,6 +21,8 @@ float last_temp = -127.0;
 bool lazy_setup() {
 
   sensor.begin();
+  sensor.setResolution(PROBE_RESOLUTION);
+  sensor.setWaitForConversion(false);
 
   if (sensor.getDeviceCount() == 0) {
  #ifdef TEMP_DEBUG
@@ -31,8 +33,6 @@ bool lazy_setup() {
   }
 
   sensor.getAddress(addr, 0);
-  sensor.setResolution(PROBE_RESOLUTION);
-  sensor.setWaitForConversion(false);
 
   return true;
 }
@@ -63,6 +63,23 @@ void temperature_measure() {
   Serial.print(last_temp);
   Serial.println(" degrees C");
 #endif
+
+  // проверить, является ли значение +85.0С корректным
+  uint8_t sp[9];
+  if (!sensor.readScratchPad(addr, sp) || (last_temp == 85 && sp[6] == 0x0C)) {
+    last_temp = -130.4;
+    return;
+  }
+
+  // если нужно, сохранить состояние логики
+  if (need_state_restore) {
+    logic_restore_state(sensor.getUserData(addr));
+    need_state_restore = false;
+    need_state_backup = false;
+  } else if (need_state_backup) {
+    sensor.setUserData(addr, logic_backup_state());
+    need_state_backup = false;
+  }
 }
 
 void temperature_task(void *pvParameter) {

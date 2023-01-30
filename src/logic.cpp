@@ -16,6 +16,7 @@
 bool heat_enabled = false;
 bool cool_enabled = false;
 bool mixer_enabled = false;
+bool need_state_restore = true;
 bool need_state_backup = false;
 
 static int64_t DRAM_ATTR cycles_in_pasterization = 0;
@@ -30,7 +31,7 @@ void logic_setup() {
   pinMode(PIN_HEATER, OUTPUT);
   pinMode(PIN_COOLER, OUTPUT);
 
-  logic_restore_state();
+  need_state_restore = true;
 
   xTaskCreatePinnedToCore(logic_task, "logic", 4096*2, NULL, tskIDLE_PRIORITY+10, NULL, 1);
 }
@@ -53,11 +54,6 @@ void logic_task(void *pvParameter) {
         logic_sync_pins();
     );
     _GUI_LOCK(logic_sync_ui());
-
-    if (need_state_backup) {
-      logic_backup_state();
-      need_state_backup = false;
-    }
   }
 
   vTaskDelete(NULL);
@@ -285,9 +281,49 @@ void logic_sync_ui() {
   update_manual_mixing_button(mixer_enabled);
 }
 
-void logic_backup_state() {
+int16_t logic_backup_state() {
+
+  uint8_t v = (cycles_in_pasterization)/LOGIC_BACKUP_EVERY_N_TICK;
+  if (v < 0 || v > 127) {
+    v = 0;
+  }
+
+  v << 8;
+
+  v |= (uint8_t) state;
+
+  Serial.printf("logic_backup_state %d\n", (int16_t) v);
+
+  return (int16_t) v;
 }
 
 
-void logic_restore_state() {
+void logic_restore_state(int16_t st) {
+
+  Serial.printf("logic_restore_state %d\n", st);
+
+  LogicState_t restored = (LogicState_t) (st & 0xff);
+  int64_t v;
+
+  switch (restored) {
+    case Pasterizing:
+      v = (int64_t) ((st>>8) & 0xff);
+      v *= LOGIC_BACKUP_EVERY_N_TICK;
+      if (v < 0) {
+        v = 0;
+      }
+      state = LogicState::Heating;
+    case Idle:
+    case Heating:
+    case Cooling:
+    case Storing:
+      state = restored;
+      break;
+    case Unknown:
+    default:
+      state = LogicState::Idle;
+      break;
+  }
+
+
 }
