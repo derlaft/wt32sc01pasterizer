@@ -123,6 +123,13 @@ float temperature_measure() {
   }
   celsius = (float)raw / 16.0;
 
+  if (celsius == 85.0 && data[6] == 0xC) {
+#ifdef PROBE_DEBUG
+    Serial.println("Invalid temperature, request probably lost");
+#endif
+    return -127.4;
+  }
+
 #ifdef PROBE_DEBUG
   Serial.print("  Temperature = ");
   Serial.print(celsius);
