@@ -29,9 +29,9 @@ void temperature_measure() {
   if (sensor.readTemp()) {
     last_temp = sensor.getTemp();
 #ifdef PROBE_DEBUG
-  Serial.print("Measured ");
-  Serial.print(last_temp);
-  Serial.println(" degrees C");
+    Serial.print("Measured ");
+    Serial.print(last_temp);
+    Serial.println(" degrees C");
 #endif
   } else {
 #ifdef PROBE_DEBUG
