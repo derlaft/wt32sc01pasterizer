@@ -24,9 +24,8 @@ float temperature_measure() {
   float celsius;
 
   ds.reset_search();
-  addr_found = ds.search(addr);
 #ifdef PROBE_DEBUG
-  if (!addr_found) {
+  if (!ds.search(addr)) {
     Serial.println("No more addresses.");
     Serial.println();
 #endif
