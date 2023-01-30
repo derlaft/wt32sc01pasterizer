@@ -14,26 +14,23 @@ void temperature_task_setup() {
 }
 
 float last_temp = -127.0;
-byte addr[8];
-bool addr_found = false;
 
 float temperature_measure() {
   byte i;
   byte present = 0;
   byte type_s;
   byte data[9];
+  byte addr[8];
   float celsius;
 
-  if (!addr_found) {
-    ds.reset_search();
-    addr_found = ds.search(addr);
+  ds.reset_search();
+  addr_found = ds.search(addr);
 #ifdef PROBE_DEBUG
-    if (!addr_found) {
-      Serial.println("No more addresses.");
-      Serial.println();
+  if (!addr_found) {
+    Serial.println("No more addresses.");
+    Serial.println();
 #endif
-      return -127.1;
-    }
+    return -127.1;
   }
 
 #ifdef PROBE_DEBUG
