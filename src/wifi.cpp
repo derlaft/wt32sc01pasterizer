@@ -1,5 +1,10 @@
 #include "wifi.hpp"
+#include <WiFi.h>
+#include <WiFiUdp.h>
+#include <NTPClient.h>
 
+WiFiUDP ntpUDP;
+NTPClient timeClient(ntpUDP, NTP_SERVER, NTP_OFFSET, NTP_UPDATE_INTERVAL_MS);
 
 void wifi_setup() {
   WiFi.useStaticBuffers(true);
@@ -16,16 +21,33 @@ void wifi_task(void *pvParameter) {
 
   while (WiFi.status() != WL_CONNECTED) {
     vTaskDelay(pdMS_TO_TICKS(1000));
-    Serial.println("WIFI conn..");
+#ifdef WIFI_DEBUG
+    Serial.println("wifi: still waiting to be connected");
+#endif
   }
+
+  timeClient.begin();
 
   while(1) {
     vTaskDelay(pdMS_TO_TICKS(5000));
 
+#ifdef WIFI_DEBUG
     Serial.print("Current wifi status: ");
     Serial.println(WiFi.status());
     Serial.flush();
-    _GUI_LOCK(wifi_sync_ui(WiFi.status() == WL_CONNECTED));
+#endif
+
+    bool wifi_ok = WiFi.status() == WL_CONNECTED;
+
+    if (wifi_ok) {
+        timeClient.update();
+#ifdef WIFI_DEBUG
+        Serial.print("time: ");
+        Serial.println(timeClient.getFormattedTime());
+#endif
+    }
+
+    _GUI_LOCK(wifi_sync_ui(wifi_ok));
   }
 
   vTaskDelete(NULL);

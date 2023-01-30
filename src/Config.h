@@ -66,6 +66,13 @@
 // Данные подключения к wifi по умолчанию
 #define WIFI_DEF_AP ""
 #define WIFI_DEF_PW ""
+// Отладка WIFI
+#define WIFI_DEBUG
+
+// UTC+3
+#define NTP_OFFSET (3 * 3600) 
+#define NTP_SERVER "europe.pool.ntp.org"
+#define NTP_UPDATE_INTERVAL_MS (3600000ul)
 
 // #define DEBUG_WIPE_PREFERENCES
 
