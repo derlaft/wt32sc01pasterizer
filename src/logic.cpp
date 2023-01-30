@@ -288,22 +288,8 @@ void logic_sync_ui() {
 Preferences backup;
 
 void logic_backup_state() {
-  int16_t v = (int16_t) ((cycles_in_pasterization)/LOGIC_BACKUP_EVERY_N_TICK);
-
-  noInterrupts();
-
-  if (!backup.begin("logic", false)) {
-    // не забыть включить прерывания обратно
-    interrupts();
-    return;
-  }
-
-  backup.putShort(_BACKUP_STATE_KEY, (int16_t) state);
-  backup.putShort(_BACKUP_STATE_PAST_CYCLES, v);
-  backup.end();
-
-  // не забыть включить прерывания обратно
-  interrupts();
+  return;
+  // TODO
 }
 
 
@@ -322,10 +308,12 @@ void logic_restore_state() {
         cycles_in_pasterization = ((int64_t)v) * LOGIC_BACKUP_EVERY_N_TICK;
       }
       state = LogicState::Heating;
-    case Idle:
     case Heating:
     case Cooling:
     case Storing:
+      set_mixer(true);
+      temperature_graph_enabled = true;
+    case Idle:
       break;
     case Unknown:
     default:
