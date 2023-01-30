@@ -319,10 +319,12 @@ void logic_restore_state(int16_t st) {
       cycles_in_pasterization = v;
       Serial.println("restored to heating");
       state = LogicState::Heating;
-    case Idle:
     case Heating:
     case Cooling:
     case Storing:
+      set_mixer(true);
+      temperature_graph_enabled = true;
+    case Idle:
       Serial.println("restored to good");
       state = restored;
       break;
