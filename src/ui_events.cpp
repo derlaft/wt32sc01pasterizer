@@ -331,3 +331,11 @@ void update_state_label(LogicState state, int64_t past_time_left_ms) {
       break;
   }
 }
+
+void wifi_sync_ui(bool connected) {
+  if (connected) {
+    lv_obj_clear_state( ui_SettingsButton4, LV_STATE_DISABLED);
+  } else {
+    lv_obj_add_state( ui_SettingsButton4, LV_STATE_DISABLED);
+  }
+}

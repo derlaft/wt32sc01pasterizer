@@ -288,8 +288,15 @@ void logic_sync_ui() {
 Preferences backup;
 
 void logic_backup_state() {
-  return;
-  // TODO
+  int16_t v = (int16_t) ((cycles_in_pasterization)/LOGIC_BACKUP_EVERY_N_TICK);
+
+  if (!backup.begin("logic", false)) {
+    return;
+  }
+
+  backup.putShort(_BACKUP_STATE_KEY, (int16_t) state);
+  backup.putShort(_BACKUP_STATE_PAST_CYCLES, v);
+  backup.end();
 }
 
 

@@ -1,9 +1,10 @@
 #include "temperature.hpp"
 #include "Config.h"
-#include <lvgl.h>
 #include "ui.h"
 #include "ui_hal.h"
 #include "ui_events.hpp"
+
+#include <lvgl.h>
 #include <microDS18B20.h>
 
 MicroDS18B20<PIN_PROBE> sensor;

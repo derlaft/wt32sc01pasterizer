@@ -54,20 +54,19 @@
 #define MAX_STORAGE_TEMP 90
 
 // Интервал работы логики
-// Проверка температуры, защиты, переходы между состояниями
 #define LOGIC_TASK_INTERVAL_MS 500
-// Границы, в которых безопасно включать нагреватель
 #define LOGIC_SAFE_TEMP_MAX 95
 #define LOGIC_SAFE_TEMP_MIN -50
 #define LOGIC_DEBUG
-
-// Сохранять состояние в eeprom каждые N тиков
-// Нужно учитывать, чтобы количество тиков умещалось в 5 бит при 
-// достижении пастеризации MAX_PAST_TIME
-// По умолчанию: раз в минуту
 #define LOGIC_BACKUP_EVERY_N_TICK 120
 
 // Отладка настроек
 #define SETTINGS_DEBUG
+
+// Данные подключения к wifi по умолчанию
+#define WIFI_DEF_AP ""
+#define WIFI_DEF_PW ""
+
+// #define DEBUG_WIPE_PREFERENCES
 
 #endif

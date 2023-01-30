@@ -6,8 +6,8 @@ int16_t DRAM_ATTR past_temp_value = DEF_PAST_TEMP;
 int16_t DRAM_ATTR past_time_value = DEF_PAST_TIME;
 int16_t DRAM_ATTR store_temp_value = DEF_STORAGE_TEMP;
 
-char DRAM_ATTR wifi_ap[128] = "";
-char DRAM_ATTR wifi_pw[128] = "";
+char DRAM_ATTR wifi_ap[128] = WIFI_DEF_AP;
+char DRAM_ATTR wifi_pw[128] = WIFI_DEF_PW;
 
 void settings_setup() {
 #ifdef SETTINGS_DEBUG
@@ -45,11 +45,9 @@ void settings_setup() {
 }
 
 void settings_update() {
+
   // запретить прерывания на время работы с flash
-  noInterrupts();
   if (!preferences.begin("pasterizer", false)) {
-    // не забыть включить прерывание обратно
-    interrupts();
     return;
   }
   
@@ -60,6 +58,4 @@ void settings_update() {
   preferences.putString(_WIFI_PW_KEY, wifi_pw);
 
   preferences.end();
-  // не забыть включить прерывание обратно
-  interrupts();
 }

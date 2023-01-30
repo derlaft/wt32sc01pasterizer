@@ -9,6 +9,7 @@
 #include "ui_hal.h"
 #include "ui.h"
 #include "logic.hpp"
+#include "wifi.hpp"
 #include "settings.hpp"
 
 #ifdef DEBUG_WIPE_PREFERENCES
@@ -29,6 +30,9 @@ void setup()
 
   // setup lgvl hardware
   hal_setup();
+
+  // initialize wifi
+  wifi_setup();
 
   // read settings
   _GUI_LOCK(settings_setup());

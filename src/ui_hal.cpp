@@ -63,12 +63,13 @@ void hal_setup() {
    * Otherwise there can be problem such as memory corruption and so on.
    * NOTE: When not using Wi-Fi nor Bluetooth you can pin the guiTask to core 0 */
   xTaskCreatePinnedToCore(gui_task, "gui", 4096*2, NULL, 0, NULL, 1);
+
+  // LVGL необходимо уведомлять о течении времени (в основном для анимаций)
+  ESP_ERROR_CHECK(esp_register_freertos_tick_hook((esp_freertos_tick_cb_t)lv_tick_task));
 }
 
 void gui_task(void *pvParameter) {
 
-  // LVGL необходимо уведомлять о течении времени (в основном для анимаций)
-  ESP_ERROR_CHECK(esp_register_freertos_tick_hook((esp_freertos_tick_cb_t)lv_tick_task));
 
   // Включить подсветку экрана
   pinMode(TFT_BL, OUTPUT);
@@ -123,7 +124,7 @@ void update_touch_position(lv_indev_drv_t * drv, lv_indev_data_t*data) {
   return;
 }
 
-static void lv_tick_task(void)
+IRAM_ATTR static void lv_tick_task(void)
 {
   lv_tick_inc(portTICK_RATE_MS);
 }
