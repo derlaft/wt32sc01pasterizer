@@ -4,9 +4,12 @@
 #include "ui.h"
 #include "ui_hal.h"
 #include "ui_events.hpp"
-#include <microDS18B20.h>
+#include <OneWire.h>
+#include <DallasTemperature.h>
 
-MicroDS18B20<PIN_PROBE> sensor;
+OneWire oneWire(PIN_PROBE);
+DallasTemperature sensor(&oneWire);
+DeviceAddress addr;
 
 void temperature_task_setup() {
   sensor.setResolution(PROBE_RESOLUTION);
@@ -15,32 +18,51 @@ void temperature_task_setup() {
 
 float last_temp = -127.0;
 
-void temperature_measure() {
+bool lazy_setup() {
 
-  if (!sensor.online()) {
-#ifdef PROBE_DEBUG
-    Serial.println("NEWBUG1: sensor offline");
-#endif
+  sensor.begin();
+
+  if (sensor.getDeviceCount() == 0) {
+ #ifdef TEMP_DEBUG
+    Serial.println("NEWBUG1: init failed, will retry later");
+ #endif
+    vTaskDelay(pdMS_TO_TICKS(1000));
+    return false;
   }
 
-  sensor.requestTemp();
+  sensor.getAddress(addr, 0);
+  sensor.setResolution(PROBE_RESOLUTION);
+  sensor.setWaitForConversion(false);
+
+  return true;
+}
+
+void temperature_measure() {
+
+  if (!lazy_setup()) {
+    last_temp = -131.0;
+    return;
+  }
+
+  if (!sensor.isConnected(addr)) {
+    last_temp = -130.0;
+    return;
+  }
+
+  if (!sensor.isConversionComplete()) {
+    last_temp = -130.5;
+    return;
+  }
+
+  sensor.requestTemperaturesByAddress(addr);
   vTaskDelay(pdMS_TO_TICKS(PROBE_INTERVAL_MS));
 
-  if (sensor.readTemp()) {
-    last_temp = sensor.getTemp();
+  last_temp = sensor.getTempC(addr);
 #ifdef PROBE_DEBUG
   Serial.print("Measured ");
   Serial.print(last_temp);
   Serial.println(" degrees C");
 #endif
-  } else {
-#ifdef PROBE_DEBUG
-    Serial.println("NEWBUG3: read temp fail");
-    last_temp = -127.0;
-    // TODO debug
-    // last_temp = 40 + random(-20, 20);
-#endif
-  }
 }
 
 void temperature_task(void *pvParameter) {

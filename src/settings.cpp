@@ -45,11 +45,7 @@ void settings_setup() {
 }
 
 void settings_update() {
-  // запретить прерывания на время работы с flash
-  noInterrupts();
   if (!preferences.begin("pasterizer", false)) {
-    // не забыть включить прерывание обратно
-    interrupts();
     return;
   }
   
@@ -60,6 +56,4 @@ void settings_update() {
   preferences.putString(_WIFI_PW_KEY, wifi_pw);
 
   preferences.end();
-  // не забыть включить прерывание обратно
-  interrupts();
 }
