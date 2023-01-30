@@ -285,9 +285,53 @@ void logic_sync_ui() {
   update_manual_mixing_button(mixer_enabled);
 }
 
+Preferences backup;
+
 void logic_backup_state() {
+  int16_t v = (int16_t) ((cycles_in_pasterization)/LOGIC_BACKUP_EVERY_N_TICK);
+
+  noInterrupts();
+
+  if (!backup.begin("logic", false)) {
+    // не забыть включить прерывания обратно
+    interrupts();
+    return;
+  }
+
+  backup.putShort(_BACKUP_STATE_KEY, (int16_t) state);
+  backup.putShort(_BACKUP_STATE_PAST_CYCLES, v);
+  backup.end();
+
+  // не забыть включить прерывания обратно
+  interrupts();
 }
 
 
 void logic_restore_state() {
+
+  if (!backup.begin("logic", true)) {
+    return;
+  }
+
+  int16_t v;
+  state = (LogicState_t) backup.getShort(_BACKUP_STATE_KEY, (int16_t) LogicState::Idle);
+  switch (state) {
+    case Pasterizing:
+      v = backup.getShort(_BACKUP_STATE_PAST_CYCLES, 0);
+      if (v > 0) {
+        cycles_in_pasterization = ((int64_t)v) * LOGIC_BACKUP_EVERY_N_TICK;
+      }
+      state = LogicState::Heating;
+    case Idle:
+    case Heating:
+    case Cooling:
+    case Storing:
+      break;
+    case Unknown:
+    default:
+      state = LogicState::Idle;
+      break;
+  }
+
+  backup.end();
 }
