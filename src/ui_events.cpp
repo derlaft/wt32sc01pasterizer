@@ -208,8 +208,7 @@ void on_chart_init() {
 void on_chart_draw_x_label(lv_obj_draw_part_dsc_t * dsc) {
 
 
-  struct tm t;
-  if (!getLocalTime(&t, 1)){
+  if (graph_last_update <= 1600000000){
     // fallback to relative mode
     // rightmost: 00:00
     // leftmost: hour:minutes since start
@@ -229,10 +228,9 @@ void on_chart_draw_x_label(lv_obj_draw_part_dsc_t * dsc) {
   uint64_t tick_time_ms = TEMP_CHART_RESOLUTION_MS * point_count * (TEMP_CHART_MAJOR_TICKS_X - (uint64_t)dsc->value - 1) / (TEMP_CHART_MAJOR_TICKS_X-1);
 
   // calculate delta-time
-  time_t now;
-  time(&now);
-  now -= tick_time_ms/1000ll;
-  localtime_r(&now, &t);
+  time_t gt = graph_last_update - tick_time_ms/1000ll;
+  struct tm t;
+  localtime_r(&gt, &t);
 
   // substract time
   strftime(dsc->text, dsc->text_length, "%H:%M", &t);

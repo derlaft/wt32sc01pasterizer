@@ -9,4 +9,6 @@ extern void temperature_graph_add_new_point();
 
 extern bool temperature_graph_enabled;
 
+extern time_t graph_last_update;
+
 #endif

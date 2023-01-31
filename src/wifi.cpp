@@ -51,7 +51,7 @@ void wifi_task(void *pvParameter) {
 
     bool wifi_ok = WiFi.status() == WL_CONNECTED;
 
-    if (wifi_ok && is_idle()) {
+    if (wifi_ok) {
       configTime(NTP_OFFSET, 0, NTP_SERVER);
     }
 
