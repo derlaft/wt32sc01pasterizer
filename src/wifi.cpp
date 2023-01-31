@@ -23,7 +23,7 @@ void print_time() {
 
   Serial.println("\n---------TIME----------");
   Serial.println(buffer);
-  Serial.println("\n-----------------------");
+  Serial.println("-----------------------");
 
 }
 
