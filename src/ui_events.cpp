@@ -209,7 +209,7 @@ void on_chart_draw_x_label(lv_obj_draw_part_dsc_t * dsc) {
 
 
   struct tm t;
-  if (!getLocalTime(&t)){
+  if (!getLocalTime(&t, 1)){
     // fallback to relative mode
     // rightmost: 00:00
     // leftmost: hour:minutes since start
