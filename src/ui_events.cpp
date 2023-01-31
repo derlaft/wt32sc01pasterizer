@@ -221,7 +221,7 @@ void on_chart_draw_cb(lv_event_t * e)
       uint16_t mins = (uint16_t) ((tick_time_ms / 60000ll ) % 60);
       uint16_t hrs = (uint16_t) (tick_time_ms / 60000ll / 60l);
 
-      lv_snprintf(dsc->text, dsc->text_length, " %02d:%02d ", hrs, mins);
+      lv_snprintf(dsc->text, dsc->text_length, tick_time_ms > 0 ? " -%02d:%02d " : " %02d:%02d ", hrs, mins);
       return;
     }
   }
