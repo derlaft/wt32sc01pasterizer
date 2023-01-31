@@ -88,6 +88,7 @@ float temperature_measure() {
   ds.select(addr);    
   ds.write(0xBE);         // Read Scratchpad
 
+  uint8_t crc = OneWire::crc8(data, 8);
 #ifdef PROBE_DEBUG
   Serial.print("  Data = ");
   Serial.print(present, HEX);
@@ -98,7 +99,7 @@ float temperature_measure() {
     Serial.print(" ");
   }
   Serial.print(" CRC=");
-  Serial.print(OneWire::crc8(data, 8), HEX);
+  Serial.print(crc, HEX);
   Serial.println();
 #endif
 
@@ -125,10 +126,11 @@ float temperature_measure() {
 
   if (celsius == 85.0 && data[6] == 0xC) {
 #ifdef PROBE_DEBUG
-    Serial.println("Invalid temperature, request probably lost");
+    Serial.println("temperature: request lost");
 #endif
     return -127.4;
   }
+
 
 #ifdef PROBE_DEBUG
   Serial.print("  Temperature = ");

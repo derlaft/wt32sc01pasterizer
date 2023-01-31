@@ -1,10 +1,5 @@
 #include "wifi.hpp"
 #include <WiFi.h>
-#include <WiFiUdp.h>
-#include <NTPClient.h>
-
-WiFiUDP ntpUDP;
-NTPClient timeClient(ntpUDP, NTP_SERVER, NTP_OFFSET, NTP_UPDATE_INTERVAL_MS);
 
 void wifi_setup() {
   WiFi.useStaticBuffers(true);
@@ -13,6 +8,23 @@ void wifi_setup() {
   WiFi.persistent(false);
 
   xTaskCreatePinnedToCore(wifi_task, "wifimon", 4096*2, NULL, tskIDLE_PRIORITY, NULL, 1);
+}
+
+void print_time() {
+
+  struct tm time;
+  if(!getLocalTime(&time)){
+    Serial.println("Could not obtain time info");
+    return;
+  }
+
+  char buffer[80];
+  strftime(buffer, sizeof(buffer), "%Y/%m/%d %H:%M:%S", &time);
+
+  Serial.println("\n---------TIME----------");
+  Serial.println(buffer);
+  Serial.println("\n-----------------------");
+
 }
 
 void wifi_task(void *pvParameter) {
@@ -26,7 +38,7 @@ void wifi_task(void *pvParameter) {
 #endif
   }
 
-  timeClient.begin();
+  configTime(NTP_OFFSET, 0, NTP_SERVER);
 
   while(1) {
     vTaskDelay(pdMS_TO_TICKS(5000));
@@ -40,12 +52,11 @@ void wifi_task(void *pvParameter) {
     bool wifi_ok = WiFi.status() == WL_CONNECTED;
 
     if (wifi_ok) {
-        timeClient.update();
-#ifdef WIFI_DEBUG
-        Serial.print("time: ");
-        Serial.println(timeClient.getFormattedTime());
-#endif
     }
+
+#ifdef WIFI_DEBUG
+    print_time();
+#endif
 
     _GUI_LOCK(wifi_sync_ui(wifi_ok));
   }
