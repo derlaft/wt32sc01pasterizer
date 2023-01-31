@@ -179,10 +179,11 @@ int16_t chart_ptr = 0;
 
 void on_chart_init() {
   lv_chart_set_type(ui_Screen1_Chart1, LV_CHART_TYPE_LINE);
-  lv_obj_set_align( ui_Screen1_Chart1, LV_ALIGN_TOP_LEFT );
   // lv_obj_set_style_pad_right(ui_Screen1_Chart1, 30, LV_PART_MAIN| LV_STATE_DEFAULT);
-  lv_obj_set_height( ui_Screen1_Chart1, 140);
-  lv_obj_set_width( ui_Screen1_Chart1, lv_pct(92));
+  lv_obj_set_height(ui_Screen1_Chart1, 140);
+  lv_obj_set_align(ui_Screen1_Chart1, LV_ALIGN_TOP_LEFT );
+  lv_obj_set_width(ui_Screen1_Chart1, lv_pct(88));
+  lv_obj_set_x(ui_Screen1_Chart1, 15);
   lv_chart_set_range(ui_Screen1_Chart1, LV_CHART_AXIS_SECONDARY_Y, 0, 1000);
   lv_chart_set_div_line_count(ui_Screen1_Chart1, 100, 0);
   lv_obj_set_style_size(ui_Screen1_Chart1, 1, LV_PART_INDICATOR);
@@ -216,12 +217,7 @@ void on_chart_draw_cb(lv_event_t * e)
 
     if (dsc->id == LV_CHART_AXIS_PRIMARY_X && dsc->text) {
 
-      if (dsc->value == 0) {
-        lv_snprintf(dsc->text, dsc->text_length, "0");
-        return;
-      }
-
-      uint64_t tick_time_ms = TEMP_CHART_RESOLUTION_MS * point_count * ((uint64_t)dsc->value) / (TEMP_CHART_MAJOR_TICKS_X-1);
+      uint64_t tick_time_ms = TEMP_CHART_RESOLUTION_MS * point_count * (TEMP_CHART_MAJOR_TICKS_X - (uint64_t)dsc->value - 1) / (TEMP_CHART_MAJOR_TICKS_X-1);
       uint16_t mins = (uint16_t) ((tick_time_ms / 60000ll ) % 60);
       uint16_t hrs = (uint16_t) (tick_time_ms / 60000ll / 60l);
 

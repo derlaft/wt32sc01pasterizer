@@ -23,6 +23,8 @@ extern void logic_safety_check();
 extern void logic_restore_state();
 extern void logic_backup_state();
 
+extern bool is_idle();
+
 enum LogicState {
   Unknown = 0,
   Idle = 1,

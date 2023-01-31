@@ -6,6 +6,7 @@
 #include "Config.h"
 #include "ui_events.hpp"
 #include "ui_hal.h"
+#include "logic.hpp"
 
 #include <WiFi.h>
 #include <WiFiClient.h>

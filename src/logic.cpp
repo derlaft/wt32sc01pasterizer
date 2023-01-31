@@ -18,8 +18,8 @@ bool cool_enabled = false;
 bool mixer_enabled = false;
 bool need_state_backup = false;
 
-static int64_t DRAM_ATTR cycles_in_pasterization = 0;
-LogicState DRAM_ATTR state = LogicState::Idle;
+static int64_t cycles_in_pasterization = 0;
+LogicState state = LogicState::Idle;
 
 SemaphoreHandle_t xLogicSemaphore;
 
@@ -330,3 +330,8 @@ void logic_restore_state() {
 
   backup.end();
 }
+
+bool is_idle() {
+  return state == Idle;
+}
+
