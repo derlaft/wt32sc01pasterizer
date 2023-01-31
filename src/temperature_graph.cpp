@@ -28,6 +28,7 @@ void temperature_graph_task(void *pvParameter) {
     } else if (is_idle()){
       // обновить время на графике
       time(&graph_last_update);
+      _GUI_LOCK(lv_chart_refresh(ui_Screen1_Chart1));
     }
   }
 }
@@ -47,19 +48,20 @@ void temperature_graph_add_new_point() {
   // set update of the last insertion
   time(&graph_last_update);
 
-  _GUI_LOCK(
+  _GUI_LOCK({
       lv_chart_set_x_start_point(ui_Screen1_Chart1, ui_Screen1_Chart1_Series, chart_ptr);
 
       if (chart_ptr > point_count) {
-      point_count = chart_ptr;
-      lv_chart_set_point_count(ui_Screen1_Chart1, point_count);
+        point_count = chart_ptr;
+        lv_chart_set_point_count(ui_Screen1_Chart1, point_count);
 #ifdef TEMP_CHART_DEBUG
-      Serial.print("point count: ");
-      Serial.println(point_count);
+        Serial.print("point count: ");
+        Serial.println(point_count);
 #endif
       }
 
       lv_chart_refresh(ui_Screen1_Chart1);
-  );
+  });
+
 
 }
