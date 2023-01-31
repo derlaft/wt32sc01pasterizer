@@ -28,7 +28,7 @@ void temperature_graph_task(void *pvParameter) {
     } else if (is_idle()){
       // обновить время на графике
       time(&graph_last_update);
-      _GUI_LOCK(lv_chart_refresh(ui_Screen1_Chart1));
+      _GUI_LOCK(lv_obj_invalidate(ui_Screen1_Chart1));
     }
   }
 }

@@ -155,6 +155,7 @@ float temperature_measure() {
   Serial.println(" Celsius");
 #endif
 
+  temp_errors = 0;
   return celsius;
 }
 
