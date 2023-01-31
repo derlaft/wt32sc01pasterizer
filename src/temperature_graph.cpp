@@ -25,6 +25,9 @@ void temperature_graph_task(void *pvParameter) {
     vTaskDelayUntil(&xLastWakeTime, xFrequency);
     if (temperature_graph_enabled) {
       temperature_graph_add_new_point();
+    } else if (is_idle()){
+      // обновить время на графике
+      time(&graph_last_update);
     }
   }
 }
