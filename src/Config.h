@@ -19,6 +19,8 @@
 #define PROBE_INTERVAL_MS 1000
 // дельта сравнения температур
 #define TEMPERATURE_DELTA 1.0
+// игонрировать некоторое количество ошибок датчика
+#define PROBE_MAX_ERRORS 10
 
 // DEBUG
 // #define DEBUG_SERIAL_TEMPERATURE

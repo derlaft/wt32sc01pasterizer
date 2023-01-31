@@ -14,6 +14,7 @@ void temperature_task_setup() {
 }
 
 float last_temp = -127.0;
+int16_t temp_errors = 0;
 
 float temperature_measure() {
   byte i;
@@ -29,7 +30,11 @@ float temperature_measure() {
     Serial.println("No more addresses.");
     Serial.println();
 #endif
-    return -127.1;
+    if (++temp_errors > PROBE_MAX_ERRORS) {
+      return -127.1;
+    } else {
+      return last_temp;
+    }
   }
 
 #ifdef PROBE_DEBUG
@@ -44,7 +49,11 @@ float temperature_measure() {
 #ifdef PROBE_DEBUG
       Serial.println("CRC is not valid!");
 #endif
-      return -127.2;
+      if (++temp_errors > PROBE_MAX_ERRORS) {
+        return -127.2;
+      } else {
+        return last_temp;
+      }
   }
 #ifdef PROBE_DEBUG
   Serial.println();
@@ -74,7 +83,11 @@ float temperature_measure() {
 #ifdef PROBE_DEBUG
       Serial.println("Device is not a DS18x20 family device.");
 #endif
-      return -127.3;
+      if (++temp_errors > PROBE_MAX_ERRORS) {
+        return -127.3;
+      } else {
+        return last_temp;
+      }
   }
 
   ds.reset();
@@ -128,7 +141,11 @@ float temperature_measure() {
 #ifdef PROBE_DEBUG
     Serial.println("temperature: request lost");
 #endif
-    return -127.4;
+    if (++temp_errors > PROBE_MAX_ERRORS) {
+      return -127.4;
+    } else {
+      return last_temp;
+    }
   }
 
 
