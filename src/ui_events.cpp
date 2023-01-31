@@ -205,23 +205,51 @@ void on_chart_init() {
   lv_obj_add_event_cb(ui_Screen1_Chart1, on_chart_draw_cb, LV_EVENT_DRAW_PART_BEGIN, NULL);
 }
 
+void on_chart_draw_x_label(lv_obj_draw_part_dsc_t * dsc) {
+
+
+  struct tm t;
+  if (!getLocalTime(&t)){
+    // fallback to relative mode
+    // rightmost: 00:00
+    // leftmost: hour:minutes since start
+
+    uint64_t tick_time_ms = TEMP_CHART_RESOLUTION_MS * point_count * ((uint64_t)dsc->value) / (TEMP_CHART_MAJOR_TICKS_X-1);
+    uint16_t mins = (uint16_t) ((tick_time_ms / 60000ll ) % 60);
+    uint16_t hrs = (uint16_t) (tick_time_ms / 60000ll / 60l);
+    lv_snprintf(dsc->text, dsc->text_length, " %02d:%02d ", hrs, mins);
+
+    return;
+  }
+
+  // fallback to relative mode
+  // rightmost: hour:minutes (approx program start)
+  // leftmost: hour:minutes (current time)
+
+  uint64_t tick_time_ms = TEMP_CHART_RESOLUTION_MS * point_count * (TEMP_CHART_MAJOR_TICKS_X - (uint64_t)dsc->value - 1) / (TEMP_CHART_MAJOR_TICKS_X-1);
+
+  // calculate delta-time
+  time_t now;
+  time(&now);
+  now -= tick_time_ms/1000ll;
+  localtime_r(&now, &t);
+
+  // substract time
+  strftime(dsc->text, dsc->text_length, "%H:%M", &t);
+}
+
 void on_chart_draw_cb(lv_event_t * e)
 {
   lv_obj_draw_part_dsc_t * dsc = lv_event_get_draw_part_dsc(e);
   if (lv_obj_draw_part_check_type(dsc, &lv_chart_class, LV_CHART_DRAW_PART_TICK_LABEL)) {
     if (dsc->id == LV_CHART_AXIS_SECONDARY_Y && dsc->text) {
-
       lv_snprintf(dsc->text, dsc->text_length, "%d", ((lv_coord_t)dsc->value)/10);
       return;
     }
 
     if (dsc->id == LV_CHART_AXIS_PRIMARY_X && dsc->text) {
 
-      uint64_t tick_time_ms = TEMP_CHART_RESOLUTION_MS * point_count * (TEMP_CHART_MAJOR_TICKS_X - (uint64_t)dsc->value - 1) / (TEMP_CHART_MAJOR_TICKS_X-1);
-      uint16_t mins = (uint16_t) ((tick_time_ms / 60000ll ) % 60);
-      uint16_t hrs = (uint16_t) (tick_time_ms / 60000ll / 60l);
-
-      lv_snprintf(dsc->text, dsc->text_length, tick_time_ms > 0 ? " -%02d:%02d " : " %02d:%02d ", hrs, mins);
+      on_chart_draw_x_label(dsc);
       return;
     }
   }
