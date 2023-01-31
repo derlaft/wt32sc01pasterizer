@@ -10,8 +10,17 @@
 
 #include <WiFi.h>
 #include <WiFiClient.h>
+extern "C"
+{
+#include "freertos/FreeRTOS.h"
+#include "freertos/timers.h"
+}
+#include <AsyncMqttClient.h>
 
 extern void wifi_setup();
 extern void wifi_task(void *pvParameter);
+
+extern void onMqttConnect(bool sessionPresent);
+extern void onMqttDisconnect(AsyncMqttClientDisconnectReason reason);
 
 #endif

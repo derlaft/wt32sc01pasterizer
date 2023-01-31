@@ -1,6 +1,8 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+#include "Secret.h"
+
 // пин, включающий перемешивание
 #define PIN_MIXER 5
 

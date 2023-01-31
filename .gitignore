@@ -8,3 +8,4 @@ Pasterizer.vim
 .cache
 *.plist
 **/*.plist
+src/Secret.h
