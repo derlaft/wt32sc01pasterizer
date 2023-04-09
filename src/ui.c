@@ -439,38 +439,37 @@ void ui_MainScreen_screen_init(void)
     lv_obj_set_x(ui_ManualControlPanel, 0);
     lv_obj_set_y(ui_ManualControlPanel, -9);
     lv_obj_set_align(ui_ManualControlPanel, LV_ALIGN_BOTTOM_MID);
-    lv_obj_clear_flag(ui_ManualControlPanel, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_pad_left(ui_ManualControlPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_right(ui_ManualControlPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_top(ui_ManualControlPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_bottom(ui_ManualControlPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_CleaningBaseButton = lv_btn_create(ui_ManualControlPanel);
-    lv_obj_set_width(ui_CleaningBaseButton, lv_pct(50));
+    lv_obj_set_width(ui_CleaningBaseButton, lv_pct(99));
     lv_obj_set_height(ui_CleaningBaseButton, lv_pct(25));
     lv_obj_set_x(ui_CleaningBaseButton, 1);
-    lv_obj_set_y(ui_CleaningBaseButton, 0);
-    lv_obj_set_align(ui_CleaningBaseButton, LV_ALIGN_BOTTOM_RIGHT);
+    lv_obj_set_y(ui_CleaningBaseButton, 60);
+    lv_obj_set_align(ui_CleaningBaseButton, LV_ALIGN_BOTTOM_MID);
     lv_obj_add_flag(ui_CleaningBaseButton, LV_OBJ_FLAG_CHECKABLE | LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_CleaningBaseButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_CleaningBaseButton, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_CleaningBaseButtonLabel = lv_label_create(ui_CleaningBaseButton);
-    lv_obj_set_width(ui_CleaningBaseButtonLabel, lv_pct(100));
     lv_obj_set_height(ui_CleaningBaseButtonLabel, lv_pct(100));
+    lv_obj_set_width(ui_CleaningBaseButtonLabel, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_x(ui_CleaningBaseButtonLabel, 0);
     lv_obj_set_y(ui_CleaningBaseButtonLabel, 3);
     lv_obj_set_align(ui_CleaningBaseButtonLabel, LV_ALIGN_TOP_MID);
-    lv_label_set_long_mode(ui_CleaningBaseButtonLabel, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_label_set_long_mode(ui_CleaningBaseButtonLabel, LV_LABEL_LONG_SCROLL);
     lv_label_set_text(ui_CleaningBaseButtonLabel, "Промывка щелочью");
     lv_obj_set_style_text_font(ui_CleaningBaseButtonLabel, &ui_font_bigfont, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_MixingButton = lv_btn_create(ui_ManualControlPanel);
-    lv_obj_set_width(ui_MixingButton, lv_pct(100));
+    lv_obj_set_width(ui_MixingButton, lv_pct(99));
     lv_obj_set_height(ui_MixingButton, lv_pct(25));
     lv_obj_set_x(ui_MixingButton, 0);
     lv_obj_set_y(ui_MixingButton, -120);
-    lv_obj_set_align(ui_MixingButton, LV_ALIGN_BOTTOM_RIGHT);
+    lv_obj_set_align(ui_MixingButton, LV_ALIGN_BOTTOM_MID);
     lv_obj_add_flag(ui_MixingButton, LV_OBJ_FLAG_CHECKABLE | LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_MixingButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_MixingButton, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -485,11 +484,11 @@ void ui_MainScreen_screen_init(void)
     lv_obj_set_style_text_font(ui_MixingButtonLabel, &ui_font_bigfont, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_RinsingButton = lv_btn_create(ui_ManualControlPanel);
-    lv_obj_set_width(ui_RinsingButton, lv_pct(100));
+    lv_obj_set_width(ui_RinsingButton, lv_pct(99));
     lv_obj_set_height(ui_RinsingButton, lv_pct(25));
     lv_obj_set_x(ui_RinsingButton, 0);
     lv_obj_set_y(ui_RinsingButton, -60);
-    lv_obj_set_align(ui_RinsingButton, LV_ALIGN_BOTTOM_RIGHT);
+    lv_obj_set_align(ui_RinsingButton, LV_ALIGN_BOTTOM_MID);
     lv_obj_add_flag(ui_RinsingButton, LV_OBJ_FLAG_CHECKABLE | LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_RinsingButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_RinsingButton, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -504,29 +503,29 @@ void ui_MainScreen_screen_init(void)
     lv_obj_set_style_text_font(ui_RinsingButtonLabel, &ui_font_bigfont, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_CleaningAcidButton = lv_btn_create(ui_ManualControlPanel);
-    lv_obj_set_width(ui_CleaningAcidButton, lv_pct(50));
+    lv_obj_set_width(ui_CleaningAcidButton, lv_pct(99));
     lv_obj_set_height(ui_CleaningAcidButton, lv_pct(25));
-    lv_obj_set_align(ui_CleaningAcidButton, LV_ALIGN_BOTTOM_LEFT);
+    lv_obj_set_align(ui_CleaningAcidButton, LV_ALIGN_BOTTOM_MID);
     lv_obj_add_flag(ui_CleaningAcidButton, LV_OBJ_FLAG_CHECKABLE | LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_CleaningAcidButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_CleaningAcidButton, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_CleaningAcidButtonLabel = lv_label_create(ui_CleaningAcidButton);
-    lv_obj_set_width(ui_CleaningAcidButtonLabel, lv_pct(100));
-    lv_obj_set_height(ui_CleaningAcidButtonLabel, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_height(ui_CleaningAcidButtonLabel, lv_pct(100));
+    lv_obj_set_width(ui_CleaningAcidButtonLabel, LV_SIZE_CONTENT);   /// 1
     lv_obj_set_x(ui_CleaningAcidButtonLabel, 0);
     lv_obj_set_y(ui_CleaningAcidButtonLabel, 3);
     lv_obj_set_align(ui_CleaningAcidButtonLabel, LV_ALIGN_TOP_MID);
-    lv_label_set_long_mode(ui_CleaningAcidButtonLabel, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_label_set_long_mode(ui_CleaningAcidButtonLabel, LV_LABEL_LONG_SCROLL);
     lv_label_set_text(ui_CleaningAcidButtonLabel, "Промывка кислотой");
     lv_obj_set_style_text_font(ui_CleaningAcidButtonLabel, &ui_font_bigfont, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_CoolingButton = lv_btn_create(ui_ManualControlPanel);
-    lv_obj_set_width(ui_CoolingButton, lv_pct(100));
+    lv_obj_set_width(ui_CoolingButton, lv_pct(99));
     lv_obj_set_height(ui_CoolingButton, lv_pct(25));
     lv_obj_set_x(ui_CoolingButton, 0);
     lv_obj_set_y(ui_CoolingButton, -180);
-    lv_obj_set_align(ui_CoolingButton, LV_ALIGN_BOTTOM_RIGHT);
+    lv_obj_set_align(ui_CoolingButton, LV_ALIGN_BOTTOM_MID);
     lv_obj_add_flag(ui_CoolingButton, LV_OBJ_FLAG_CHECKABLE | LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_CoolingButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_CoolingButton, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
