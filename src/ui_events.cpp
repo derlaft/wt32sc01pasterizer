@@ -6,7 +6,29 @@
 #include "ui_hal.h"
 #include "Config.h"
 
-lv_chart_series_t * ui_Screen1_Chart1_Series;
+static const char *btnm_map[] = {
+	"1", "2", "3", "4", "\n",
+	"5", "6", "7", "8", "\n",
+	"9", "10", "11", "12", "",
+};
+
+void on_button_map_click(lv_event_t * e) {
+	Serial.println("button map click");
+}
+
+void setup_button_map(lv_event_t * e) {
+    lv_obj_t * btnm1 = lv_btnmatrix_create(ui_MainScreenPanel);
+    lv_btnmatrix_set_map(btnm1, btnm_map);
+    lv_obj_align(btnm1, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_add_event_cb(btnm1, on_button_map_click, LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_set_width(btnm1, lv_pct(100));
+    lv_obj_set_height(btnm1, lv_pct(100));
+    lv_btnmatrix_set_btn_ctrl_all(btnm1, LV_BTNMATRIX_CTRL_CHECKABLE); // TODO
+    lv_obj_set_style_bg_color(btnm1, lv_color_hex(0x1499FF), LV_PART_ITEMS | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(btnm1, lv_color_hex(0x800000), LV_PART_ITEMS | LV_STATE_CHECKED);
+    lv_obj_set_style_text_color(btnm1, lv_color_hex(0xFFFFFF), LV_PART_ITEMS | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(btnm1, lv_color_hex(0xFFFFFF), LV_PART_ITEMS | LV_STATE_CHECKED);
+}
 
 void update_manual_cooling_button(bool value) {
   if (value) {
@@ -15,7 +37,6 @@ void update_manual_cooling_button(bool value) {
     lv_obj_clear_state(ui_CoolingButton, LV_STATE_CHECKED);
   }
 }
-
 
 void on_setting1_incr(lv_event_t * e)
 {

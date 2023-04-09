@@ -50,7 +50,6 @@ extern lv_obj_t * ui_TemperatureDisplay1;
 void ui_event_ManualControlButton1(lv_event_t * e);
 extern lv_obj_t * ui_ManualControlButton1;
 extern lv_obj_t * ui_MainScreenPanel;
-extern lv_obj_t * ui_ManualControlKeyboard;
 void ui_event_SettingsScreen(lv_event_t * e);
 extern lv_obj_t * ui_SettingsScreen;
 extern lv_obj_t * ui_SettingsPanel;
@@ -127,6 +126,7 @@ extern lv_obj_t * ui_TemperatureDisplay4;
 extern lv_obj_t * ui_SettingsButton4;
 void ui_event_ManualControlButton4(lv_event_t * e);
 extern lv_obj_t * ui_ManualControlButton4;
+void ui_event____initial_actions0(lv_event_t * e);
 extern lv_obj_t * ui____initial_actions0;
 
 

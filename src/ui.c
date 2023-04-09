@@ -34,7 +34,6 @@ lv_obj_t * ui_TemperatureDisplay1;
 void ui_event_ManualControlButton1(lv_event_t * e);
 lv_obj_t * ui_ManualControlButton1;
 lv_obj_t * ui_MainScreenPanel;
-lv_obj_t * ui_ManualControlKeyboard;
 void ui_event_SettingsScreen(lv_event_t * e);
 lv_obj_t * ui_SettingsScreen;
 lv_obj_t * ui_SettingsPanel;
@@ -111,6 +110,7 @@ lv_obj_t * ui_TemperatureDisplay4;
 lv_obj_t * ui_SettingsButton4;
 void ui_event_ManualControlButton4(lv_event_t * e);
 lv_obj_t * ui_ManualControlButton4;
+void ui_event____initial_actions0(lv_event_t * e);
 lv_obj_t * ui____initial_actions0;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
@@ -372,6 +372,14 @@ void ui_event_ManualControlButton4(lv_event_t * e)
         _ui_screen_change(ui_SettingsScreen2, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 0, 0);
     }
 }
+void ui_event____initial_actions0(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_SCREEN_LOAD_START) {
+        setup_button_map(e);
+    }
+}
 
 ///////////////////// SCREENS ////////////////////
 void ui_MainScreen_screen_init(void)
@@ -607,12 +615,6 @@ void ui_ManualControlScreen_screen_init(void)
     lv_obj_set_style_pad_right(ui_MainScreenPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_top(ui_MainScreenPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_bottom(ui_MainScreenPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_ManualControlKeyboard = lv_keyboard_create(ui_MainScreenPanel);
-    lv_keyboard_set_mode(ui_ManualControlKeyboard, LV_KEYBOARD_MODE_USER_1);
-    lv_obj_set_width(ui_ManualControlKeyboard, lv_pct(100));
-    lv_obj_set_height(ui_ManualControlKeyboard, lv_pct(100));
-    lv_obj_set_align(ui_ManualControlKeyboard, LV_ALIGN_CENTER);
 
     lv_obj_add_event_cb(ui_ManualControlButton1, ui_event_ManualControlButton1, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_ManualControlScreen, ui_event_ManualControlScreen, LV_EVENT_ALL, NULL);
@@ -1243,5 +1245,8 @@ void ui_init(void)
     ui_SettingsScreen2_screen_init();
     ui_WirelessConnectionScreen_screen_init();
     ui____initial_actions0 = lv_obj_create(NULL);
+    lv_obj_add_event_cb(ui____initial_actions0, ui_event____initial_actions0, LV_EVENT_ALL, NULL);
+
+    lv_disp_load_scr(ui____initial_actions0);
     lv_disp_load_scr(ui_MainScreen);
 }
