@@ -14,6 +14,7 @@ static const char *btnm_map[] = {
 
 void on_button_map_click(lv_event_t * e) {
 	Serial.println("button map click");
+	Serial2.println("a");
 }
 
 void setup_button_map(lv_event_t * e) {

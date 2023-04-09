@@ -27,6 +27,9 @@ void setup()
   // enable serial
   Serial.begin(115200);
 
+  // enable second serial
+  Serial2.begin(9600, SERIAL_8N1, 16, 17);
+
   // setup lgvl hardware
   hal_setup();
 
