@@ -90,14 +90,13 @@ void on_setting_4_decr(lv_event_t * e)
 }
 
 void update_settings_values() {
-	/*
-  lv_textarea_set_text(ui_PastTemp, String(past_temp_value).c_str());
-  lv_textarea_set_text(ui_PastTime, String(past_time_value).c_str());
-  lv_textarea_set_text(ui_StorageTemp1, String(store_temp_value).c_str());
+  lv_textarea_set_text(ui_Setting4, String(mix_delay_value).c_str());
+  lv_textarea_set_text(ui_Setting3, String(mix_value).c_str());
+  lv_textarea_set_text(ui_Setting2, String(before_mix_value).c_str());
+  lv_textarea_set_text(ui_Setting1, String(cool_temp_value).c_str());
 
   lv_textarea_set_text(ui_WifiName, wifi_ap);
   lv_textarea_set_text(ui_WifiPassword, wifi_pw);
-  */
 }
 
 void on_save_settings(lv_event_t * e)

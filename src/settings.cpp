@@ -27,7 +27,20 @@ void settings_setup() {
 	  cool_temp_value = DEF_COOL_TEMP;
   }
 
-  // TODO
+  before_mix_value = (int16_t) preferences.getShort(_BEFORE_MIX_KEY);
+  if (before_mix_value < MIN_BEFORE_MIX_TIME || before_mix_value > MAX_BEFORE_MIX_TIME) {
+	  before_mix_value = DEF_BEFORE_MIX_TIME;
+  }
+
+  mix_value = (int16_t) preferences.getShort(_MIX_KEY);
+  if (mix_value < MIN_MIX_TIME || mix_value > MAX_MIX_TIME) {
+	  mix_value = DEF_MIX_TIME;
+  }
+
+  mix_delay_value = (int16_t) preferences.getShort(_MIX_DELAY_KEY);
+  if (mix_delay_value < MIN_MIX_DELAY_TIME || mix_delay_value > MAX_MIX_DELAY_TIME) {
+	  mix_delay_value = DEF_MIX_DELAY_TIME;
+  }
 
   preferences.getString(_WIFI_AP_KEY, wifi_ap, 128);
   preferences.getString(_WIFI_PW_KEY, wifi_pw, 128);
@@ -44,7 +57,10 @@ void settings_update() {
     return;
   }
 
-  // TODO
+  preferences.putShort(_COOL_TEMP_KEY, cool_temp_value);
+  preferences.putShort(_BEFORE_MIX_KEY, before_mix_value);
+  preferences.putShort(_MIX_KEY, mix_value);
+  preferences.putShort(_MIX_DELAY_KEY, mix_delay_value);
   
   preferences.putString(_WIFI_AP_KEY, wifi_ap);
   preferences.putString(_WIFI_PW_KEY, wifi_pw);
