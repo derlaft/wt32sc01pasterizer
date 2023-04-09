@@ -28,7 +28,7 @@ void setup()
   Serial.begin(115200);
 
   // enable second serial
-  Serial2.begin(9600, SERIAL_8N1, 17, 16);
+  Serial2.begin(9600, SERIAL_8N1, 5, 33);
   while (1) {
 	  Serial2.println("a");
   }
