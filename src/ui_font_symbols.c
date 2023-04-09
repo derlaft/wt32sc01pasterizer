@@ -1,7 +1,7 @@
 /*******************************************************************************
  * Size: 40 px
  * Bpp: 4
- * Opts: --bpp 4 --size 40 --font /Users/user/past/assets/icomoon.ttf -o /Users/user/past/assets/ui_font_symbols.c --format lvgl --symbols ABCDEF --no-compress --no-prefilter --lcd
+ * Opts: --bpp 4 --size 40 --font /data/home/user/steamer/assets/icomoon.ttf -o /data/home/user/steamer/assets/ui_font_symbols.c --format lvgl -r 0x41-0x46 --no-compress --no-prefilter --lcd
  ******************************************************************************/
 
 #include "ui.h"

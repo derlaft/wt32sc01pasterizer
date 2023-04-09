@@ -12,12 +12,7 @@ extern void logic_tick();
 
 extern void on_main_switch_pressed();
 
-extern void set_heat(bool value);
-extern void set_cool(bool value);
-extern void set_mixer(bool value);
-
 extern void logic_sync_ui();
-extern void logic_sync_pins();
 extern void logic_safety_check();
 
 extern void logic_restore_state();
@@ -28,10 +23,6 @@ extern bool is_idle();
 enum LogicState {
   Unknown = 0,
   Idle = 1,
-  Heating = 2,
-  Pasterizing = 3,
-  Cooling = 4,
-  Storing = 5,
 };
 typedef enum LogicState LogicState_t;
 

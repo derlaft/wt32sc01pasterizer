@@ -4,7 +4,6 @@
 
 #include "Config.h"
 #include "temperature.hpp"
-#include "temperature_graph.hpp"
 #include "ui_events.hpp"
 #include "ui_hal.h"
 #include "ui.h"
@@ -42,9 +41,6 @@ void setup()
 
   // configure temperature readings
   temperature_task_setup();
-
-  // setup temperature graph
-  temperature_graph_task_setup();
 }
 
 

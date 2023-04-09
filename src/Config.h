@@ -1,12 +1,6 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-// пин, включающий перемешивание
-#define PIN_MIXER 5
-
-// пин, включающий нагрев
-#define PIN_HEATER 33
-
 // таймаут попыток работы с датчиком температуры
 #define TEMP_PROBE_TIMEOUT_MS 2000
 // пин с датчиком температуры 18В20
@@ -40,20 +34,25 @@
 // пин, включающий охлаждение
 #define PIN_COOLER 27
 
-// Диапазон температуры пастеризации
-#define DEF_PAST_TEMP 70
-#define MIN_PAST_TEMP 0
-#define MAX_PAST_TEMP 94
+// Диапазон температуры охлаждения
+#define DEF_COOL_TEMP 4
+#define MIN_COOL_TEMP 1
+#define MAX_COOL_TEMP 8
 
-// Диапазон времени пастеризации
-#define DEF_PAST_TIME 30
-#define MIN_PAST_TIME 0
-#define MAX_PAST_TIME 60
+// Диапазон времени до перемешивания
+#define DEF_BEFORE_MIX_TIME 15
+#define MIN_BEFORE_MIX_TIME 10
+#define MAX_BEFORE_MIX_TIME 30
 
-// Диапазон температуры хранения
-#define DEF_STORAGE_TEMP 42
-#define MIN_STORAGE_TEMP 4
-#define MAX_STORAGE_TEMP 90
+// Диапазон времени перемешивания
+#define DEF_MIX_TIME 15
+#define MIN_MIX_TIME 1
+#define MAX_MIX_TIME 10
+
+// Время задержки выключения мешалки при переходе в режим хранения
+#define DEF_MIX_DELAY_TIME 1
+#define MIN_MIX_DELAY_TIME 1
+#define MAX_MIX_DELAY_TIME 10
 
 // Интервал работы логики
 #define LOGIC_TASK_INTERVAL_MS 500
