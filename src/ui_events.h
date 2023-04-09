@@ -7,11 +7,11 @@ extern "C" {
 #endif
 
 void on_main_screen_loaded(lv_event_t * e);
-void on_main_base(lv_event_t * e);
-void on_main_mixing(lv_event_t * e);
-void on_main_rinsing(lv_event_t * e);
-void on_main_acid(lv_event_t * e);
 void on_main_cooling(lv_event_t * e);
+void on_main_acid(lv_event_t * e);
+void on_main_base(lv_event_t * e);
+void on_main_rinsing(lv_event_t * e);
+void on_main_mixing(lv_event_t * e);
 void on_manual_control_screen_loaded(lv_event_t * e);
 void on_settings_screen_loaded(lv_event_t * e);
 void on_setting1_incr(lv_event_t * e);
