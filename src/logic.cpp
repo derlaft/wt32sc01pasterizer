@@ -12,10 +12,10 @@
       xSemaphoreGive(xLogicSemaphore); \
     } else { ESP.restart(); }
 
-bool heat_enabled = false;
-bool cool_enabled = false;
-bool mixer_enabled = false;
 bool need_state_backup = false;
+
+bool compressor_is_on = false;
+bool mixer_is_on = false;
 
 static int64_t cycles_in_pasterization = 0;
 LogicState state = LogicState::Idle;
@@ -78,19 +78,63 @@ void logic_tick() {
 
   Serial.print("SERIAL TEST: ");
   while (Serial2.available() > 0) {
-    // read the incoming byte:
-    char incomingByte = Serial2.read();
+
+    char report = Serial2.read();
+    switch (report) {
+        case '0':
+            compressor_is_on = true;
+            break;
+        case 'a':
+            compressor_is_on = false;
+            break;
+        case '1':
+            mixer_is_on = true;
+            break;
+        case 'b':
+            mixer_is_on = false;
+            break;
+    }
 
     // say what you got:
-    Serial.print(incomingByte);
+    Serial.print(report);
   }
   Serial.println();
+
+  Serial.print("comp=");
+  Serial.println(compressor_is_on);
+  Serial.print("mixer=");
+  Serial.println(mixer_is_on);
 
   switch (state) {
     
     // текущее состояние: ожидание начала программы
     case LogicState::Idle:
       // ничего не нужно делать: ждем
+      break;
+
+    case LogicState::Cooling_Cooling:
+      // нагрев
+      if (!compressor_is_on || !mixer_is_on) {
+          Serial2.print('0'); // включить компрессор
+          Serial2.print('1'); // включить перемешивание
+      }
+
+      // TODO
+      // T <= COOL_TEMP -> перети в хранение
+
+      break;
+
+    case LogicState::Cooling_Store:
+      // охлаждение
+      if (compressor_is_on) {
+          Serial2.print('0'); // выключить компрессор
+      }
+
+      // TODO
+      // t < MIX_DELAY_TIME -> включить перемешивание
+      // (t-MIX_DELAY_TIME)%(BEFORE_MIX+MIX_TIME) < BEFORE_MIX -> выключить перемешивание
+      // (t-MIX_DELAY_TIME)%(BEFORE_MIX+MIX_TIME) >= BEFORE_MIX -> включить перемешивание
+
       break;
   }
 }
@@ -117,34 +161,21 @@ void on_cooling_pressed() {
   _LOGIC_LOCK({
       // проверяем текущее состояние
       switch (state) {
-
-      // начать программу
       case Idle:
-      	      state = Cooling_Cooling;
-	      break;
-      // завершить программу
+          // начать программу
+          state = Cooling_Cooling;
+          break;
       case Cooling_Cooling:
       case Cooling_Store:
-      	      state = Idle;
-	      break;
+          // завершить программу
+          state = Idle;
+          break;
       }
   });
   logic_sync_ui();
 }
 
 void logic_safety_check() {
-    if (temperature_get() > LOGIC_SAFE_TEMP_MAX) {
-#ifdef LOGIC_DEBUG
-        Serial.println("overheating, turning the heater off");
-#endif
-        heat_enabled = false;
-    }
-    if (temperature_get() < LOGIC_SAFE_TEMP_MIN) {
-#ifdef LOGIC_DEBUG
-        Serial.println("invalid measurement, turning the heater off for now");
-#endif
-        heat_enabled = false;
-    }
 }
 
 void logic_sync_ui() {
