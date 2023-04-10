@@ -1,6 +1,10 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+// (возможно софтварный) серийный порт для общения со вторым контроллером
+#define LOGIC_SERIAL_RX 5
+#define LOGIC_SERIAL_TX 33
+
 // таймаут попыток работы с датчиком температуры
 #define TEMP_PROBE_TIMEOUT_MS 2000
 // пин с датчиком температуры 18В20

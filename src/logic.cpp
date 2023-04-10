@@ -27,6 +27,9 @@ void logic_setup() {
 
   logic_restore_state();
 
+  // enable second serial
+  Serial2.begin(1200, SERIAL_8N1, LOGIC_SERIAL_RX, LOGIC_SERIAL_TX);
+
   xTaskCreatePinnedToCore(logic_task, "logic", 4096*2, NULL, tskIDLE_PRIORITY+10, NULL, 1);
 }
 
@@ -69,6 +72,16 @@ void logic_tick() {
 
   // TODO: проверка безопасности температуры
   // если температура выше нормы, запретить нагрев
+  //
+
+  Serial.print("SERIAL TEST: ");
+  while (Serial2.available() > 0) {
+    // read the incoming byte:
+    char incomingByte = Serial2.read();
+
+    // say what you got:
+    Serial.print(incomingByte);
+  }
 
   switch (state) {
     
