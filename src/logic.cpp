@@ -12,12 +12,14 @@
       xSemaphoreGive(xLogicSemaphore); \
     } else { ESP.restart(); }
 
+#define _TO_MS(BODY) (BODY * 60ll * 1000ll)
+
 bool need_state_backup = false;
 
 bool compressor_is_on = false;
 bool mixer_is_on = false;
 
-static int64_t cycles_in_pasterization = 0;
+static int64_t cycles_in_state = 0;
 LogicState state = LogicState::Idle;
 
 SemaphoreHandle_t xLogicSemaphore;
@@ -28,7 +30,7 @@ void logic_setup() {
   logic_restore_state();
 
   // enable second serial
-  Serial2.begin(1200, SERIAL_8N1, LOGIC_SERIAL_RX, LOGIC_SERIAL_TX);
+  Serial2.begin(LOGIC_SERIAL_SPEED, SERIAL_8N1, LOGIC_SERIAL_RX, LOGIC_SERIAL_TX);
 
   xTaskCreatePinnedToCore(logic_task, "logic", 4096*2, NULL, tskIDLE_PRIORITY+10, NULL, 1);
 }
@@ -104,6 +106,11 @@ void logic_tick() {
   Serial.println(compressor_is_on);
   Serial.print("mixer=");
   Serial.println(mixer_is_on);
+  Serial.print("cnt=");
+  Serial.println(cycles_in_state);
+
+  int64_t ct_ms;
+  int64_t d_ms;
 
   switch (state) {
     
@@ -123,6 +130,7 @@ void logic_tick() {
       if (temp < (float) cool_temp_value) {
           Serial2.print('a'); // выключить компрессор
           state = Cooling_Store;
+          cycles_in_state = 0;
       }
 
       break;
@@ -136,14 +144,31 @@ void logic_tick() {
       if (temp > (float) cool_temp_value + TEMPERATURE_DELTA) {
           // перейти обратно в охлаждение
           state = Cooling_Cooling;
-          Serial2.print('0'); // включить компрессор
+          cycles_in_state = 0;
+          // включить компрессор
+          Serial2.print('0'); 
       }
 
-      // TODO
-      // (t-MIX_DELAY_TIME)%(BEFORE_MIX+MIX_TIME) < BEFORE_MIX -> выключить перемешивание
-      // (t-MIX_DELAY_TIME)%(BEFORE_MIX+MIX_TIME) >= BEFORE_MIX -> включить перемешивание
+      ct_ms = LOGIC_TASK_INTERVAL_MS * cycles_in_state;
+      d_ms = _TO_MS(mix_delay_value);
+
+      if (ct_ms < d_ms) {
+          // начальная задержка
+          // включить перемешивание (оставить его включенным)
+          Serial2.print('1'); 
+      } else if ((ct_ms - d_ms) % _TO_MS(mix_value + before_mix_value) < _TO_MS(before_mix_value)) {
+          // выключить перемешивание
+          Serial2.print('b'); 
+      } else {
+          // (снова) включить перемешивание
+          Serial2.print('1'); 
+      }
 
       break;
+  }
+
+  if (state != Idle) {
+      cycles_in_state ++;
   }
 }
 
@@ -172,6 +197,7 @@ void on_cooling_pressed() {
       case Idle:
           // начать программу
           state = Cooling_Cooling;
+          cycles_in_state = 0;
           // включить компрессор
           Serial2.print('0'); 
           // включить перемешивание
@@ -181,6 +207,7 @@ void on_cooling_pressed() {
       case Cooling_Store:
           // завершить программу
           state = Idle;
+          cycles_in_state = 0;
           Serial2.print('a'); // выключить компрессор
           Serial2.print('b'); // выключить перемешивание
           break;
@@ -215,7 +242,7 @@ void logic_sync_ui() {
 Preferences backup;
 
 void logic_backup_state() {
-  int16_t v = (int16_t) ((cycles_in_pasterization)/LOGIC_BACKUP_EVERY_N_TICK);
+  int16_t v = (int16_t) ((cycles_in_state)/LOGIC_BACKUP_EVERY_N_TICK);
 
   if (!backup.begin("logic", false)) {
     return;
@@ -233,7 +260,11 @@ void logic_restore_state() {
     return;
   }
 
-  int16_t v;
+  int16_t v = backup.getShort(_BACKUP_STATE_PAST_CYCLES, 0);
+  if (v > 0) {
+      cycles_in_state = ((int64_t)v) * LOGIC_BACKUP_EVERY_N_TICK;
+  }
+
   state = (LogicState_t) backup.getShort(_BACKUP_STATE_KEY, (int16_t) LogicState::Idle);
   switch (state) {
     case Idle:

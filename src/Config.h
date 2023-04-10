@@ -2,6 +2,7 @@
 #define CONFIG_H
 
 // (возможно софтварный) серийный порт для общения со вторым контроллером
+#define LOGIC_SERIAL_SPEED 1200
 #define LOGIC_SERIAL_RX 5
 #define LOGIC_SERIAL_TX 33
 
