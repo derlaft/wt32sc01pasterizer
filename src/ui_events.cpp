@@ -189,6 +189,7 @@ void on_main_acid(lv_event_t * e)
 void on_main_cooling(lv_event_t * e)
 {
 	Serial.println("cooling button");
+	on_cooling_pressed();
 }
 
 

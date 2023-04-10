@@ -10,7 +10,7 @@ void logic_setup();
 extern void logic_task(void *pvParameter);
 extern void logic_tick();
 
-extern void on_main_switch_pressed();
+extern void on_cooling_pressed();
 
 extern void logic_sync_ui();
 extern void logic_safety_check();
@@ -23,6 +23,8 @@ extern bool is_idle();
 enum LogicState {
   Unknown = 0,
   Idle = 1,
+  Cooling_Cooling = 2,
+  Cooling_Store = 3,
 };
 typedef enum LogicState LogicState_t;
 

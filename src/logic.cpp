@@ -72,7 +72,9 @@ void logic_tick() {
 
   // TODO: проверка безопасности температуры
   // если температура выше нормы, запретить нагрев
-  //
+  
+  Serial.print("STATE:");
+  Serial.println(state);
 
   Serial.print("SERIAL TEST: ");
   while (Serial2.available() > 0) {
@@ -82,6 +84,7 @@ void logic_tick() {
     // say what you got:
     Serial.print(incomingByte);
   }
+  Serial.println();
 
   switch (state) {
     
@@ -106,25 +109,62 @@ void on_main_switch_pressed() {
   logic_sync_ui();
 }
 
+void on_cooling_pressed() {
+  // этот метод вызывается из таска интерфейса
+  // когда нажата "главная кнопка"
+  // следовательно, нужно взять logic lock, 
+  // но не нужно брать gui lock
+  _LOGIC_LOCK({
+      // проверяем текущее состояние
+      switch (state) {
+
+      // начать программу
+      case Idle:
+      	      state = Cooling_Cooling;
+	      break;
+      // завершить программу
+      case Cooling_Cooling:
+      case Cooling_Store:
+      	      state = Idle;
+	      break;
+      }
+  });
+  logic_sync_ui();
+}
+
 void logic_safety_check() {
-  if (temperature_get() > LOGIC_SAFE_TEMP_MAX) {
+    if (temperature_get() > LOGIC_SAFE_TEMP_MAX) {
 #ifdef LOGIC_DEBUG
-    Serial.println("overheating, turning the heater off");
+        Serial.println("overheating, turning the heater off");
 #endif
-    heat_enabled = false;
-  }
-  if (temperature_get() < LOGIC_SAFE_TEMP_MIN) {
+        heat_enabled = false;
+    }
+    if (temperature_get() < LOGIC_SAFE_TEMP_MIN) {
 #ifdef LOGIC_DEBUG
-    Serial.println("invalid measurement, turning the heater off for now");
+        Serial.println("invalid measurement, turning the heater off for now");
 #endif
-    heat_enabled = false;
-  }
+        heat_enabled = false;
+    }
 }
 
 void logic_sync_ui() {
-  // синхронизировать состояние логического модуля с интерфейсом пользователя
-  // int64_t past_time_left_ms = ((int64_t)past_time_value) * 60ll * 1000ll - cycles_in_pasterization * LOGIC_TASK_INTERVAL_MS;
-  // TODO
+    // синхронизировать состояние логического модуля с интерфейсом пользователя
+    // int64_t past_time_left_ms = ((int64_t)past_time_value) * 60ll * 1000ll - cycles_in_pasterization * LOGIC_TASK_INTERVAL_MS;
+    // TODO
+    switch (state) {
+        case Cooling_Cooling:
+        case Cooling_Store:
+            lv_obj_add_state(ui_CoolingButton, LV_STATE_CHECKED);
+            break;
+        default:
+            lv_obj_clear_state(ui_CoolingButton, LV_STATE_CHECKED);
+            break;
+    }
+
+    lv_obj_clear_state(ui_CleaningAcidButton, LV_STATE_CHECKED);
+    lv_obj_clear_state(ui_CleaningBaseButton, LV_STATE_CHECKED);
+    lv_obj_clear_state(ui_RinsingButton, LV_STATE_CHECKED);
+    lv_obj_clear_state(ui_MixingButton, LV_STATE_CHECKED);
 }
 
 Preferences backup;
