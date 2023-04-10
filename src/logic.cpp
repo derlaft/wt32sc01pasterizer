@@ -12,7 +12,7 @@
       xSemaphoreGive(xLogicSemaphore); \
     } else { ESP.restart(); }
 
-#define _TO_MS(BODY) (BODY * 60ll * 1000ll)
+#define _TO_MS(BODY) ((BODY) * 60ll * 1000ll)
 
 bool need_state_backup = false;
 
@@ -111,6 +111,7 @@ void logic_tick() {
 
   int64_t ct_ms;
   int64_t d_ms;
+  int64_t a;
 
   switch (state) {
     
@@ -127,7 +128,7 @@ void logic_tick() {
       }
 
       // успешное охлаждение, перейти в хранение
-      if (temp < (float) cool_temp_value) {
+      if (temp <= (float) cool_temp_value) {
           Serial2.print('a'); // выключить компрессор
           state = Cooling_Store;
           cycles_in_state = 0;
@@ -151,12 +152,20 @@ void logic_tick() {
 
       ct_ms = LOGIC_TASK_INTERVAL_MS * cycles_in_state;
       d_ms = _TO_MS(mix_delay_value);
+      a = (ct_ms - d_ms) % _TO_MS(mix_value + before_mix_value);
+
+      Serial.print("test ct_ms=");
+      Serial.println(ct_ms);
+      Serial.print("test d_ms=");
+      Serial.println(d_ms);
+      Serial.print("test a=");
+      Serial.println(a);
 
       if (ct_ms < d_ms) {
           // начальная задержка
           // включить перемешивание (оставить его включенным)
           Serial2.print('1'); 
-      } else if ((ct_ms - d_ms) % _TO_MS(mix_value + before_mix_value) < _TO_MS(before_mix_value)) {
+      } else if (a < _TO_MS(before_mix_value)) {
           // выключить перемешивание
           Serial2.print('b'); 
       } else {
