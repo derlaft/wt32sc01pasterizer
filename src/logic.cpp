@@ -119,19 +119,27 @@ void logic_tick() {
           Serial2.print('1'); // включить перемешивание
       }
 
-      // TODO
-      // T <= COOL_TEMP -> перети в хранение
+      // успешное охлаждение, перейти в хранение
+      if (temp < (float) cool_temp_value) {
+          Serial2.print('a'); // выключить компрессор
+          state = Cooling_Store;
+      }
 
       break;
 
     case LogicState::Cooling_Store:
       // охлаждение
       if (compressor_is_on) {
-          Serial2.print('0'); // выключить компрессор
+          Serial2.print('a'); // выключить компрессор
+      }
+
+      if (temp > (float) cool_temp_value + TEMPERATURE_DELTA) {
+          // перейти обратно в охлаждение
+          state = Cooling_Cooling;
+          Serial2.print('0'); // включить компрессор
       }
 
       // TODO
-      // t < MIX_DELAY_TIME -> включить перемешивание
       // (t-MIX_DELAY_TIME)%(BEFORE_MIX+MIX_TIME) < BEFORE_MIX -> выключить перемешивание
       // (t-MIX_DELAY_TIME)%(BEFORE_MIX+MIX_TIME) >= BEFORE_MIX -> включить перемешивание
 
@@ -164,11 +172,17 @@ void on_cooling_pressed() {
       case Idle:
           // начать программу
           state = Cooling_Cooling;
+          // включить компрессор
+          Serial2.print('0'); 
+          // включить перемешивание
+          Serial2.print('1'); 
           break;
       case Cooling_Cooling:
       case Cooling_Store:
           // завершить программу
           state = Idle;
+          Serial2.print('a'); // выключить компрессор
+          Serial2.print('b'); // выключить перемешивание
           break;
       }
   });
