@@ -40,7 +40,7 @@ void logic_setup() {
   logic_restore_state();
 
   // enable second serial
-  Serial2.begin(LOGIC_SERIAL_SPEED, SERIAL_8N1, LOGIC_SERIAL_RX, LOGIC_SERIAL_TX);
+  Serial2.begin(LOGIC_SERIAL_SPEED, SERIAL_8N2, LOGIC_SERIAL_RX, LOGIC_SERIAL_TX);
 
   xTaskCreatePinnedToCore(logic_task, "logic", 4096*2, NULL, tskIDLE_PRIORITY+10, NULL, 1);
 }
@@ -188,22 +188,8 @@ void logic_tick() {
   }
 }
 
-void on_main_switch_pressed() {
-  // этот метод вызывается из таска интерфейса
-  // когда нажата "главная кнопка"
-  // следовательно, нужно взять logic lock, 
-  // но не нужно брать gui lock
-  _LOGIC_LOCK({
-      // проверяем текущее состояние
-      switch (state) {
-
-      }
-  });
-  logic_sync_ui();
-}
-
 void logic_change_state(LogicState_t n) {
-    _DEBUG("_logic_change_state to %d", n);
+    _DEBUG("logic_change_state to %d", n);
     state = n;
     cycles_in_state = 0;
     need_state_backup = true;
