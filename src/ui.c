@@ -152,7 +152,7 @@ void ui_event_CoolingButton(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
-    if(event_code == LV_EVENT_VALUE_CHANGED) {
+    if(event_code == LV_EVENT_CLICKED) {
         on_main_cooling(e);
     }
 }
@@ -160,7 +160,7 @@ void ui_event_CleaningAcidButton(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
-    if(event_code == LV_EVENT_VALUE_CHANGED) {
+    if(event_code == LV_EVENT_CLICKED) {
         on_main_acid(e);
     }
 }
@@ -168,7 +168,7 @@ void ui_event_CleaningBaseButton(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
-    if(event_code == LV_EVENT_VALUE_CHANGED) {
+    if(event_code == LV_EVENT_CLICKED) {
         on_main_base(e);
     }
 }
@@ -176,7 +176,7 @@ void ui_event_RinsingButton(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
-    if(event_code == LV_EVENT_VALUE_CHANGED) {
+    if(event_code == LV_EVENT_CLICKED) {
         on_main_rinsing(e);
     }
 }
@@ -184,7 +184,7 @@ void ui_event_MixingButton(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
-    if(event_code == LV_EVENT_VALUE_CHANGED) {
+    if(event_code == LV_EVENT_CLICKED) {
         on_main_mixing(e);
     }
 }
@@ -463,7 +463,7 @@ void ui_MainScreen_screen_init(void)
     lv_obj_set_x(ui_CoolingButton, 0);
     lv_obj_set_y(ui_CoolingButton, -180);
     lv_obj_set_align(ui_CoolingButton, LV_ALIGN_BOTTOM_MID);
-    lv_obj_add_flag(ui_CoolingButton, LV_OBJ_FLAG_CHECKABLE | LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_add_flag(ui_CoolingButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_CoolingButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_CoolingButton, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
@@ -478,7 +478,7 @@ void ui_MainScreen_screen_init(void)
     lv_obj_set_width(ui_CleaningAcidButton, lv_pct(99));
     lv_obj_set_height(ui_CleaningAcidButton, lv_pct(24));
     lv_obj_set_align(ui_CleaningAcidButton, LV_ALIGN_BOTTOM_MID);
-    lv_obj_add_flag(ui_CleaningAcidButton, LV_OBJ_FLAG_CHECKABLE | LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_add_flag(ui_CleaningAcidButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_CleaningAcidButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_CleaningAcidButton, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
@@ -498,7 +498,7 @@ void ui_MainScreen_screen_init(void)
     lv_obj_set_x(ui_CleaningBaseButton, 1);
     lv_obj_set_y(ui_CleaningBaseButton, -40);
     lv_obj_set_align(ui_CleaningBaseButton, LV_ALIGN_BOTTOM_MID);
-    lv_obj_add_flag(ui_CleaningBaseButton, LV_OBJ_FLAG_CHECKABLE | LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_add_flag(ui_CleaningBaseButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_CleaningBaseButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_CleaningBaseButton, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
@@ -518,7 +518,7 @@ void ui_MainScreen_screen_init(void)
     lv_obj_set_x(ui_RinsingButton, 0);
     lv_obj_set_y(ui_RinsingButton, -60);
     lv_obj_set_align(ui_RinsingButton, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_RinsingButton, LV_OBJ_FLAG_CHECKABLE | LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_add_flag(ui_RinsingButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_RinsingButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_RinsingButton, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
@@ -537,7 +537,7 @@ void ui_MainScreen_screen_init(void)
     lv_obj_set_x(ui_MixingButton, 0);
     lv_obj_set_y(ui_MixingButton, -120);
     lv_obj_set_align(ui_MixingButton, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_MixingButton, LV_OBJ_FLAG_CHECKABLE | LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_add_flag(ui_MixingButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_MixingButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_MixingButton, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
@@ -1124,8 +1124,6 @@ void ui_WirelessConnectionScreen_screen_init(void)
     lv_obj_set_y(ui_WifiName, 10);
     lv_obj_set_align(ui_WifiName, LV_ALIGN_TOP_RIGHT);
     lv_textarea_set_max_length(ui_WifiName, 128);
-    lv_textarea_set_text(ui_WifiName, "WifiAPVerySecure");
-    lv_textarea_set_placeholder_text(ui_WifiName, "Placeholder...");
     lv_textarea_set_one_line(ui_WifiName, true);
     lv_obj_clear_flag(ui_WifiName, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_scrollbar_mode(ui_WifiName, LV_SCROLLBAR_MODE_OFF);
@@ -1137,8 +1135,6 @@ void ui_WirelessConnectionScreen_screen_init(void)
     lv_obj_set_y(ui_WifiPassword, 60);
     lv_obj_set_align(ui_WifiPassword, LV_ALIGN_TOP_RIGHT);
     lv_textarea_set_max_length(ui_WifiPassword, 128);
-    lv_textarea_set_text(ui_WifiPassword, "WifiPasswordVerySecure");
-    lv_textarea_set_placeholder_text(ui_WifiPassword, "Placeholder...");
     lv_textarea_set_one_line(ui_WifiPassword, true);
     lv_textarea_set_password_mode(ui_WifiPassword, true);
     lv_obj_clear_flag(ui_WifiPassword, LV_OBJ_FLAG_SCROLLABLE);      /// Flags

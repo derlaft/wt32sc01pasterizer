@@ -27,7 +27,6 @@ void setup()
   // enable serial
   Serial.begin(115200);
 
-
   // setup lgvl hardware
   hal_setup();
 

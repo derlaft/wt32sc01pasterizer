@@ -1,4 +1,5 @@
 #include "Config.h"
+
 #include "settings.hpp"
 #include "logic.hpp"
 #include "ui_hal.h"
@@ -14,10 +15,19 @@
 
 #define _TO_MS(BODY) ((BODY) * 60ll * 1000ll)
 
+#ifdef LOGIC_DEBUG
+#define _DEBUG(...) { \
+    char buf[256]; \
+    snprintf(buf, sizeof(buf), __VA_ARGS__); \
+    Serial.println(buf); \
+};
+#else
+#define _DEBUG(...) {}
+#endif
+
 bool need_state_backup = false;
 
-bool compressor_is_on = false;
-bool mixer_is_on = false;
+bool channel_status[NUM_CHANNEL] = {false};
 
 static int64_t cycles_in_state = 0;
 LogicState state = LogicState::Idle;
@@ -60,54 +70,40 @@ void logic_task(void *pvParameter) {
   }
 
   vTaskDelete(NULL);
+} 
+
+void logic_read_serial() {
+  while (Serial2.available() > 0) {
+    char report = Serial2.read();
+    switch (report) {
+        case '0':
+        case 'a':
+            channel_status[Compressor] = report == '0';
+            break;
+        case '1':
+        case 'b':
+            channel_status[Mixer] = report == '1';
+            break;
+        default:
+            _DEBUG("unknown serial command: %d", report);
+    }
+  }
+}
+
+void logic_write(Channel_t c, bool on) {
+    if (channel_status[c] == on) {
+        return;
+    }
+    Serial2.print(commands[c*2+on]);
 }
 
 void logic_tick() {
 
+  logic_read_serial();
+
   float temp = temperature_get();
-  // float past_temp = (float) past_temp_value;
-  // float store_temp = (float) store_temp_value;
-  // bool is_heating = heat_enabled;
-  // bool is_cooling = cool_enabled;
 
-  // int64_t past_time_ms = ((int64_t)past_time_value) * 60ll * 1000ll;
-
-  // TODO: проверка безопасности температуры
-  // если температура выше нормы, запретить нагрев
-  
-  Serial.print("STATE:");
-  Serial.println(state);
-
-  Serial.print("SERIAL TEST: ");
-  while (Serial2.available() > 0) {
-
-    char report = Serial2.read();
-    switch (report) {
-        case '0':
-            compressor_is_on = true;
-            break;
-        case 'a':
-            compressor_is_on = false;
-            break;
-        case '1':
-            mixer_is_on = true;
-            break;
-        case 'b':
-            mixer_is_on = false;
-            break;
-    }
-
-    // say what you got:
-    Serial.print(report);
-  }
-  Serial.println();
-
-  Serial.print("comp=");
-  Serial.println(compressor_is_on);
-  Serial.print("mixer=");
-  Serial.println(mixer_is_on);
-  Serial.print("cnt=");
-  Serial.println(cycles_in_state);
+  _DEBUG("State=%d, comp=%d, mixer=%d, cnt=%lld", state, channel_status[Compressor], channel_status[Mixer], cycles_in_state);
 
   int64_t ct_ms;
   int64_t d_ms;
@@ -120,57 +116,68 @@ void logic_tick() {
       // ничего не нужно делать: ждем
       break;
 
-    case LogicState::Cooling_Cooling:
-      // нагрев
-      if (!compressor_is_on || !mixer_is_on) {
-          Serial2.print('0'); // включить компрессор
-          Serial2.print('1'); // включить перемешивание
+    case LogicState::Cooling_Start:
+
+      // включить компрессор, включить перемешивание (один раз)
+      if (cycles_in_state == 0) {
+          // включить компрессор и перемешивание
+          logic_write(Compressor, true);
+          logic_write(Mixer, true);
+          break;
       }
+
+      // нет ответа на команду включения вовремя - перейти в ошибку
+      if (!channel_status[Compressor] || !channel_status[Mixer]) {
+          _DEBUG("error while enabling compressor and mixer");
+          logic_change_state(Idle);
+          return;
+      }
+
+      // все включено - перейти в активное охлаждение
+      logic_change_state(Cooling_Cooling);
+
+    case LogicState::Cooling_Cooling:
 
       // успешное охлаждение, перейти в хранение
       if (temp <= (float) cool_temp_value) {
-          Serial2.print('a'); // выключить компрессор
-          state = Cooling_Store;
-          cycles_in_state = 0;
+          logic_write(Compressor, false);
+          logic_change_state(Cooling_Store);
+          return;
       }
+
+      // включить компрессор и мешалку, если они были выключены ранее
+      logic_write(Compressor, true);
+      logic_write(Mixer, true);
 
       break;
 
     case LogicState::Cooling_Store:
-      // охлаждение
-      if (compressor_is_on) {
-          Serial2.print('a'); // выключить компрессор
+
+      // поднялась температура: перейти обратно
+      if (temp > (float) cool_temp_value + TEMPERATURE_DELTA) {
+          logic_change_state(Cooling_Cooling);
+          return;
       }
 
-      if (temp > (float) cool_temp_value + TEMPERATURE_DELTA) {
-          // перейти обратно в охлаждение
-          state = Cooling_Cooling;
-          cycles_in_state = 0;
-          // включить компрессор
-          Serial2.print('0'); 
-      }
+      // выключить компрессор
+      logic_write(Compressor, false);
 
       ct_ms = LOGIC_TASK_INTERVAL_MS * cycles_in_state;
       d_ms = _TO_MS(mix_delay_value);
       a = (ct_ms - d_ms) % _TO_MS(mix_value + before_mix_value);
 
-      Serial.print("test ct_ms=");
-      Serial.println(ct_ms);
-      Serial.print("test d_ms=");
-      Serial.println(d_ms);
-      Serial.print("test a=");
-      Serial.println(a);
+      _DEBUG("test ct_ms=%lld, d_ms=%lld, a=%lld", ct_ms, d_ms, a);
 
       if (ct_ms < d_ms) {
           // начальная задержка
           // включить перемешивание (оставить его включенным)
-          Serial2.print('1'); 
+          logic_write(Mixer, true);
       } else if (a < _TO_MS(before_mix_value)) {
           // выключить перемешивание
-          Serial2.print('b'); 
+          logic_write(Mixer, false);
       } else {
           // (снова) включить перемешивание
-          Serial2.print('1'); 
+          logic_write(Mixer, true);
       }
 
       break;
@@ -195,6 +202,13 @@ void on_main_switch_pressed() {
   logic_sync_ui();
 }
 
+void logic_change_state(LogicState_t n) {
+    _DEBUG("_logic_change_state to %d", n);
+    state = n;
+    cycles_in_state = 0;
+    need_state_backup = true;
+}
+
 void on_cooling_pressed() {
   // этот метод вызывается из таска интерфейса
   // когда нажата "главная кнопка"
@@ -205,20 +219,15 @@ void on_cooling_pressed() {
       switch (state) {
       case Idle:
           // начать программу
-          state = Cooling_Cooling;
-          cycles_in_state = 0;
-          // включить компрессор
-          Serial2.print('0'); 
-          // включить перемешивание
-          Serial2.print('1'); 
+          logic_change_state(Cooling_Start);
           break;
       case Cooling_Cooling:
       case Cooling_Store:
           // завершить программу
-          state = Idle;
-          cycles_in_state = 0;
-          Serial2.print('a'); // выключить компрессор
-          Serial2.print('b'); // выключить перемешивание
+          logic_change_state(Idle);
+          break;
+      case Cooling_Start:
+          // повторный тык, игнорировать нажатие
           break;
       }
   });
@@ -232,13 +241,19 @@ void logic_sync_ui() {
     // синхронизировать состояние логического модуля с интерфейсом пользователя
     // int64_t past_time_left_ms = ((int64_t)past_time_value) * 60ll * 1000ll - cycles_in_pasterization * LOGIC_TASK_INTERVAL_MS;
     // TODO
+    auto const disabled_color = lv_color_hex(0x1499FF);
+    auto const enabled_color = lv_color_hex(0x800000);
+    auto const done_color = lv_color_hex(0x008000);
+
     switch (state) {
         case Cooling_Cooling:
+            lv_obj_set_style_bg_color(ui_CoolingButton, enabled_color, LV_PART_MAIN | LV_STATE_DEFAULT);
+            break;
         case Cooling_Store:
-            lv_obj_add_state(ui_CoolingButton, LV_STATE_CHECKED);
+            lv_obj_set_style_bg_color(ui_CoolingButton, done_color, LV_PART_MAIN | LV_STATE_DEFAULT);
             break;
         default:
-            lv_obj_clear_state(ui_CoolingButton, LV_STATE_CHECKED);
+            lv_obj_set_style_bg_color(ui_CoolingButton, disabled_color, LV_PART_MAIN | LV_STATE_DEFAULT);
             break;
     }
 
@@ -275,12 +290,16 @@ void logic_restore_state() {
   }
 
   state = (LogicState_t) backup.getShort(_BACKUP_STATE_KEY, (int16_t) LogicState::Idle);
+  // TODO
   switch (state) {
     case Idle:
       break;
-    case Unknown:
+    case Cooling_Start:
+    case Cooling_Cooling:
+    case Cooling_Store:
+      state = Cooling_Cooling;
     default:
-      state = LogicState::Idle;
+      state = Idle;
       break;
   }
 
