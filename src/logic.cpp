@@ -90,16 +90,87 @@ void logic_read_serial() {
   }
 }
 
-void logic_write(Channel_t c, bool on) {
-    if (channel_status[c] == on) {
-        return;
+bool logic_write_internal(Channel_t c, bool on) {
+    char cmd = commands[c*2+on];
+    Serial2.print(cmd);
+
+    vTaskDelay(pdMS_TO_TICKS(10));
+
+    if (Serial2.available() == 0) {
+        _DEBUG("logic_write: no data available after 10ms");
+        return false;
     }
-    Serial2.print(commands[c*2+on]);
+
+    char resp = Serial2.read();
+    if (resp != cmd) {
+        _DEBUG("logic_write: weird response: expected %d, got %d", cmd, resp);
+        return false;
+    }
+
+    channel_status[c] = on;
+    return true;
+
+}
+
+bool logic_write(Channel_t c, bool on) {
+    if (channel_status[c] == on) {
+        return true;
+    }
+
+    bool r = logic_write_internal(c, on);
+    if (!r) {
+        // установить флаг, чтобы было время 
+        // TODO
+        channel_status[c] = on; 
+        return logic_reset();
+    }
+    return true;
+}
+
+bool logic_reset() {
+
+    // отправить команду перезагрузки
+    Serial2.print(0xAA);
+    Serial2.print(0x55);
+
+    // дать время для ответа
+    vTaskDelay(pdMS_TO_TICKS(10));
+
+    // проверить, появился ли ответ
+    if (Serial2.available() < 2) {
+        _DEBUG("logic_reset failed: no response to reset");
+        logic_change_state(Fatal);
+        return false;
+    } 
+
+    // прочитать ответ
+    char a = Serial2.read();
+    char b = Serial2.read();
+    if (a != 0xAA || b != 0x55) {
+        _DEBUG("logic_reset failed: invalid response: %d %d", a, b);
+        logic_change_state(Fatal);
+        return false;
+    }
+
+    // восстановить состояние
+    for (int c = 0; c < NUM_CHANNEL; c++) {
+        if (channel_status[c]) {
+            bool r = logic_write_internal((Channel_t)c, true);
+            if (!r) {
+                _DEBUG("logic_reset failed to restore state");
+                logic_change_state(Fatal);
+                return false;
+            }
+
+        }
+    }
+
+    return true;
 }
 
 void logic_tick() {
 
-  logic_read_serial();
+    // TODO: check for abort 
 
   float temp = temperature_get();
 
