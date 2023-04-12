@@ -15,18 +15,15 @@ lv_obj_t * ui_ManualControlPanel;
 void ui_event_CoolingButton(lv_event_t * e);
 lv_obj_t * ui_CoolingButton;
 lv_obj_t * ui_CoolingButtonLabel;
+void ui_event_MixingButton(lv_event_t * e);
+lv_obj_t * ui_MixingButton;
+lv_obj_t * ui_MixingButtonLabel;
 void ui_event_CleaningAcidButton(lv_event_t * e);
 lv_obj_t * ui_CleaningAcidButton;
 lv_obj_t * ui_CleaningAcidButtonLabel;
 void ui_event_CleaningBaseButton(lv_event_t * e);
 lv_obj_t * ui_CleaningBaseButton;
 lv_obj_t * ui_CleaningBaseButtonLabel;
-void ui_event_RinsingButton(lv_event_t * e);
-lv_obj_t * ui_RinsingButton;
-lv_obj_t * ui_RinsingButtonLabel;
-void ui_event_MixingButton(lv_event_t * e);
-lv_obj_t * ui_MixingButton;
-lv_obj_t * ui_MixingButtonLabel;
 void ui_event_ManualControlScreen(lv_event_t * e);
 lv_obj_t * ui_ManualControlScreen;
 lv_obj_t * ui_TopPanel1;
@@ -156,6 +153,14 @@ void ui_event_CoolingButton(lv_event_t * e)
         on_main_cooling(e);
     }
 }
+void ui_event_MixingButton(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        on_main_mixing(e);
+    }
+}
 void ui_event_CleaningAcidButton(lv_event_t * e)
 {
     lv_event_code_t event_code = lv_event_get_code(e);
@@ -170,22 +175,6 @@ void ui_event_CleaningBaseButton(lv_event_t * e)
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_CLICKED) {
         on_main_base(e);
-    }
-}
-void ui_event_RinsingButton(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-    lv_obj_t * target = lv_event_get_target(e);
-    if(event_code == LV_EVENT_CLICKED) {
-        on_main_rinsing(e);
-    }
-}
-void ui_event_MixingButton(lv_event_t * e)
-{
-    lv_event_code_t event_code = lv_event_get_code(e);
-    lv_obj_t * target = lv_event_get_target(e);
-    if(event_code == LV_EVENT_CLICKED) {
-        on_main_mixing(e);
     }
 }
 void ui_event_ManualControlScreen(lv_event_t * e)
@@ -444,7 +433,7 @@ void ui_MainScreen_screen_init(void)
     ui_ManualControlPanel = lv_obj_create(ui_MainScreen);
     lv_obj_set_width(ui_ManualControlPanel, lv_pct(96));
     lv_obj_set_height(ui_ManualControlPanel, lv_pct(74));
-    lv_obj_set_x(ui_ManualControlPanel, 0);
+    lv_obj_set_x(ui_ManualControlPanel, -1);
     lv_obj_set_y(ui_ManualControlPanel, -9);
     lv_obj_set_align(ui_ManualControlPanel, LV_ALIGN_BOTTOM_MID);
     lv_obj_set_flex_flow(ui_ManualControlPanel, LV_FLEX_FLOW_ROW_WRAP);
@@ -462,7 +451,7 @@ void ui_MainScreen_screen_init(void)
     lv_obj_set_height(ui_CoolingButton, lv_pct(24));
     lv_obj_set_x(ui_CoolingButton, 0);
     lv_obj_set_y(ui_CoolingButton, -180);
-    lv_obj_set_align(ui_CoolingButton, LV_ALIGN_BOTTOM_MID);
+    lv_obj_set_align(ui_CoolingButton, LV_ALIGN_CENTER);
     lv_obj_add_flag(ui_CoolingButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
     lv_obj_clear_flag(ui_CoolingButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_style_radius(ui_CoolingButton, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -473,6 +462,25 @@ void ui_MainScreen_screen_init(void)
     lv_obj_set_align(ui_CoolingButtonLabel, LV_ALIGN_CENTER);
     lv_label_set_text(ui_CoolingButtonLabel, "Охлаждение");
     lv_obj_set_style_text_font(ui_CoolingButtonLabel, &ui_font_bigfont, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_MixingButton = lv_btn_create(ui_ManualControlPanel);
+    lv_obj_set_width(ui_MixingButton, lv_pct(99));
+    lv_obj_set_height(ui_MixingButton, lv_pct(24));
+    lv_obj_set_x(ui_MixingButton, -2);
+    lv_obj_set_y(ui_MixingButton, -208);
+    lv_obj_set_align(ui_MixingButton, LV_ALIGN_CENTER);
+    lv_obj_add_flag(ui_MixingButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ui_MixingButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ui_MixingButton, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ui_MixingButtonLabel = lv_label_create(ui_MixingButton);
+    lv_obj_set_width(ui_MixingButtonLabel, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ui_MixingButtonLabel, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ui_MixingButtonLabel, 0);
+    lv_obj_set_y(ui_MixingButtonLabel, 1);
+    lv_obj_set_align(ui_MixingButtonLabel, LV_ALIGN_CENTER);
+    lv_label_set_text(ui_MixingButtonLabel, "Перемешивание");
+    lv_obj_set_style_text_font(ui_MixingButtonLabel, &ui_font_bigfont, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     ui_CleaningAcidButton = lv_btn_create(ui_ManualControlPanel);
     lv_obj_set_width(ui_CleaningAcidButton, lv_pct(99));
@@ -512,51 +520,12 @@ void ui_MainScreen_screen_init(void)
     lv_label_set_text(ui_CleaningBaseButtonLabel, "Промывка щелочью");
     lv_obj_set_style_text_font(ui_CleaningBaseButtonLabel, &ui_font_bigfont, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_RinsingButton = lv_btn_create(ui_ManualControlPanel);
-    lv_obj_set_width(ui_RinsingButton, lv_pct(42));
-    lv_obj_set_height(ui_RinsingButton, lv_pct(24));
-    lv_obj_set_x(ui_RinsingButton, 0);
-    lv_obj_set_y(ui_RinsingButton, -60);
-    lv_obj_set_align(ui_RinsingButton, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_RinsingButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_clear_flag(ui_RinsingButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_radius(ui_RinsingButton, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_RinsingButtonLabel = lv_label_create(ui_RinsingButton);
-    lv_obj_set_width(ui_RinsingButtonLabel, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_RinsingButtonLabel, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_RinsingButtonLabel, 0);
-    lv_obj_set_y(ui_RinsingButtonLabel, 1);
-    lv_obj_set_align(ui_RinsingButtonLabel, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_RinsingButtonLabel, "Полоскание");
-    lv_obj_set_style_text_font(ui_RinsingButtonLabel, &ui_font_bigfont, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_MixingButton = lv_btn_create(ui_ManualControlPanel);
-    lv_obj_set_width(ui_MixingButton, lv_pct(55));
-    lv_obj_set_height(ui_MixingButton, lv_pct(24));
-    lv_obj_set_x(ui_MixingButton, 0);
-    lv_obj_set_y(ui_MixingButton, -120);
-    lv_obj_set_align(ui_MixingButton, LV_ALIGN_CENTER);
-    lv_obj_add_flag(ui_MixingButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_clear_flag(ui_MixingButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_radius(ui_MixingButton, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_MixingButtonLabel = lv_label_create(ui_MixingButton);
-    lv_obj_set_width(ui_MixingButtonLabel, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_MixingButtonLabel, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_MixingButtonLabel, 0);
-    lv_obj_set_y(ui_MixingButtonLabel, 1);
-    lv_obj_set_align(ui_MixingButtonLabel, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_MixingButtonLabel, "Перемешивание");
-    lv_obj_set_style_text_font(ui_MixingButtonLabel, &ui_font_bigfont, LV_PART_MAIN | LV_STATE_DEFAULT);
-
     lv_obj_add_event_cb(ui_SettingsButton1, ui_event_SettingsButton1, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_ManualControlButton, ui_event_ManualControlButton, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_CoolingButton, ui_event_CoolingButton, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_MixingButton, ui_event_MixingButton, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_CleaningAcidButton, ui_event_CleaningAcidButton, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_CleaningBaseButton, ui_event_CleaningBaseButton, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_RinsingButton, ui_event_RinsingButton, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_MixingButton, ui_event_MixingButton, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_MainScreen, ui_event_MainScreen, LV_EVENT_ALL, NULL);
 
 }

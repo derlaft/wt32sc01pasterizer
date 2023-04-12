@@ -245,7 +245,6 @@ void logic_sync_ui() {
 
     lv_obj_clear_state(ui_CleaningAcidButton, LV_STATE_CHECKED);
     lv_obj_clear_state(ui_CleaningBaseButton, LV_STATE_CHECKED);
-    lv_obj_clear_state(ui_RinsingButton, LV_STATE_CHECKED);
     lv_obj_clear_state(ui_MixingButton, LV_STATE_CHECKED);
 }
 
