@@ -127,15 +127,7 @@ bool logic_write(Channel_t c, bool on) {
     return true;
 }
 
-bool logic_reset() {
-
-    // отправить команду перезагрузки
-    Serial2.print(0xAA);
-    Serial2.print(0x55);
-
-    // дать время для ответа
-    vTaskDelay(pdMS_TO_TICKS(10));
-
+bool logic_after_reset() {
     // проверить, появился ли ответ
     if (Serial2.available() < 2) {
         _DEBUG("logic_reset failed: no response to reset");
@@ -166,6 +158,31 @@ bool logic_reset() {
     }
 
     return true;
+}
+
+bool logic_reset() {
+
+    // отправить команду перезагрузки
+    Serial2.print(0xAA);
+    Serial2.print(0x55);
+
+    // дать время для ответа
+    vTaskDelay(pdMS_TO_TICKS(10));
+
+    return logic_after_reset();
+}
+
+void logic_check_for_reset() {
+    if (Serial2.available() < 2) {
+        return;
+    }
+    if (Serial2.peek() == 0xAA) {
+        char n = Serial2.read();
+        n = Serial2.read();
+        if (n == 0x55) {
+            logic_after_reset();
+        }
+    }
 }
 
 void logic_tick() {
@@ -260,6 +277,9 @@ void logic_tick() {
 }
 
 void logic_change_state(LogicState_t n) {
+    if (state == Fatal) {
+        return;
+    }
     _DEBUG("logic_change_state to %d", n);
     state = n;
     cycles_in_state = 0;
