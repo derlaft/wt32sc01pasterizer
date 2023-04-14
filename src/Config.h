@@ -57,7 +57,7 @@
 
 // Время задержки выключения мешалки при переходе в режим хранения
 #define DEF_MIX_DELAY_TIME 1
-#define MIN_MIX_DELAY_TIME 1
+#define MIN_MIX_DELAY_TIME 0
 #define MAX_MIX_DELAY_TIME 10
 
 // Интервал работы логики
