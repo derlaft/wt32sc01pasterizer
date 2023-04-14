@@ -197,11 +197,11 @@ void logic_tick() {
 
     case LogicState::Cooling_Start:
 
-      // успешное охлаждение, перейти в хранение
+      // молоко уже холодное, перейти в режим хранения
       if (temp <= (float) cool_temp_value) {
           logic_change_state(Cooling_Store);
           // избежать изначального включения перемешивания
-          cycles_in_state = _TO_MS(mix_delay_value) + LOGIC_TASK_INTERVAL_MS;
+          cycles_in_state = _TO_MS(mix_delay_value) / LOGIC_TASK_INTERVAL_MS + 1;
           return;
       }
 
