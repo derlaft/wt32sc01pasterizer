@@ -243,7 +243,8 @@ void logic_tick() {
       // компрессор должен быть выключен
       if (!logic_write(Compressor, false)) {
           // игорировать ошику, но не продолжать
-          break;
+          cycles_in_state ++;
+          return;
       }
 
       ct_ms = LOGIC_TASK_INTERVAL_MS * cycles_in_state;
@@ -257,19 +258,22 @@ void logic_tick() {
           // включить перемешивание (оставить его включенным)
           if (!logic_write(Mixer, true)) {
               // игорировать ошику, но не продолжать
-              break;
+              cycles_in_state ++;
+              return;
           }
       } else if (a < _TO_MS(before_mix_value)) {
           // выключить перемешивание
           if (!logic_write(Mixer, false)) {
               // игорировать ошику, но не продолжать
-              break;
+              cycles_in_state ++;
+              return;
           }
       } else {
           // (снова) включить перемешивание
           if (!logic_write(Mixer, true)) {
               // игорировать ошику, но не продолжать
-              break;
+              cycles_in_state ++;
+              return;
           }
       }
 
