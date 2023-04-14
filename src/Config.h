@@ -47,7 +47,7 @@
 
 // Диапазон времени до перемешивания
 #define DEF_BEFORE_MIX_TIME 1
-#define MIN_BEFORE_MIX_TIME 10
+#define MIN_BEFORE_MIX_TIME 1
 #define MAX_BEFORE_MIX_TIME 30
 
 // Диапазон времени перемешивания

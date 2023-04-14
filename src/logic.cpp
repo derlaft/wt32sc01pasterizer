@@ -306,8 +306,7 @@ void logic_safety_check() {
 void logic_sync_ui() {
 
     if (fatal_error) {
-        static const char * btns[] ={"OK", ""};
-        lv_obj_t * mbox1 = lv_msgbox_create(NULL, "Fatal error", "", btns, false);
+        lv_obj_t * mbox1 = lv_msgbox_create(NULL, "Fatal error", "", NULL, true);
         lv_obj_center(mbox1);
         fatal_error = false;
     }
