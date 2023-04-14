@@ -326,6 +326,7 @@ void logic_safety_check() {
 
 void logic_sync_ui() {
 
+    /*
     if (fatal_error) {
         lv_obj_t * mbox1 = lv_msgbox_create(NULL, "Ошибка", "Нарушена связь с ПЛС", NULL, true);
 
@@ -339,6 +340,7 @@ void logic_sync_ui() {
 
         fatal_error = false;
     }
+    */
 
     // синхронизировать состояние логического модуля с интерфейсом пользователя
     // int64_t past_time_left_ms = ((int64_t)past_time_value) * 60ll * 1000ll - cycles_in_pasterization * LOGIC_TASK_INTERVAL_MS;
