@@ -105,12 +105,13 @@ bool logic_write(Channel_t c, bool on) {
     if (want_channel_status[c] == on) {
         return true;
     }
-    want_channel_status[c] = on;
 
     bool r = logic_write_internal(c, on);
     if (!r) {
         return logic_reset();
     }
+
+    want_channel_status[c] = on;
     return true;
 }
 
@@ -195,6 +196,14 @@ void logic_tick() {
       break;
 
     case LogicState::Cooling_Start:
+
+      // успешное охлаждение, перейти в хранение
+      if (temp <= (float) cool_temp_value) {
+          logic_change_state(Cooling_Store);
+          // избежать изначального включения перемешивания
+          cycles_in_state = _TO_MS(mix_delay_value) + LOGIC_TASK_INTERVAL_MS;
+          return;
+      }
 
       // включить компрессор, включить перемешивание (один раз)
       if (!logic_write(Compressor, true)) {
@@ -306,8 +315,16 @@ void logic_safety_check() {
 void logic_sync_ui() {
 
     if (fatal_error) {
-        lv_obj_t * mbox1 = lv_msgbox_create(NULL, "Fatal error", "", NULL, true);
+        lv_obj_t * mbox1 = lv_msgbox_create(NULL, "Ошибка", "Нарушена связь с ПЛС", NULL, true);
+
+        lv_obj_t * title = lv_msgbox_get_title(mbox1);
+        lv_obj_set_style_text_font(title, &ui_font_bigfont, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+        lv_obj_t * body = lv_msgbox_get_text(mbox1);
+        lv_obj_set_style_text_font(body, &ui_font_hack, LV_PART_MAIN | LV_STATE_DEFAULT);
+
         lv_obj_center(mbox1);
+
         fatal_error = false;
     }
 
