@@ -26,6 +26,7 @@
 #endif
 
 bool need_state_backup = false;
+bool fatal_error = false;
 
 bool channel_status[NUM_CHANNEL] = {false};
 bool want_channel_status[NUM_CHANNEL] = {false};
@@ -92,6 +93,8 @@ bool logic_write_internal(Channel_t c, bool on) {
     }
 
     channel_status[c] = on;
+    // не дать отправить следующую команду слишком быстро
+    vTaskDelay(pdMS_TO_TICKS(10));
 
     _DEBUG("logic_write_internal write %02x ok", cmd);
     return true;
@@ -123,7 +126,6 @@ bool logic_after_reset() {
             bool r = logic_write_internal((Channel_t)c, true);
             if (!r) {
                 _DEBUG("logic_reset failed to restore state");
-                logic_change_state(Fatal);
                 return false;
             }
 
@@ -141,11 +143,16 @@ bool logic_reset() {
 
     if (!Serial2.find(reset_seq)) {
         _DEBUG("logic_reset failed to get response");
-        logic_change_state(Fatal);
+        fatal_error = true;
         return false;
     }
 
-    return logic_after_reset();
+    if (!logic_after_reset()) {
+        fatal_error = true;
+        return false;
+    }
+
+    return true;
 }
 
 void logic_check_for_reset() {
@@ -190,20 +197,11 @@ void logic_tick() {
     case LogicState::Cooling_Start:
 
       // включить компрессор, включить перемешивание (один раз)
-      if (cycles_in_state == 0) {
-          // включить компрессор и перемешивание
-          if (!logic_write(Compressor, true)) {
-              return;
-          }
-          if (!logic_write(Mixer, true)) {
-              return;
-          }
-          break;
+      if (!logic_write(Compressor, true)) {
+          logic_change_state(Idle);
+          return;
       }
-
-      // нет ответа на команду включения вовремя - перейти в ошибку
-      if (!channel_status[Compressor] || !channel_status[Mixer]) {
-          _DEBUG("error while enabling compressor and mixer");
+      if (!logic_write(Mixer, true)) {
           logic_change_state(Idle);
           return;
       }
@@ -215,20 +213,13 @@ void logic_tick() {
 
       // успешное охлаждение, перейти в хранение
       if (temp <= (float) cool_temp_value) {
-          if (!logic_write(Compressor, false)) {
-              return;
-          }
           logic_change_state(Cooling_Store);
           return;
       }
 
       // включить компрессор и мешалку, если они были выключены ранее
-      if (!logic_write(Compressor, true)) {
-          return;
-      }
-      if (!logic_write(Mixer, true)) {
-          return;
-      }
+      logic_write(Compressor, true);
+      logic_write(Mixer, true);
 
       break;
 
@@ -240,10 +231,8 @@ void logic_tick() {
           return;
       }
 
-      // выключить компрессор
-      if (!logic_write(Compressor, false)) {
-          return;
-      }
+      // компрессор должен быть выключен
+      logic_write(Compressor, false);
 
       ct_ms = LOGIC_TASK_INTERVAL_MS * cycles_in_state;
       d_ms = _TO_MS(mix_delay_value);
@@ -254,19 +243,13 @@ void logic_tick() {
       if (ct_ms < d_ms) {
           // начальная задержка
           // включить перемешивание (оставить его включенным)
-          if (!logic_write(Mixer, true)) {
-              return;
-          }
+          logic_write(Mixer, true);
       } else if (a < _TO_MS(before_mix_value)) {
           // выключить перемешивание
-          if (!logic_write(Mixer, false)) {
-              return;
-          }
+          logic_write(Mixer, false);
       } else {
           // (снова) включить перемешивание
-          if (!logic_write(Mixer, true)) {
-              return;
-          }
+          logic_write(Mixer, true);
       }
 
       break;
@@ -320,14 +303,13 @@ void on_cooling_pressed() {
 void logic_safety_check() {
 }
 
-bool error_shown = false;
-
 void logic_sync_ui() {
 
-    if (!error_shown && state == Fatal) {
-        lv_obj_t * mbox1 = lv_msgbox_create(NULL, "Fatal error", "", NULL, false);
+    if (fatal_error) {
+        static const char * btns[] ={"OK", ""};
+        lv_obj_t * mbox1 = lv_msgbox_create(NULL, "Fatal error", "", btns, false);
         lv_obj_center(mbox1);
-        error_shown = true;
+        fatal_error = false;
     }
 
     // синхронизировать состояние логического модуля с интерфейсом пользователя

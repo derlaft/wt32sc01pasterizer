@@ -46,7 +46,7 @@
 #define MAX_COOL_TEMP 8
 
 // Диапазон времени до перемешивания
-#define DEF_BEFORE_MIX_TIME 15
+#define DEF_BEFORE_MIX_TIME 1
 #define MIN_BEFORE_MIX_TIME 10
 #define MAX_BEFORE_MIX_TIME 30
 
