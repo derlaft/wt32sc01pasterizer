@@ -28,6 +28,7 @@
 bool need_state_backup = false;
 
 bool channel_status[NUM_CHANNEL] = {false};
+bool want_channel_status[NUM_CHANNEL] = {false};
 
 static int64_t cycles_in_state = 0;
 LogicState state = LogicState::Idle;
@@ -76,8 +77,6 @@ void logic_task(void *pvParameter) {
 } 
 
 bool logic_write_internal(Channel_t c, bool on) {
-
-
     _DEBUG("logic_write_internal: available for write: %d", Serial2.availableForWrite());
 
     char cmd = commands[c*2+on];
@@ -87,7 +86,6 @@ bool logic_write_internal(Channel_t c, bool on) {
     _DEBUG("logic_write_internal write %02x", cmd);
 
     char buf[2] = {cmd, 0};
-
     if (!Serial2.find(buf)) {
         _DEBUG("logic_write: failed to ack %02x", cmd);
         return false;
@@ -101,24 +99,27 @@ bool logic_write_internal(Channel_t c, bool on) {
 }
 
 bool logic_write(Channel_t c, bool on) {
-    if (channel_status[c] == on) {
+    if (want_channel_status[c] == on) {
         return true;
     }
+    want_channel_status[c] = on;
 
     bool r = logic_write_internal(c, on);
     if (!r) {
-        // установить флаг, чтобы было время 
-        // TODO
-        channel_status[c] = on; 
         return logic_reset();
     }
     return true;
 }
 
 bool logic_after_reset() {
+    // сбросить состояние с контроллера
+    for (int c = 0; c < NUM_CHANNEL; c++) {
+        channel_status[c] = false;
+    }
+
     // восстановить состояние
     for (int c = 0; c < NUM_CHANNEL; c++) {
-        if (channel_status[c]) {
+        if (want_channel_status[c]) {
             bool r = logic_write_internal((Channel_t)c, true);
             if (!r) {
                 _DEBUG("logic_reset failed to restore state");
@@ -304,6 +305,9 @@ void on_cooling_pressed() {
       case Cooling_Store:
           // завершить программу
           logic_change_state(Idle);
+          // выключив оба пина
+          logic_write(Compressor, false);
+          logic_write(Mixer, false);
           break;
       case Cooling_Start:
           // повторный тык, игнорировать нажатие
