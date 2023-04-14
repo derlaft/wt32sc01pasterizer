@@ -45,7 +45,7 @@ func main() {
 		scanner := bufio.NewScanner(os.Stdin)
 		for scanner.Scan() {
 			str := scanner.Text()
-			d, _ := strconv.ParseInt(str, 16, 8)
+			d, _ := strconv.ParseInt(str, 16, 16)
 			if d == 0 {
 				continue
 			}

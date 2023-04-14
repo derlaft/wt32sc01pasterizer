@@ -163,6 +163,7 @@ void logic_check_for_reset() {
         }
 
         if (n == 0x55) {
+            _DEBUG("logic_check_for_reset: reset");
             logic_after_reset();
         }
     }
