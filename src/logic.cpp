@@ -241,7 +241,10 @@ void logic_tick() {
       }
 
       // компрессор должен быть выключен
-      logic_write(Compressor, false);
+      if (!logic_write(Compressor, false)) {
+          // игорировать ошику, но не продолжать
+          break;
+      }
 
       ct_ms = LOGIC_TASK_INTERVAL_MS * cycles_in_state;
       d_ms = _TO_MS(mix_delay_value);
@@ -252,13 +255,22 @@ void logic_tick() {
       if (ct_ms < d_ms) {
           // начальная задержка
           // включить перемешивание (оставить его включенным)
-          logic_write(Mixer, true);
+          if (!logic_write(Mixer, true)) {
+              // игорировать ошику, но не продолжать
+              break;
+          }
       } else if (a < _TO_MS(before_mix_value)) {
           // выключить перемешивание
-          logic_write(Mixer, false);
+          if (!logic_write(Mixer, false)) {
+              // игорировать ошику, но не продолжать
+              break;
+          }
       } else {
           // (снова) включить перемешивание
-          logic_write(Mixer, true);
+          if (!logic_write(Mixer, true)) {
+              // игорировать ошику, но не продолжать
+              break;
+          }
       }
 
       break;
