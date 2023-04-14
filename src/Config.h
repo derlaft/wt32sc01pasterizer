@@ -5,6 +5,7 @@
 #define LOGIC_SERIAL_SPEED 1200
 #define LOGIC_SERIAL_RX 5
 #define LOGIC_SERIAL_TX 33
+#define LOGIC_SERIAL_TIMEOUT 500
 
 // таймаут попыток работы с датчиком температуры
 #define TEMP_PROBE_TIMEOUT_MS 2000

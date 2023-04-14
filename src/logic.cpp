@@ -41,6 +41,7 @@ void logic_setup() {
 
   // enable second serial
   Serial2.begin(LOGIC_SERIAL_SPEED, SERIAL_8N2, LOGIC_SERIAL_RX, LOGIC_SERIAL_TX);
+  Serial2.setTimeout(LOGIC_SERIAL_TIMEOUT);
 
   xTaskCreatePinnedToCore(logic_task, "logic", 4096*2, NULL, tskIDLE_PRIORITY+10, NULL, 1);
 }
@@ -53,6 +54,8 @@ void logic_task(void *pvParameter) {
   TickType_t xLastWakeTime;
   const TickType_t xFrequency = pdMS_TO_TICKS(LOGIC_TASK_INTERVAL_MS);
   xLastWakeTime = xTaskGetTickCount();
+
+  _LOGIC_LOCK(logic_reset());
 
   while(1) {
     vTaskDelayUntil(&xLastWakeTime, xFrequency);
@@ -72,42 +75,27 @@ void logic_task(void *pvParameter) {
   vTaskDelete(NULL);
 } 
 
-void logic_read_serial() {
-  while (Serial2.available() > 0) {
-    char report = Serial2.read();
-    switch (report) {
-        case '0':
-        case 'a':
-            channel_status[Compressor] = report == '0';
-            break;
-        case '1':
-        case 'b':
-            channel_status[Mixer] = report == '1';
-            break;
-        default:
-            _DEBUG("unknown serial command: %d", report);
-    }
-  }
-}
-
 bool logic_write_internal(Channel_t c, bool on) {
+
+
+    _DEBUG("logic_write_internal: available for write: %d", Serial2.availableForWrite());
+
     char cmd = commands[c*2+on];
-    Serial2.print(cmd);
+    Serial2.write(cmd);
+    Serial2.flush();
 
-    vTaskDelay(pdMS_TO_TICKS(10));
+    _DEBUG("logic_write_internal write %02x", cmd);
 
-    if (Serial2.available() == 0) {
-        _DEBUG("logic_write: no data available after 10ms");
-        return false;
-    }
+    char buf[2] = {cmd, 0};
 
-    char resp = Serial2.read();
-    if (resp != cmd) {
-        _DEBUG("logic_write: weird response: expected %d, got %d", cmd, resp);
+    if (!Serial2.find(buf)) {
+        _DEBUG("logic_write: failed to ack %02x", cmd);
         return false;
     }
 
     channel_status[c] = on;
+
+    _DEBUG("logic_write_internal write %02x ok", cmd);
     return true;
 
 }
@@ -128,22 +116,6 @@ bool logic_write(Channel_t c, bool on) {
 }
 
 bool logic_after_reset() {
-    // проверить, появился ли ответ
-    if (Serial2.available() < 2) {
-        _DEBUG("logic_reset failed: no response to reset");
-        logic_change_state(Fatal);
-        return false;
-    } 
-
-    // прочитать ответ
-    char a = Serial2.read();
-    char b = Serial2.read();
-    if (a != 0xAA || b != 0x55) {
-        _DEBUG("logic_reset failed: invalid response: %d %d", a, b);
-        logic_change_state(Fatal);
-        return false;
-    }
-
     // восстановить состояние
     for (int c = 0; c < NUM_CHANNEL; c++) {
         if (channel_status[c]) {
@@ -163,22 +135,33 @@ bool logic_after_reset() {
 bool logic_reset() {
 
     // отправить команду перезагрузки
-    Serial2.print(0xAA);
-    Serial2.print(0x55);
+    Serial2.write(reset_seq);
+    Serial2.flush();
 
-    // дать время для ответа
-    vTaskDelay(pdMS_TO_TICKS(10));
+    if (!Serial2.find(reset_seq)) {
+        _DEBUG("logic_reset failed to get response");
+        logic_change_state(Fatal);
+        return false;
+    }
 
     return logic_after_reset();
 }
 
 void logic_check_for_reset() {
-    if (Serial2.available() < 2) {
-        return;
-    }
-    if (Serial2.peek() == 0xAA) {
+    while (Serial2.available() > 0) {
         char n = Serial2.read();
+
+        if (n != 0xAA) {
+            _DEBUG("logic_check_for_reset: dicarding %02x", n);
+            return;
+        }
+
         n = Serial2.read();
+        if (n != 0x55) {
+            _DEBUG("logic_check_for_reset: dicarding %02x", n);
+            return;
+        }
+
         if (n == 0x55) {
             logic_after_reset();
         }
@@ -186,8 +169,6 @@ void logic_check_for_reset() {
 }
 
 void logic_tick() {
-
-    // TODO: check for abort 
 
   float temp = temperature_get();
 
@@ -209,8 +190,12 @@ void logic_tick() {
       // включить компрессор, включить перемешивание (один раз)
       if (cycles_in_state == 0) {
           // включить компрессор и перемешивание
-          logic_write(Compressor, true);
-          logic_write(Mixer, true);
+          if (!logic_write(Compressor, true)) {
+              return;
+          }
+          if (!logic_write(Mixer, true)) {
+              return;
+          }
           break;
       }
 
@@ -228,14 +213,20 @@ void logic_tick() {
 
       // успешное охлаждение, перейти в хранение
       if (temp <= (float) cool_temp_value) {
-          logic_write(Compressor, false);
+          if (!logic_write(Compressor, false)) {
+              return;
+          }
           logic_change_state(Cooling_Store);
           return;
       }
 
       // включить компрессор и мешалку, если они были выключены ранее
-      logic_write(Compressor, true);
-      logic_write(Mixer, true);
+      if (!logic_write(Compressor, true)) {
+          return;
+      }
+      if (!logic_write(Mixer, true)) {
+          return;
+      }
 
       break;
 
@@ -248,7 +239,9 @@ void logic_tick() {
       }
 
       // выключить компрессор
-      logic_write(Compressor, false);
+      if (!logic_write(Compressor, false)) {
+          return;
+      }
 
       ct_ms = LOGIC_TASK_INTERVAL_MS * cycles_in_state;
       d_ms = _TO_MS(mix_delay_value);
@@ -259,13 +252,19 @@ void logic_tick() {
       if (ct_ms < d_ms) {
           // начальная задержка
           // включить перемешивание (оставить его включенным)
-          logic_write(Mixer, true);
+          if (!logic_write(Mixer, true)) {
+              return;
+          }
       } else if (a < _TO_MS(before_mix_value)) {
           // выключить перемешивание
-          logic_write(Mixer, false);
+          if (!logic_write(Mixer, false)) {
+              return;
+          }
       } else {
           // (снова) включить перемешивание
-          logic_write(Mixer, true);
+          if (!logic_write(Mixer, true)) {
+              return;
+          }
       }
 
       break;
@@ -274,6 +273,8 @@ void logic_tick() {
   if (state != Idle) {
       cycles_in_state ++;
   }
+
+  logic_check_for_reset();
 }
 
 void logic_change_state(LogicState_t n) {
