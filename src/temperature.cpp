@@ -149,6 +149,8 @@ bool temperature_measure() {
 
 void temperature_task(void *pvParameter) {
 #ifdef DEBUG_SERIAL_TEMPERATURE
+  last_temp = 26.6;
+  display_temperature(last_temp);
   while (1) {
     while (Serial.available () == 0) {
       vTaskDelay(pdMS_TO_TICKS(100));

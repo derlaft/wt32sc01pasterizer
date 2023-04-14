@@ -314,7 +314,16 @@ void on_cooling_pressed() {
 void logic_safety_check() {
 }
 
+bool error_shown = false;
+
 void logic_sync_ui() {
+
+    if (!error_shown && state == Fatal) {
+        lv_obj_t * mbox1 = lv_msgbox_create(NULL, "Fatal error", "", NULL, true);
+        lv_obj_center(mbox1);
+        error_shown = true;
+    }
+
     // синхронизировать состояние логического модуля с интерфейсом пользователя
     // int64_t past_time_left_ms = ((int64_t)past_time_value) * 60ll * 1000ll - cycles_in_pasterization * LOGIC_TASK_INTERVAL_MS;
     // TODO
