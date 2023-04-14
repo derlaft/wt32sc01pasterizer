@@ -66,7 +66,9 @@ void logic_task(void *pvParameter) {
         logic_tick();
         logic_safety_check();
     );
-    _GUI_LOCK(logic_sync_ui());
+
+    _GUI_LOCK(logic_sync_ui())
+    // дать интерфейсу шанс обновиться
 
     if (need_state_backup) {
       logic_backup_state();
@@ -78,8 +80,6 @@ void logic_task(void *pvParameter) {
 } 
 
 bool logic_write_internal(Channel_t c, bool on) {
-    _DEBUG("logic_write_internal: available for write: %d", Serial2.availableForWrite());
-
     char cmd = commands[c*2+on];
     Serial2.write(cmd);
     Serial2.flush();
@@ -161,13 +161,13 @@ void logic_check_for_reset() {
         char n = Serial2.read();
 
         if (n != 0xAA) {
-            _DEBUG("logic_check_for_reset: dicarding %02x", n);
+            _DEBUG("logic_check_for_reset #1: dicarding %02x", n);
             return;
         }
 
         n = Serial2.read();
         if (n != 0x55) {
-            _DEBUG("logic_check_for_reset: dicarding %02x", n);
+            _DEBUG("logic_check_for_reset #2: dicarding %02x", n);
             return;
         }
 
@@ -202,7 +202,7 @@ void logic_tick() {
           logic_change_state(Cooling_Store);
           // избежать изначального включения перемешивания
           cycles_in_state = _TO_MS(mix_delay_value) / LOGIC_TASK_INTERVAL_MS + 1;
-          return;
+          break;
       }
 
       // включить компрессор, включить перемешивание (один раз)
