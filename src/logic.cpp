@@ -41,6 +41,7 @@ void logic_setup() {
   xLogicSemaphore = xSemaphoreCreateMutex();
 
   logic_restore_state();
+  logic_reset();
 
   // enable second serial
   Serial2.begin(LOGIC_SERIAL_SPEED, SERIAL_8N2, LOGIC_SERIAL_RX, LOGIC_SERIAL_TX);
@@ -57,8 +58,6 @@ void logic_task(void *pvParameter) {
   TickType_t xLastWakeTime;
   const TickType_t xFrequency = pdMS_TO_TICKS(LOGIC_TASK_INTERVAL_MS);
   xLastWakeTime = xTaskGetTickCount();
-
-  _LOGIC_LOCK(logic_reset());
 
   while(1) {
     vTaskDelayUntil(&xLastWakeTime, xFrequency);
@@ -588,7 +587,8 @@ void logic_backup_state() {
 void logic_restore_state() {
 
   if (!backup.begin("logic", true)) {
-    return;
+      _DEBUG("logic_restore_state failed");
+      return;
   }
 
   state = (LogicState_t) backup.getShort(_BACKUP_STATE_KEY, (int16_t) LogicState::Idle);
@@ -599,6 +599,7 @@ void logic_restore_state() {
     case Cooling_Cooling:
     case Cooling_Store:
       state = Cooling_Cooling;
+      break;
     default:
       state = Idle;
       break;
