@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/signal"
 	"strconv"
+	"strings"
 	"syscall"
 
 	"go.bug.st/serial"
@@ -45,13 +46,15 @@ func main() {
 		scanner := bufio.NewScanner(os.Stdin)
 		for scanner.Scan() {
 			str := scanner.Text()
-			d, _ := strconv.ParseInt(str, 16, 16)
-			if d == 0 {
-				continue
-			}
-			err := resp(port, byte(d))
-			if err != nil {
-				log.Fatal(err)
+			for _, sym := range strings.Split(str, " ") {
+				d, _ := strconv.ParseInt(sym, 16, 16)
+				if d == 0 {
+					continue
+				}
+				err := resp(port, byte(d))
+				if err != nil {
+					log.Fatal(err)
+				}
 			}
 		}
 	}()

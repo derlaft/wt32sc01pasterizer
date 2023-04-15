@@ -26,7 +26,7 @@
 #endif
 
 bool need_state_backup = false;
-bool fatal_error = false;
+bool fatal_error = true;
 bool need_shutdown = false;
 
 bool channel_status[NUM_CHANNEL] = {false};
@@ -154,6 +154,7 @@ bool logic_reset() {
         return false;
     }
 
+    fatal_error = false;
     return true;
 }
 
@@ -174,7 +175,9 @@ void logic_check_for_reset() {
 
         if (n == 0x55) {
             _DEBUG("logic_check_for_reset: reset");
-            logic_after_reset();
+            if (logic_after_reset()) {
+                fatal_error = false;
+            }
         } else if (n == 'X') {
             if (state == Acid) {
                 logic_change_state(Acid_Done);
@@ -519,7 +522,15 @@ void logic_sync_ui() {
             break;
     }
 
-    // TODO спрятать кнопку ошибки
+    // состояния индикатора ошибки
+    switch (fatal_error) {
+        case false:
+            lv_obj_add_flag(ui_WarningIndicator, LV_OBJ_FLAG_HIDDEN);
+            break;
+        case true:
+            lv_obj_clear_flag(ui_WarningIndicator, LV_OBJ_FLAG_HIDDEN);
+            break;
+    }
 }
 
 Preferences backup;
