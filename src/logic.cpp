@@ -252,7 +252,7 @@ void logic_tick() {
               logic_reset();
           }
 
-          need_shutdown = true;
+          need_shutdown = false;
       }
 
       // ничего не нужно делать: ждем

@@ -41,7 +41,6 @@ void setup_button_map(lv_event_t * e) {
     lv_obj_set_style_bg_color(ui_ManualControlMatrix, lv_color_hex(0x800000), LV_PART_ITEMS | LV_STATE_CHECKED);
     lv_obj_set_style_text_color(ui_ManualControlMatrix, lv_color_hex(0xFFFFFF), LV_PART_ITEMS | LV_STATE_DEFAULT);
     lv_obj_set_style_text_color(ui_ManualControlMatrix, lv_color_hex(0xFFFFFF), LV_PART_ITEMS | LV_STATE_CHECKED);
-    lv_obj_set_style_radius(ui_ManualControlMatrix, LV_RADIUS_CIRCLE, LV_PART_ITEMS | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(ui_ManualControlMatrix, &ui_font_bigfont, LV_PART_ITEMS | LV_STATE_DEFAULT);
 }
 
