@@ -160,13 +160,13 @@ void logic_check_for_reset() {
     while (Serial2.available() > 0) {
         char n = Serial2.read();
 
-        if (n != 0xAA) {
+        if (n != 0xAA && n != 'X') {
             _DEBUG("logic_check_for_reset #1: dicarding %02x", n);
             return;
         }
 
         n = Serial2.read();
-        if (n != 0x55) {
+        if (n != 0x55 && n != 'X') {
             _DEBUG("logic_check_for_reset #2: dicarding %02x", n);
             return;
         }
@@ -174,6 +174,8 @@ void logic_check_for_reset() {
         if (n == 0x55) {
             _DEBUG("logic_check_for_reset: reset");
             logic_after_reset();
+        } else if (n == 'X' && state == Acid) {
+            logic_change_state(Acid_Done);
         }
     }
 }
@@ -291,6 +293,19 @@ void logic_tick() {
     case Mixing:
       logic_write(Mixer, true);
       break;
+
+    case Acid_Start:
+      if (!logic_write(AcidCleaning, true)) {
+          logic_change_state(Idle);
+          return;
+      }
+      logic_change_state(Acid);
+      break;
+
+    case Acid:
+    case Acid_Done:
+      break;
+
   }
 
   if (state != Idle) {
@@ -351,6 +366,25 @@ void on_mixing_pressed() {
           logic_change_state(Idle);
           // выключить миксер
           logic_write(Mixer, false);
+          break;
+      }
+  });
+  logic_sync_ui();
+}
+
+void on_acid_pressed() {
+  _LOGIC_LOCK({
+      // проверяем текущее состояние
+      switch (state) {
+      case Idle:
+          // начать программу
+          logic_change_state(Acid_Start);
+          break;
+      case Acid:
+          // TODO отправить сброс
+      case Acid_Done:
+          // закончить программу
+          logic_change_state(Idle);
           break;
       }
   });
