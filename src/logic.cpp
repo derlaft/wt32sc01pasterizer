@@ -174,8 +174,12 @@ void logic_check_for_reset() {
         if (n == 0x55) {
             _DEBUG("logic_check_for_reset: reset");
             logic_after_reset();
-        } else if (n == 'X' && state == Acid) {
-            logic_change_state(Acid_Done);
+        } else if (n == 'X') {
+            if (state == Acid) {
+                logic_change_state(Acid_Done);
+            } else if (state == Base) {
+                logic_change_state(Base_Done);
+            }
         }
     }
 }
@@ -302,8 +306,18 @@ void logic_tick() {
       logic_change_state(Acid);
       break;
 
+    case Base_Start:
+      if (!logic_write(BaseCleaning, true)) {
+          logic_change_state(Idle);
+          return;
+      }
+      logic_change_state(Base);
+      break;
+
     case Acid:
     case Acid_Done:
+    case Base:
+    case Base_Done:
       break;
 
   }
@@ -394,6 +408,28 @@ void on_acid_pressed() {
   logic_sync_ui();
 }
 
+void on_base_pressed() {
+  _LOGIC_LOCK({
+      // проверяем текущее состояние
+      switch (state) {
+      case Idle:
+          // начать программу
+          logic_change_state(Base_Start);
+          break;
+      case Base:
+          // не восстанавливать программу после сброса
+          want_channel_status[BaseCleaning] = false;
+          // сброс
+          logic_reset();
+      case Base_Done:
+          // закончить программу
+          logic_change_state(Idle);
+          break;
+      }
+  });
+  logic_sync_ui();
+}
+
 
 void logic_safety_check() {
 }
@@ -460,7 +496,18 @@ void logic_sync_ui() {
             break;
     }
 
-    lv_obj_clear_state(ui_CleaningBaseButton, LV_STATE_CHECKED);
+    // состояние кнопки щелочи
+    switch (state) {
+        case Base:
+            lv_obj_set_style_bg_color(ui_CleaningBaseButton, enabled_color, LV_PART_MAIN | LV_STATE_DEFAULT);
+            break;
+        case Base_Done:
+            lv_obj_set_style_bg_color(ui_CleaningBaseButton, done_color, LV_PART_MAIN | LV_STATE_DEFAULT);
+            break;
+        default:
+            lv_obj_set_style_bg_color(ui_CleaningBaseButton, disabled_color, LV_PART_MAIN | LV_STATE_DEFAULT);
+            break;
+    }
 }
 
 Preferences backup;

@@ -177,6 +177,7 @@ void on_wireless_screen_loaded(lv_event_t * e)
 void on_main_base(lv_event_t * e)
 {
 	Serial.println("base button");
+    on_base_pressed();
 }
 
 

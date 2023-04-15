@@ -21,6 +21,10 @@ enum LogicState {
   Acid_Start = 8,
   Acid = 9,
   Acid_Done = 10,
+
+  Base_Start = 11,
+  Base = 12,
+  Base_Done = 13,
 };
 typedef enum LogicState LogicState_t;
 
@@ -73,6 +77,7 @@ extern void logic_tick();
 extern void on_cooling_pressed();
 extern void on_mixing_pressed();
 extern void on_acid_pressed();
+extern void on_base_pressed();
 
 extern void logic_sync_ui();
 extern void logic_safety_check();
