@@ -9,16 +9,22 @@ enum LogicState {
   Unknown = 0,
   Idle = 1,
 
-  Cooling_Cooling = 2,
-  Cooling_Store = 3,
+  Fatal = 2,
 
-  Mixing = 4,
+  Cooling_Start = 3,
+  Cooling_Cooling = 4,
+  Cooling_Store = 5,
 
-  Acid = 5,
-  Acid_Done = 6,
+  Mixing_Start = 6,
+  Mixing = 7,
 
-  Base = 7,
-  Base_Done = 8,
+  Acid_Start = 8,
+  Acid = 9,
+  Acid_Done = 10,
+
+  Base_Start = 11,
+  Base = 12,
+  Base_Done = 13,
 };
 typedef enum LogicState LogicState_t;
 

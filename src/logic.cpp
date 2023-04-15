@@ -202,6 +202,29 @@ void logic_tick() {
       // ничего не нужно делать: ждем
       break;
 
+    case LogicState::Cooling_Start:
+
+      // молоко уже холодное, перейти в режим хранения
+      if (temp <= target_temp) {
+          logic_change_state(Cooling_Store);
+          // избежать изначального включения перемешивания
+          cycles_in_state = _TO_MS(mix_delay_value) / LOGIC_TASK_INTERVAL_MS + 1;
+          break;
+      }
+
+      // включить компрессор, включить перемешивание (один раз)
+      if (!logic_write(Compressor, true)) {
+          logic_change_state(Idle);
+          return;
+      }
+      if (!logic_write(Mixer, true)) {
+          logic_change_state(Idle);
+          return;
+      }
+
+      // все включено - перейти в активное охлаждение
+      logic_change_state(Cooling_Cooling);
+
     case LogicState::Cooling_Cooling:
 
       // успешное охлаждение, перейти в хранение
@@ -263,11 +286,34 @@ void logic_tick() {
 
       break;
 
+    case Mixing_Start:
+      if (!logic_write(Mixer, true)) {
+          logic_change_state(Idle);
+          return;
+      }
+      logic_change_state(Mixing);
+      break;
+
     case Mixing:
       logic_write(Mixer, true);
       break;
 
-    // в состояниях промывки необходимо только ждать сигнала завершения
+    case Acid_Start:
+      if (!logic_write(AcidCleaning, true)) {
+          logic_change_state(Idle);
+          return;
+      }
+      logic_change_state(Acid);
+      break;
+
+    case Base_Start:
+      if (!logic_write(BaseCleaning, true)) {
+          logic_change_state(Idle);
+          return;
+      }
+      logic_change_state(Base);
+      break;
+
     case Acid:
     case Acid_Done:
     case Base:
@@ -284,6 +330,9 @@ void logic_tick() {
 }
 
 void logic_change_state(LogicState_t n) {
+    if (state == Fatal) {
+        return;
+    }
     _DEBUG("logic_change_state to %d", n);
     state = n;
     cycles_in_state = 0;
@@ -296,32 +345,11 @@ void on_cooling_pressed() {
   // следовательно, нужно взять logic lock, 
   // но не нужно брать gui lock
   _LOGIC_LOCK({
-      // получаем текущую температуру
-      float temp = temperature_get();
-      float target_temp = ((float) cool_temp_value)/10.0;
       // проверяем текущее состояние
       switch (state) {
       case Idle:
-          // молоко уже холодное, перейти в режим хранения
-          if (temp <= target_temp) {
-              logic_change_state(Cooling_Store);
-              // избежать изначального включения перемешивания
-              cycles_in_state = _TO_MS(mix_delay_value) / LOGIC_TASK_INTERVAL_MS + 1;
-              break;
-          }
-
-          // включить компрессор, включить перемешивание (один раз)
-          if (!logic_write(Compressor, true)) {
-              logic_change_state(Idle);
-              return;
-          }
-          if (!logic_write(Mixer, true)) {
-              logic_change_state(Idle);
-              return;
-          }
-
-          // все включено - перейти в активное охлаждение
-          logic_change_state(Cooling_Cooling);
+          // начать программу
+          logic_change_state(Cooling_Start);
           break;
       case Cooling_Cooling:
       case Cooling_Store:
@@ -330,6 +358,9 @@ void on_cooling_pressed() {
           // выключив оба пина
           logic_write(Compressor, false);
           logic_write(Mixer, false);
+          break;
+      case Cooling_Start:
+          // повторный тык, игнорировать нажатие
           break;
       }
   });
@@ -341,14 +372,8 @@ void on_mixing_pressed() {
       // проверяем текущее состояние
       switch (state) {
       case Idle:
-          // включить перемешивание
-          if (!logic_write(Mixer, true)) {
-              logic_change_state(Idle);
-              return;
-          }
-
-          // успех
-          logic_change_state(Mixing);
+          // начать программу
+          logic_change_state(Mixing_Start);
           break;
       case Mixing:
           // закончить программу
@@ -366,12 +391,8 @@ void on_acid_pressed() {
       // проверяем текущее состояние
       switch (state) {
       case Idle:
-          if (!logic_write(AcidCleaning, true)) {
-              logic_change_state(Idle);
-              return;
-          }
           // начать программу
-          logic_change_state(Acid);
+          logic_change_state(Acid_Start);
           break;
       case Acid:
           // не восстанавливать программу после сброса
@@ -392,13 +413,8 @@ void on_base_pressed() {
       // проверяем текущее состояние
       switch (state) {
       case Idle:
-          if (!logic_write(BaseCleaning, true)) {
-              logic_change_state(Idle);
-              return;
-          }
-
           // начать программу
-          logic_change_state(Base);
+          logic_change_state(Base_Start);
           break;
       case Base:
           // не восстанавливать программу после сброса
@@ -525,7 +541,10 @@ void logic_restore_state() {
   switch (state) {
     case Idle:
       break;
-    // TODO
+    case Cooling_Start:
+    case Cooling_Cooling:
+    case Cooling_Store:
+      state = Cooling_Cooling;
     default:
       state = Idle;
       break;
