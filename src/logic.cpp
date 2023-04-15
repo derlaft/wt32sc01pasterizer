@@ -420,6 +420,7 @@ void logic_sync_ui() {
     auto const enabled_color = lv_color_hex(0x800000);
     auto const done_color = lv_color_hex(0x008000);
 
+    // состояние кнопки охлаждения
     switch (state) {
         case Cooling_Cooling:
             lv_obj_set_style_bg_color(ui_CoolingButton, enabled_color, LV_PART_MAIN | LV_STATE_DEFAULT);
@@ -432,6 +433,7 @@ void logic_sync_ui() {
             break;
     }
 
+    // состояние кнопки перемешивания
     switch (state) {
         case Mixing:
 
@@ -442,7 +444,19 @@ void logic_sync_ui() {
             break;
     }
 
-    lv_obj_clear_state(ui_CleaningAcidButton, LV_STATE_CHECKED);
+    // состояние кнопки кислоты
+    switch (state) {
+        case Acid:
+            lv_obj_set_style_bg_color(ui_CleaningAcidButton, enabled_color, LV_PART_MAIN | LV_STATE_DEFAULT);
+            break;
+        case Acid_Done:
+            lv_obj_set_style_bg_color(ui_CleaningAcidButton, done_color, LV_PART_MAIN | LV_STATE_DEFAULT);
+            break;
+        default:
+            lv_obj_set_style_bg_color(ui_CleaningAcidButton, disabled_color, LV_PART_MAIN | LV_STATE_DEFAULT);
+            break;
+    }
+
     lv_obj_clear_state(ui_CleaningBaseButton, LV_STATE_CHECKED);
 }
 
