@@ -279,6 +279,18 @@ void logic_tick() {
       }
 
       break;
+
+    case Mixing_Start:
+      if (!logic_write(Mixer, true)) {
+          logic_change_state(Idle);
+          return;
+      }
+      logic_change_state(Mixing);
+      break;
+
+    case Mixing:
+      logic_write(Mixer, true);
+      break;
   }
 
   if (state != Idle) {
@@ -326,6 +338,26 @@ void on_cooling_pressed() {
   logic_sync_ui();
 }
 
+void on_mixing_pressed() {
+  _LOGIC_LOCK({
+      // проверяем текущее состояние
+      switch (state) {
+      case Idle:
+          // начать программу
+          logic_change_state(Mixing_Start);
+          break;
+      case Mixing:
+          // закончить программу
+          logic_change_state(Idle);
+          // выключить миксер
+          logic_write(Mixer, false);
+          break;
+      }
+  });
+  logic_sync_ui();
+}
+
+
 void logic_safety_check() {
 }
 
@@ -366,9 +398,18 @@ void logic_sync_ui() {
             break;
     }
 
+    switch (state) {
+        case Mixing:
+
+            lv_obj_set_style_bg_color(ui_MixingButton, enabled_color, LV_PART_MAIN | LV_STATE_DEFAULT);
+            break;
+        default:
+            lv_obj_set_style_bg_color(ui_MixingButton, disabled_color, LV_PART_MAIN | LV_STATE_DEFAULT);
+            break;
+    }
+
     lv_obj_clear_state(ui_CleaningAcidButton, LV_STATE_CHECKED);
     lv_obj_clear_state(ui_CleaningBaseButton, LV_STATE_CHECKED);
-    lv_obj_clear_state(ui_MixingButton, LV_STATE_CHECKED);
 }
 
 Preferences backup;

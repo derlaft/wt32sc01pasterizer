@@ -183,11 +183,7 @@ void on_main_base(lv_event_t * e)
 void on_main_mixing(lv_event_t * e)
 {
 	Serial.println("mixing button");
-}
-
-void on_main_rinsing(lv_event_t * e)
-{
-	Serial.println("rinsing button");
+    on_mixing_pressed();
 }
 
 void on_main_acid(lv_event_t * e)

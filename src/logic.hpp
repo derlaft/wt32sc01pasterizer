@@ -8,12 +8,15 @@ extern "C" {
 enum LogicState {
   Unknown = 0,
   Idle = 1,
+
   Fatal = 2,
 
   Cooling_Start = 3,
   Cooling_Cooling = 4,
   Cooling_Store = 5,
 
+  Mixing_Start = 6,
+  Mixing = 7,
 };
 typedef enum LogicState LogicState_t;
 
@@ -56,6 +59,7 @@ extern void logic_task(void *pvParameter);
 extern void logic_tick();
 
 extern void on_cooling_pressed();
+extern void on_mixing_pressed();
 
 extern void logic_sync_ui();
 extern void logic_safety_check();
