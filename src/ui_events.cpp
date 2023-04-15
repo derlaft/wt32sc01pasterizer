@@ -19,9 +19,9 @@
 lv_obj_t * ui_ManualControlMatrix;
 
 static const char *btnm_map[] = {
-	"1", "2", "3", "4", "\n",
-	"5", "6", "7", "8", "\n",
-	"9", "10", "11", "12", "",
+	"0", "1", "2", "3", "\n",
+	"4", "5", "6", "7", "\n",
+	"8", "9", "10", "11", "",
 };
 
 void on_button_map_click(lv_event_t * e) {
@@ -41,6 +41,8 @@ void setup_button_map(lv_event_t * e) {
     lv_obj_set_style_bg_color(ui_ManualControlMatrix, lv_color_hex(0x800000), LV_PART_ITEMS | LV_STATE_CHECKED);
     lv_obj_set_style_text_color(ui_ManualControlMatrix, lv_color_hex(0xFFFFFF), LV_PART_ITEMS | LV_STATE_DEFAULT);
     lv_obj_set_style_text_color(ui_ManualControlMatrix, lv_color_hex(0xFFFFFF), LV_PART_ITEMS | LV_STATE_CHECKED);
+    lv_obj_set_style_radius(ui_ManualControlMatrix, LV_RADIUS_CIRCLE, LV_PART_ITEMS | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_ManualControlMatrix, &ui_font_bigfont, LV_PART_ITEMS | LV_STATE_DEFAULT);
 }
 
 void update_manual_cooling_button(bool value) {
