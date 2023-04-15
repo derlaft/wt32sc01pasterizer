@@ -181,6 +181,7 @@ void logic_check_for_reset() {
 void logic_tick() {
 
   float temp = temperature_get();
+  float target_temp = ((float) cool_temp_value)/10.0;
 
   _DEBUG("State=%d, comp=%d, mixer=%d, cnt=%lld", state, channel_status[Compressor], channel_status[Mixer], cycles_in_state);
 
@@ -198,7 +199,7 @@ void logic_tick() {
     case LogicState::Cooling_Start:
 
       // молоко уже холодное, перейти в режим хранения
-      if (temp <= (float) cool_temp_value) {
+      if (temp <= target_temp) {
           logic_change_state(Cooling_Store);
           // избежать изначального включения перемешивания
           cycles_in_state = _TO_MS(mix_delay_value) / LOGIC_TASK_INTERVAL_MS + 1;
@@ -221,7 +222,7 @@ void logic_tick() {
     case LogicState::Cooling_Cooling:
 
       // успешное охлаждение, перейти в хранение
-      if (temp <= (float) cool_temp_value) {
+      if (temp <= target_temp) {
           logic_change_state(Cooling_Store);
           return;
       }
@@ -235,7 +236,7 @@ void logic_tick() {
     case LogicState::Cooling_Store:
 
       // поднялась температура: перейти обратно
-      if (temp > (float) cool_temp_value + TEMPERATURE_DELTA) {
+      if (temp > target_temp + TEMPERATURE_DELTA) {
           logic_change_state(Cooling_Cooling);
           return;
       }

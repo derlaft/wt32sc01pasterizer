@@ -41,9 +41,9 @@
 #define PIN_COOLER 27
 
 // Диапазон температуры охлаждения
-#define DEF_COOL_TEMP 4
-#define MIN_COOL_TEMP 1
-#define MAX_COOL_TEMP 8
+#define DEF_COOL_TEMP 40
+#define MIN_COOL_TEMP 10
+#define MAX_COOL_TEMP 80
 
 // Диапазон времени до перемешивания
 #define DEF_BEFORE_MIX_TIME 1
@@ -61,7 +61,7 @@
 #define MAX_MIX_DELAY_TIME 10
 
 // Интервал работы логики
-#define LOGIC_TASK_INTERVAL_MS 500
+#define LOGIC_TASK_INTERVAL_MS 1000
 #define LOGIC_SAFE_TEMP_MAX 95
 #define LOGIC_SAFE_TEMP_MIN -50
 #define LOGIC_DEBUG

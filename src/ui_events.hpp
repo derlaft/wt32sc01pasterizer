@@ -15,6 +15,7 @@ extern void update_state_label(LogicState_t state, int64_t in_past_ms);
 extern void update_settings_values();
 extern void wifi_sync_ui(bool connected);
 extern void on_main_button_pressed(lv_event_t * e);
+extern void update_temp_value();
 
 #ifdef __cplusplus
 }

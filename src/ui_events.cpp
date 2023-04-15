@@ -44,7 +44,7 @@ void on_setting1_incr(lv_event_t * e)
   if (cool_temp_value > MAX_COOL_TEMP) {
     cool_temp_value = MAX_COOL_TEMP;
   }
-  lv_textarea_set_text(ui_Setting1, String(cool_temp_value).c_str());
+  update_temp_value();
 }
 
 void on_setting_1_decr(lv_event_t * e)
@@ -53,7 +53,7 @@ void on_setting_1_decr(lv_event_t * e)
   if (cool_temp_value < MIN_COOL_TEMP) {
     cool_temp_value = MIN_COOL_TEMP;
   }
-  lv_textarea_set_text(ui_Setting1, String(cool_temp_value).c_str());
+  update_temp_value();
 }
 
 void on_setting_2_incr(lv_event_t * e)
@@ -110,11 +110,20 @@ void on_setting_4_decr(lv_event_t * e)
   lv_textarea_set_text(ui_Setting4, String(mix_delay_value).c_str());
 }
 
+void update_temp_value() {
+  int16_t ta = cool_temp_value / 10;
+  int16_t tb = cool_temp_value % 10;
+
+  char buf[10];
+  lv_snprintf(buf, sizeof(buf), "%hd.%hd", ta, tb);
+  lv_textarea_set_text(ui_Setting1, buf);
+}
+
 void update_settings_values() {
   lv_textarea_set_text(ui_Setting4, String(mix_delay_value).c_str());
   lv_textarea_set_text(ui_Setting3, String(mix_value).c_str());
   lv_textarea_set_text(ui_Setting2, String(before_mix_value).c_str());
-  lv_textarea_set_text(ui_Setting1, String(cool_temp_value).c_str());
+  update_temp_value();
 
   lv_textarea_set_text(ui_WifiName, wifi_ap);
   lv_textarea_set_text(ui_WifiPassword, wifi_pw);
