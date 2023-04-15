@@ -27,6 +27,7 @@
 
 bool need_state_backup = false;
 bool fatal_error = false;
+bool need_shutdown = false;
 
 bool channel_status[NUM_CHANNEL] = {false};
 bool want_channel_status[NUM_CHANNEL] = {false};
@@ -199,6 +200,17 @@ void logic_tick() {
     
     // текущее состояние: ожидание начала программы
     case LogicState::Idle:
+      if (need_shutdown) {
+          logic_write(Compressor, false);
+          logic_write(Mixer, false);
+
+          if (channel_status[AcidCleaning]) {
+              logic_reset();
+          }
+
+          need_shutdown = true;
+      }
+
       // ничего не нужно делать: ждем
       break;
 
@@ -355,9 +367,7 @@ void on_cooling_pressed() {
       case Cooling_Store:
           // завершить программу
           logic_change_state(Idle);
-          // выключив оба пина
-          logic_write(Compressor, false);
-          logic_write(Mixer, false);
+          need_shutdown = true;
           break;
       case Cooling_Start:
           // повторный тык, игнорировать нажатие
@@ -378,8 +388,7 @@ void on_mixing_pressed() {
       case Mixing:
           // закончить программу
           logic_change_state(Idle);
-          // выключить миксер
-          logic_write(Mixer, false);
+          need_shutdown = true;
           break;
       }
   });
@@ -395,13 +404,12 @@ void on_acid_pressed() {
           logic_change_state(Acid_Start);
           break;
       case Acid:
+      case Acid_Done:
           // не восстанавливать программу после сброса
           want_channel_status[AcidCleaning] = false;
-          // сброс
-          logic_reset();
-      case Acid_Done:
           // закончить программу
           logic_change_state(Idle);
+          need_shutdown = true;
           break;
       }
   });
@@ -417,11 +425,11 @@ void on_base_pressed() {
           logic_change_state(Base_Start);
           break;
       case Base:
+      case Base_Done:
           // не восстанавливать программу после сброса
           want_channel_status[BaseCleaning] = false;
           // сброс
-          logic_reset();
-      case Base_Done:
+          need_shutdown = true;
           // закончить программу
           logic_change_state(Idle);
           break;
