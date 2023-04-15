@@ -41,7 +41,6 @@ void logic_setup() {
   xLogicSemaphore = xSemaphoreCreateMutex();
 
   logic_restore_state();
-  logic_reset();
 
   // enable second serial
   Serial2.begin(LOGIC_SERIAL_SPEED, SERIAL_8N2, LOGIC_SERIAL_RX, LOGIC_SERIAL_TX);
@@ -58,6 +57,11 @@ void logic_task(void *pvParameter) {
   TickType_t xLastWakeTime;
   const TickType_t xFrequency = pdMS_TO_TICKS(LOGIC_TASK_INTERVAL_MS);
   xLastWakeTime = xTaskGetTickCount();
+
+  if (Serial2.availableForWrite() == 0) {
+      vTaskDelay(pdMS_TO_TICKS(1000));
+  }
+  _LOGIC_LOCK(logic_reset());
 
   while(1) {
     vTaskDelayUntil(&xLastWakeTime, xFrequency);
