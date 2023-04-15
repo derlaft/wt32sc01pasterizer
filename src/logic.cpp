@@ -178,8 +178,12 @@ void logic_check_for_reset() {
         } else if (n == 'X') {
             if (state == Acid) {
                 logic_change_state(Acid_Done);
+                want_channel_status[AcidCleaning] = false;
+                channel_status[AcidCleaning] = false;
             } else if (state == Base) {
                 logic_change_state(Base_Done);
+                want_channel_status[BaseCleaning] = false;
+                channel_status[BaseCleaning] = false;
             }
         }
     }
@@ -205,6 +209,10 @@ void logic_tick() {
           logic_write(Mixer, false);
 
           if (channel_status[AcidCleaning]) {
+              logic_reset();
+          }
+
+          if (channel_status[BaseCleaning]) {
               logic_reset();
           }
 
