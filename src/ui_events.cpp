@@ -200,6 +200,21 @@ void on_main_cooling(lv_event_t * e)
 }
 
 
+void on_warn_button_clicked(lv_event_t * e)
+{
+	Serial.println("warn button");
+
+    lv_obj_t * mbox1 = lv_msgbox_create(NULL, "Ошибка", "Нарушена связь с ПЛС", NULL, true);
+
+    lv_obj_t * title = lv_msgbox_get_title(mbox1);
+    lv_obj_set_style_text_font(title, &ui_font_bigfont, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_t * body = lv_msgbox_get_text(mbox1);
+    lv_obj_set_style_text_font(body, &ui_font_hack, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    lv_obj_center(mbox1);
+}
+
 void display_temperature(float v)
 {
   if (pdTRUE != xSemaphoreTake(xGuiSemaphore, portMAX_DELAY)) {

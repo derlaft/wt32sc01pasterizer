@@ -27,6 +27,8 @@ void ui_event_SettingsButton1(lv_event_t * e);
 extern lv_obj_t * ui_SettingsButton1;
 void ui_event_ManualControlButton(lv_event_t * e);
 extern lv_obj_t * ui_ManualControlButton;
+void ui_event_WarningIndicator(lv_event_t * e);
+extern lv_obj_t * ui_WarningIndicator;
 extern lv_obj_t * ui_ManualControlPanel;
 void ui_event_CoolingButton(lv_event_t * e);
 extern lv_obj_t * ui_CoolingButton;

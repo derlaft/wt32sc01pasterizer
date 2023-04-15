@@ -8,6 +8,7 @@ extern "C" {
 
 void setup_button_map(lv_event_t * e);
 void on_main_screen_loaded(lv_event_t * e);
+void on_warn_button_clicked(lv_event_t * e);
 void on_main_cooling(lv_event_t * e);
 void on_main_mixing(lv_event_t * e);
 void on_main_acid(lv_event_t * e);

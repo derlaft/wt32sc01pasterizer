@@ -11,6 +11,8 @@ void ui_event_SettingsButton1(lv_event_t * e);
 lv_obj_t * ui_SettingsButton1;
 void ui_event_ManualControlButton(lv_event_t * e);
 lv_obj_t * ui_ManualControlButton;
+void ui_event_WarningIndicator(lv_event_t * e);
+lv_obj_t * ui_WarningIndicator;
 lv_obj_t * ui_ManualControlPanel;
 void ui_event_CoolingButton(lv_event_t * e);
 lv_obj_t * ui_CoolingButton;
@@ -143,6 +145,14 @@ void ui_event_ManualControlButton(lv_event_t * e)
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_CLICKED) {
         _ui_screen_change(ui_ManualControlScreen, LV_SCR_LOAD_ANIM_MOVE_RIGHT, 0, 0);
+    }
+}
+void ui_event_WarningIndicator(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_CLICKED) {
+        on_warn_button_clicked(e);
     }
 }
 void ui_event_CoolingButton(lv_event_t * e)
@@ -430,6 +440,23 @@ void ui_MainScreen_screen_init(void)
     lv_obj_set_style_pad_top(ui_ManualControlButton, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_bottom(ui_ManualControlButton, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+    ui_WarningIndicator = lv_label_create(ui_TopPanel);
+    lv_obj_set_width(ui_WarningIndicator, 70);
+    lv_obj_set_height(ui_WarningIndicator, 63);
+    lv_obj_set_x(ui_WarningIndicator, -80);
+    lv_obj_set_y(ui_WarningIndicator, -12);
+    lv_obj_set_align(ui_WarningIndicator, LV_ALIGN_TOP_RIGHT);
+    lv_label_set_text(ui_WarningIndicator, "G");
+    lv_obj_add_flag(ui_WarningIndicator, LV_OBJ_FLAG_CLICKABLE);     /// Flags
+    lv_obj_set_style_text_color(ui_WarningIndicator, lv_color_hex(0xFF0000), LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_opa(ui_WarningIndicator, 200, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_align(ui_WarningIndicator, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_font(ui_WarningIndicator, &ui_font_symbols, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ui_WarningIndicator, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ui_WarningIndicator, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ui_WarningIndicator, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ui_WarningIndicator, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
     ui_ManualControlPanel = lv_obj_create(ui_MainScreen);
     lv_obj_set_width(ui_ManualControlPanel, lv_pct(96));
     lv_obj_set_height(ui_ManualControlPanel, lv_pct(74));
@@ -522,6 +549,7 @@ void ui_MainScreen_screen_init(void)
 
     lv_obj_add_event_cb(ui_SettingsButton1, ui_event_SettingsButton1, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_ManualControlButton, ui_event_ManualControlButton, LV_EVENT_ALL, NULL);
+    lv_obj_add_event_cb(ui_WarningIndicator, ui_event_WarningIndicator, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_CoolingButton, ui_event_CoolingButton, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_MixingButton, ui_event_MixingButton, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_CleaningAcidButton, ui_event_CleaningAcidButton, LV_EVENT_ALL, NULL);

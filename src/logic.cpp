@@ -464,25 +464,7 @@ void logic_safety_check() {
 
 void logic_sync_ui() {
 
-    /*
-    if (fatal_error) {
-        lv_obj_t * mbox1 = lv_msgbox_create(NULL, "Ошибка", "Нарушена связь с ПЛС", NULL, true);
-
-        lv_obj_t * title = lv_msgbox_get_title(mbox1);
-        lv_obj_set_style_text_font(title, &ui_font_bigfont, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-        lv_obj_t * body = lv_msgbox_get_text(mbox1);
-        lv_obj_set_style_text_font(body, &ui_font_hack, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-        lv_obj_center(mbox1);
-
-        fatal_error = false;
-    }
-    */
-
     // синхронизировать состояние логического модуля с интерфейсом пользователя
-    // int64_t past_time_left_ms = ((int64_t)past_time_value) * 60ll * 1000ll - cycles_in_pasterization * LOGIC_TASK_INTERVAL_MS;
-    // TODO
     auto const disabled_color = lv_color_hex(0x1499FF);
     auto const enabled_color = lv_color_hex(0x800000);
     auto const done_color = lv_color_hex(0x008000);
@@ -536,6 +518,8 @@ void logic_sync_ui() {
             lv_obj_set_style_bg_color(ui_CleaningBaseButton, disabled_color, LV_PART_MAIN | LV_STATE_DEFAULT);
             break;
     }
+
+    // TODO спрятать кнопку ошибки
 }
 
 Preferences backup;
