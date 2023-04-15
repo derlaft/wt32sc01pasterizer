@@ -381,7 +381,10 @@ void on_acid_pressed() {
           logic_change_state(Acid_Start);
           break;
       case Acid:
-          // TODO отправить сброс
+          // не восстанавливать программу после сброса
+          want_channel_status[AcidCleaning] = false;
+          // сброс
+          logic_reset();
       case Acid_Done:
           // закончить программу
           logic_change_state(Idle);
