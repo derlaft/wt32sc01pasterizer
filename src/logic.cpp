@@ -127,7 +127,7 @@ bool logic_after_reset() {
         if (want_channel_status[c]) {
             bool r = logic_write_internal((Channel_t)c, true);
             if (!r) {
-                _DEBUG("logic_reset failed to restore state");
+                _DEBUG("logic_after_reset failed");
                 return false;
             }
 
@@ -135,6 +135,27 @@ bool logic_after_reset() {
     }
 
     return true;
+}
+
+bool logic_send_changed() {
+    for (int c = 0; c < NUM_CHANNEL; c++) {
+        if (want_channel_status[c] != channel_status[c]) {
+            bool r = logic_write_internal((Channel_t)c, want_channel_status[c]);
+            if (!r) {
+                _DEBUG("logic_send_changed failed");
+                return false;
+            }
+
+        }
+    }
+    return true;
+}
+
+bool is_manual_delayed_cmd = false;
+
+void logic_flip_delayed(Channel_t c) {
+    want_channel_status[c] = !want_channel_status[c];
+    is_manual_delayed_cmd = true;
 }
 
 bool logic_reset() {
@@ -202,6 +223,15 @@ void logic_tick() {
   int64_t ct_ms;
   int64_t d_ms;
   int64_t a;
+
+  if (is_manual_delayed_cmd) {
+      if (!logic_send_changed()) {
+          // не дать логике возможность затормозить интерфейс и другие таски
+          vTaskDelay(pdMS_TO_TICKS(1000));
+          return;
+      }
+      is_manual_delayed_cmd = false;
+  }
 
   switch (state) {
     
@@ -531,19 +561,26 @@ void logic_sync_ui() {
             lv_obj_clear_flag(ui_WarningIndicator, LV_OBJ_FLAG_HIDDEN);
             break;
     }
+
+    // состояние кнопок в ручном управлении
+    // показать первые 12 каналов
+    for (int c = 0; c < NUM_CHANNEL && c < 12; c++) {
+        if (channel_status[c]) {
+            lv_btnmatrix_set_btn_ctrl(ui_ManualControlMatrix, c, LV_BTNMATRIX_CTRL_CHECKED);
+        } else {
+            lv_btnmatrix_clear_btn_ctrl(ui_ManualControlMatrix, c, LV_BTNMATRIX_CTRL_CHECKED);
+        }
+    }
 }
 
 Preferences backup;
 
 void logic_backup_state() {
-  int16_t v = (int16_t) ((cycles_in_state)/LOGIC_BACKUP_EVERY_N_TICK);
-
   if (!backup.begin("logic", false)) {
     return;
   }
 
   backup.putShort(_BACKUP_STATE_KEY, (int16_t) state);
-  backup.putShort(_BACKUP_STATE_PAST_CYCLES, v);
   backup.end();
 }
 
@@ -554,13 +591,7 @@ void logic_restore_state() {
     return;
   }
 
-  int16_t v = backup.getShort(_BACKUP_STATE_PAST_CYCLES, 0);
-  if (v > 0) {
-      cycles_in_state = ((int64_t)v) * LOGIC_BACKUP_EVERY_N_TICK;
-  }
-
   state = (LogicState_t) backup.getShort(_BACKUP_STATE_KEY, (int16_t) LogicState::Idle);
-  // TODO
   switch (state) {
     case Idle:
       break;

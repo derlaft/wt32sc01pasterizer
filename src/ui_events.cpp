@@ -16,6 +16,8 @@
 #define _DEBUG(...) {}
 #endif
 
+lv_obj_t * ui_ManualControlMatrix;
+
 static const char *btnm_map[] = {
 	"1", "2", "3", "4", "\n",
 	"5", "6", "7", "8", "\n",
@@ -24,20 +26,21 @@ static const char *btnm_map[] = {
 
 void on_button_map_click(lv_event_t * e) {
 	_DEBUG("on_button_map_click");
+    uint32_t id = lv_btnmatrix_get_selected_btn(ui_ManualControlMatrix);
+    logic_flip_delayed((Channel_t)id);
 }
 
 void setup_button_map(lv_event_t * e) {
-    lv_obj_t * btnm1 = lv_btnmatrix_create(ui_MainScreenPanel);
-    lv_btnmatrix_set_map(btnm1, btnm_map);
-    lv_obj_align(btnm1, LV_ALIGN_CENTER, 0, 0);
-    lv_obj_add_event_cb(btnm1, on_button_map_click, LV_EVENT_VALUE_CHANGED, NULL);
-    lv_obj_set_width(btnm1, lv_pct(100));
-    lv_obj_set_height(btnm1, lv_pct(100));
-    lv_btnmatrix_set_btn_ctrl_all(btnm1, LV_BTNMATRIX_CTRL_CHECKABLE); // TODO
-    lv_obj_set_style_bg_color(btnm1, lv_color_hex(0x1499FF), LV_PART_ITEMS | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(btnm1, lv_color_hex(0x800000), LV_PART_ITEMS | LV_STATE_CHECKED);
-    lv_obj_set_style_text_color(btnm1, lv_color_hex(0xFFFFFF), LV_PART_ITEMS | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_color(btnm1, lv_color_hex(0xFFFFFF), LV_PART_ITEMS | LV_STATE_CHECKED);
+    ui_ManualControlMatrix = lv_btnmatrix_create(ui_MainScreenPanel);
+    lv_btnmatrix_set_map(ui_ManualControlMatrix, btnm_map);
+    lv_obj_align(ui_ManualControlMatrix, LV_ALIGN_CENTER, 0, 0);
+    lv_obj_add_event_cb(ui_ManualControlMatrix, on_button_map_click, LV_EVENT_VALUE_CHANGED, NULL);
+    lv_obj_set_width(ui_ManualControlMatrix, lv_pct(100));
+    lv_obj_set_height(ui_ManualControlMatrix, lv_pct(100));
+    lv_obj_set_style_bg_color(ui_ManualControlMatrix, lv_color_hex(0x1499FF), LV_PART_ITEMS | LV_STATE_DEFAULT);
+    lv_obj_set_style_bg_color(ui_ManualControlMatrix, lv_color_hex(0x800000), LV_PART_ITEMS | LV_STATE_CHECKED);
+    lv_obj_set_style_text_color(ui_ManualControlMatrix, lv_color_hex(0xFFFFFF), LV_PART_ITEMS | LV_STATE_DEFAULT);
+    lv_obj_set_style_text_color(ui_ManualControlMatrix, lv_color_hex(0xFFFFFF), LV_PART_ITEMS | LV_STATE_CHECKED);
 }
 
 void update_manual_cooling_button(bool value) {

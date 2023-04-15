@@ -7,6 +7,16 @@
 #include <lvgl.h>
 #include <OneWire.h>
 
+#ifdef PROBE_DEBUG
+#define _DEBUG(...) { \
+    char buf[256]; \
+    snprintf(buf, sizeof(buf), __VA_ARGS__); \
+    Serial.println(buf); \
+};
+#else
+#define _DEBUG(...) {}
+#endif
+
 OneWire  ds(PIN_PROBE);
 
 void temperature_task_setup() {
@@ -25,10 +35,7 @@ bool temperature_measure() {
   
   ds.reset_search();
   if (!ds.search(addr)) {
-#ifdef PROBE_DEBUG
-    Serial.println("No more addresses.");
-    Serial.println();
-#endif
+      _DEBUG("temperature_measure: no more addresses.");
     vTaskDelay(pdMS_TO_TICKS(250));
     return false;
   }
@@ -39,17 +46,13 @@ bool temperature_measure() {
     Serial.write(' ');
     Serial.print(addr[i], HEX);
   }
+  Serial.println();
 #endif
 
   if (OneWire::crc8(addr, 7) != addr[7]) {
-#ifdef PROBE_DEBUG
-      Serial.println("CRC is not valid!");
-#endif
+      _DEBUG("temperature_measure: CRC is not valid!");
       return false;
   }
-#ifdef PROBE_DEBUG
-  Serial.println();
-#endif
  
   // the first ROM byte indicates which chip
   switch (addr[0]) {

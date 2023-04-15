@@ -10,6 +10,8 @@
 extern "C" {
 #endif
 
+extern lv_obj_t * ui_ManualControlMatrix;
+
 extern void display_temperature(float v);
 extern void update_state_label(LogicState_t state, int64_t in_past_ms);
 extern void update_settings_values();

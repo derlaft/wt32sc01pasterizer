@@ -93,6 +93,7 @@ extern bool is_idle();
 
 
 extern void logic_change_state(LogicState_t n);
+extern void logic_flip_delayed(Channel_t c);
 
 #define _BACKUP_STATE_KEY "s"
 #define _BACKUP_STATE_PAST_CYCLES "c"
