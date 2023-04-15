@@ -19,9 +19,9 @@
 lv_obj_t * ui_ManualControlMatrix;
 
 static const char *btnm_map[] = {
-	"0", "1", "2", "3", "\n",
-	"4", "5", "6", "7", "\n",
-	"8", "9", "10", "11", "",
+	"К0", "К1", "К2", "К3", "\n",
+	"К4", "К5", "К6", "К7", "\n",
+	"К8", "К9", "К10", "К11", "",
 };
 
 void on_button_map_click(lv_event_t * e) {

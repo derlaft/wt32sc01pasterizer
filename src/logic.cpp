@@ -58,10 +58,14 @@ void logic_task(void *pvParameter) {
   const TickType_t xFrequency = pdMS_TO_TICKS(LOGIC_TASK_INTERVAL_MS);
   xLastWakeTime = xTaskGetTickCount();
 
-  if (Serial2.availableForWrite() == 0) {
-      vTaskDelay(pdMS_TO_TICKS(1000));
-  }
-  _LOGIC_LOCK(logic_reset());
+  // попытаться отправить первый сброс, до трех раз перед тем, как сдаться
+  _LOGIC_LOCK({
+          int attempts = 3;
+          while (attempts > 0 && !logic_reset()) {
+              vTaskDelay(pdMS_TO_TICKS(500));
+              attempts--;
+          }
+  });
 
   while(1) {
     vTaskDelayUntil(&xLastWakeTime, xFrequency);
