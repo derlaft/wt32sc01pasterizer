@@ -225,7 +225,7 @@ void logic_tick() {
     case LogicState::Cooling_Start:
 
       // молоко уже холодное, перейти в режим хранения
-      if (temp <= target_temp) {
+      if (temp > LOGIC_SAFE_TEMP_MIN && temp <= target_temp) {
           logic_change_state(Cooling_Store);
           // избежать изначального включения перемешивания
           cycles_in_state = _TO_MS(mix_delay_value) / LOGIC_TASK_INTERVAL_MS + 1;
@@ -235,10 +235,14 @@ void logic_tick() {
       // включить компрессор, включить перемешивание (один раз)
       if (!logic_write(Compressor, true)) {
           logic_change_state(Idle);
+          // не дать логике возможность затормозить интерфейс и другие таски
+          vTaskDelay(pdMS_TO_TICKS(1000));
           return;
       }
       if (!logic_write(Mixer, true)) {
           logic_change_state(Idle);
+          // не дать логике возможность затормозить интерфейс и другие таски
+          vTaskDelay(pdMS_TO_TICKS(1000));
           return;
       }
 
@@ -248,7 +252,7 @@ void logic_tick() {
     case LogicState::Cooling_Cooling:
 
       // успешное охлаждение, перейти в хранение
-      if (temp <= target_temp) {
+      if (temp > LOGIC_SAFE_TEMP_MIN && temp <= target_temp) {
           logic_change_state(Cooling_Store);
           return;
       }
@@ -262,7 +266,7 @@ void logic_tick() {
     case LogicState::Cooling_Store:
 
       // поднялась температура: перейти обратно
-      if (temp > target_temp + TEMPERATURE_DELTA) {
+      if (temp < LOGIC_SAFE_TEMP_MAX && temp > target_temp + TEMPERATURE_DELTA) {
           logic_change_state(Cooling_Cooling);
           return;
       }
@@ -271,6 +275,8 @@ void logic_tick() {
       if (!logic_write(Compressor, false)) {
           // игорировать ошику, но не продолжать
           cycles_in_state ++;
+          // не дать логике возможность затормозить интерфейс и другие таски
+          vTaskDelay(pdMS_TO_TICKS(1000));
           return;
       }
 
@@ -286,6 +292,8 @@ void logic_tick() {
           if (!logic_write(Mixer, true)) {
               // игорировать ошику, но не продолжать
               cycles_in_state ++;
+              // не дать логике возможность затормозить интерфейс и другие таски
+              vTaskDelay(pdMS_TO_TICKS(1000));
               return;
           }
       } else if (a < _TO_MS(before_mix_value)) {
@@ -293,6 +301,8 @@ void logic_tick() {
           if (!logic_write(Mixer, false)) {
               // игорировать ошику, но не продолжать
               cycles_in_state ++;
+              // не дать логике возможность затормозить интерфейс и другие таски
+              vTaskDelay(pdMS_TO_TICKS(1000));
               return;
           }
       } else {
@@ -300,6 +310,8 @@ void logic_tick() {
           if (!logic_write(Mixer, true)) {
               // игорировать ошику, но не продолжать
               cycles_in_state ++;
+              // не дать логике возможность затормозить интерфейс и другие таски
+              vTaskDelay(pdMS_TO_TICKS(1000));
               return;
           }
       }
