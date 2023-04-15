@@ -6,6 +6,16 @@
 #include "ui_hal.h"
 #include "Config.h"
 
+#ifdef UI_EVENTS_DEBUG
+#define _DEBUG(...) { \
+    char buf[256]; \
+    snprintf(buf, sizeof(buf), __VA_ARGS__); \
+    Serial.println(buf); \
+};
+#else
+#define _DEBUG(...) {}
+#endif
+
 static const char *btnm_map[] = {
 	"1", "2", "3", "4", "\n",
 	"5", "6", "7", "8", "\n",
@@ -13,7 +23,7 @@ static const char *btnm_map[] = {
 };
 
 void on_button_map_click(lv_event_t * e) {
-	Serial.println("button map click");
+	_DEBUG("on_button_map_click");
 }
 
 void setup_button_map(lv_event_t * e) {
@@ -176,43 +186,42 @@ void on_wireless_screen_loaded(lv_event_t * e)
 
 void on_main_base(lv_event_t * e)
 {
-	Serial.println("base button");
+	_DEBUG("on_main_base");
     on_base_pressed();
 }
 
 
 void on_main_mixing(lv_event_t * e)
 {
-	Serial.println("mixing button");
+	_DEBUG("on_main_mixing");
     on_mixing_pressed();
 }
 
 void on_main_acid(lv_event_t * e)
 {
-	Serial.println("acid button");
+	_DEBUG("on_main_acid");
     on_acid_pressed();
 }
 
 void on_main_cooling(lv_event_t * e)
 {
-	Serial.println("cooling button");
+	_DEBUG("on_main_cooling");
 	on_cooling_pressed();
 }
 
-
 void on_warn_button_clicked(lv_event_t * e)
 {
-	Serial.println("warn button");
+	_DEBUG("on_warn_button_clicked");
 
-    lv_obj_t * mbox1 = lv_msgbox_create(NULL, "Ошибка", "Нарушена связь с ПЛС", NULL, true);
+    lv_obj_t * ui_WarningMsgbox = lv_msgbox_create(NULL, "Ошибка", "Нарушена связь с ПЛС", NULL, true);
 
-    lv_obj_t * title = lv_msgbox_get_title(mbox1);
+    lv_obj_t * title = lv_msgbox_get_title(ui_WarningMsgbox);
     lv_obj_set_style_text_font(title, &ui_font_bigfont, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    lv_obj_t * body = lv_msgbox_get_text(mbox1);
+    lv_obj_t * body = lv_msgbox_get_text(ui_WarningMsgbox);
     lv_obj_set_style_text_font(body, &ui_font_hack, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    lv_obj_center(mbox1);
+    lv_obj_center(ui_WarningMsgbox);
 }
 
 void display_temperature(float v)

@@ -1,12 +1,6 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
-// (возможно софтварный) серийный порт для общения со вторым контроллером
-#define LOGIC_SERIAL_SPEED 1200
-#define LOGIC_SERIAL_RX 5
-#define LOGIC_SERIAL_TX 33
-#define LOGIC_SERIAL_TIMEOUT 500
-
 // таймаут попыток работы с датчиком температуры
 #define TEMP_PROBE_TIMEOUT_MS 2000
 // пин с датчиком температуры 18В20
@@ -67,8 +61,17 @@
 #define LOGIC_DEBUG
 #define LOGIC_BACKUP_EVERY_N_TICK 120
 
+// (софтварный) серийный порт для общения со вторым контроллером
+#define LOGIC_SERIAL_SPEED 1200
+#define LOGIC_SERIAL_RX 5
+#define LOGIC_SERIAL_TX 33
+#define LOGIC_SERIAL_TIMEOUT 500
+
 // Отладка настроек
 #define SETTINGS_DEBUG
+
+// Отладка callback пользовательского интерфейса
+// #define UI_EVENTS_DEBUG
 
 // Данные подключения к wifi по умолчанию
 #define WIFI_DEF_AP ""
