@@ -93,11 +93,11 @@ void logic_task(void *pvParameter) {
     int64_t last_iter = (esp_timer_get_time() - prev_start);
     int64_t block_ms = LOGIC_TASK_INTERVAL_MS - last_iter;
     if (block_ms < LOGIC_TASK_INTERVAL_MIN_MS || block_ms > LOGIC_TASK_INTERVAL_MS) {
-        _DEBUG("_logic_task: %lldms block invalid", block_ms);
+        _DEBUG("_logic_task: %lldms block is invalid", block_ms);
         block_ms = LOGIC_TASK_INTERVAL_MS;
     }
     TickType_t xDelay = pdMS_TO_TICKS(block_ms);
-    _DEBUG("_logic_task: %lld msblock", block_ms);
+    _DEBUG("_logic_task: %lldms block", block_ms);
 
     uxBits = xEventGroupWaitBits(
             xLogicGroup,

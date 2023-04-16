@@ -24,12 +24,12 @@ void setup()
   while(true);
 #endif
 
-  // enable serial
-  Serial.begin(115200);
-
   // enable second serial
   Serial2.begin(LOGIC_SERIAL_SPEED, SERIAL_8N2, LOGIC_SERIAL_RX, LOGIC_SERIAL_TX);
   Serial2.setTimeout(LOGIC_SERIAL_TIMEOUT);
+
+  // enable serial
+  Serial.begin(115200);
 
   // setup lgvl hardware
   hal_setup();
