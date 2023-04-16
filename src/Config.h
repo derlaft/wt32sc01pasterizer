@@ -17,7 +17,7 @@
 #define PROBE_MAX_ERRORS 10
 
 // DEBUG
-#define DEBUG_SERIAL_TEMPERATURE
+// #define DEBUG_SERIAL_TEMPERATURE
 
 // разрешение графика температуры
 #define TEMP_CHART_RESOLUTION_MS (1000 * 60)
@@ -55,7 +55,8 @@
 #define MAX_MIX_DELAY_TIME 10
 
 // Интервал работы логики
-#define LOGIC_TASK_INTERVAL_MS 500
+#define LOGIC_TASK_INTERVAL_MS 2000
+#define LOGIC_TASK_INTERVAL_MIN_MS 50
 #define LOGIC_SAFE_TEMP_MAX 95
 #define LOGIC_SAFE_TEMP_MIN -50
 #define LOGIC_DEBUG

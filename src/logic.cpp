@@ -36,16 +36,35 @@ static int64_t cycles_in_state = 0;
 LogicState state = LogicState::Idle;
 
 SemaphoreHandle_t xLogicSemaphore;
+EventGroupHandle_t xLogicGroup;
 
 #define EV_UI_INTERRUPT (1<<0)
 
 void logic_setup() {
   xLogicSemaphore = xSemaphoreCreateMutex();
-  xLogicGroup = xEventGroupCreate()
+  xLogicGroup = xEventGroupCreate();
 
   logic_restore_state();
 
   xTaskCreatePinnedToCore(logic_task, "logic", 4096*2, NULL, tskIDLE_PRIORITY+10, NULL, 1);
+}
+
+void logic_wakeup() {
+    BaseType_t xHigherPriorityTaskWoken, xResult;
+    xHigherPriorityTaskWoken = pdFALSE;
+
+    // отправить событие
+    xResult = xEventGroupSetBitsFromISR(
+            xLogicGroup, 
+            EV_UI_INTERRUPT,
+            &xHigherPriorityTaskWoken
+    );
+
+    // если успешно, попросить freeRTOS пробудить таск с логикой
+    if(xResult != pdFAIL) {
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    }
+
 }
 
 void logic_task(void *pvParameter) {
@@ -54,7 +73,6 @@ void logic_task(void *pvParameter) {
   _GUI_LOCK(logic_sync_ui());
 
   TickType_t xLastWakeTime;
-  const TickType_t xFrequency = pdMS_TO_TICKS(LOGIC_TASK_INTERVAL_MS);
   xLastWakeTime = xTaskGetTickCount();
   EventBits_t uxBits;
 
@@ -67,14 +85,27 @@ void logic_task(void *pvParameter) {
           }
   });
 
+  int64_t prev_start = esp_timer_get_time();
+
   while(1) {
+
+    // посмотреть, сколько нужно ждать
+    int64_t last_iter = (esp_timer_get_time() - prev_start);
+    int64_t block_ms = LOGIC_TASK_INTERVAL_MS - last_iter;
+    if (block_ms < LOGIC_TASK_INTERVAL_MIN_MS || block_ms > LOGIC_TASK_INTERVAL_MS) {
+        _DEBUG("_logic_task: %lldms block invalid", block_ms);
+        block_ms = LOGIC_TASK_INTERVAL_MS;
+    }
+    TickType_t xDelay = pdMS_TO_TICKS(block_ms);
+    _DEBUG("_logic_task: %lld msblock", block_ms);
+
     uxBits = xEventGroupWaitBits(
             xLogicGroup,
             EV_UI_INTERRUPT,
-            pdTRUE,                 // clear event bits after execution
-            pdFALSE,                // don't wait for all events to happen
-            xDelay,
-    );
+            pdTRUE,          // сбросить бит события
+            pdFALSE,         // не ждать установки всех битов
+            xDelay           // максимальное время ожидания
+    );    
 
     _LOGIC_LOCK(
         logic_tick();
@@ -88,6 +119,8 @@ void logic_task(void *pvParameter) {
       logic_backup_state();
       need_state_backup = false;
     }
+
+    prev_start = esp_timer_get_time();
   }
 
   vTaskDelete(NULL);
@@ -169,6 +202,7 @@ bool is_manual_delayed_cmd = false;
 void logic_flip_delayed(Channel_t c) {
     want_channel_status[c] = !want_channel_status[c];
     is_manual_delayed_cmd = true;
+    logic_wakeup();
 }
 
 bool logic_reset() {
@@ -405,7 +439,7 @@ void logic_tick() {
   }
 
   logic_check_for_reset();
-}я попробую щас 
+}
 
 void logic_change_state(LogicState_t n) {
     if (state == Fatal) {
@@ -440,7 +474,7 @@ void on_cooling_pressed() {
           break;
       }
   });
-  logic_sync_ui();
+  logic_wakeup();
 }
 
 void on_mixing_pressed() {
@@ -458,7 +492,7 @@ void on_mixing_pressed() {
           break;
       }
   });
-  logic_sync_ui();
+  logic_wakeup();
 }
 
 void on_acid_pressed() {
@@ -479,7 +513,7 @@ void on_acid_pressed() {
           break;
       }
   });
-  logic_sync_ui();
+  logic_wakeup();
 }
 
 void on_base_pressed() {
@@ -501,7 +535,7 @@ void on_base_pressed() {
           break;
       }
   });
-  logic_sync_ui();
+  logic_wakeup();
 }
 
 
