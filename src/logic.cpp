@@ -37,14 +37,13 @@ LogicState state = LogicState::Idle;
 
 SemaphoreHandle_t xLogicSemaphore;
 
+#define EV_UI_INTERRUPT (1<<0)
+
 void logic_setup() {
   xLogicSemaphore = xSemaphoreCreateMutex();
+  xLogicGroup = xEventGroupCreate()
 
   logic_restore_state();
-
-  // enable second serial
-  Serial2.begin(LOGIC_SERIAL_SPEED, SERIAL_8N2, LOGIC_SERIAL_RX, LOGIC_SERIAL_TX);
-  Serial2.setTimeout(LOGIC_SERIAL_TIMEOUT);
 
   xTaskCreatePinnedToCore(logic_task, "logic", 4096*2, NULL, tskIDLE_PRIORITY+10, NULL, 1);
 }
@@ -57,6 +56,7 @@ void logic_task(void *pvParameter) {
   TickType_t xLastWakeTime;
   const TickType_t xFrequency = pdMS_TO_TICKS(LOGIC_TASK_INTERVAL_MS);
   xLastWakeTime = xTaskGetTickCount();
+  EventBits_t uxBits;
 
   // попытаться отправить первый сброс, до трех раз перед тем, как сдаться
   _LOGIC_LOCK({
@@ -68,7 +68,13 @@ void logic_task(void *pvParameter) {
   });
 
   while(1) {
-    vTaskDelayUntil(&xLastWakeTime, xFrequency);
+    uxBits = xEventGroupWaitBits(
+            xLogicGroup,
+            EV_UI_INTERRUPT,
+            pdTRUE,                 // clear event bits after execution
+            pdFALSE,                // don't wait for all events to happen
+            xDelay,
+    );
 
     _LOGIC_LOCK(
         logic_tick();
@@ -399,7 +405,7 @@ void logic_tick() {
   }
 
   logic_check_for_reset();
-}
+}я попробую щас 
 
 void logic_change_state(LogicState_t n) {
     if (state == Fatal) {
