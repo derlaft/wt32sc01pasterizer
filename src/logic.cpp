@@ -189,7 +189,7 @@ bool logic_send_changed() {
             bool r = logic_write_internal((Channel_t)c, want_channel_status[c]);
             if (!r) {
                 _DEBUG("logic_send_changed failed");
-                return false;
+                return logic_reset();
             }
 
         }
