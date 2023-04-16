@@ -606,7 +606,10 @@ void logic_restore_state() {
     case Cooling_Start:
     case Cooling_Cooling:
     case Cooling_Store:
-      state = Cooling_Cooling;
+      // переход в состояние хранения (чтобы не включить компрессор сразу)
+      state = Cooling_Store;
+      // избежать изначального включения перемешивания
+      cycles_in_state = _TO_MS(mix_delay_value) / LOGIC_TASK_INTERVAL_MS + 1;
       break;
     default:
       state = Idle;
