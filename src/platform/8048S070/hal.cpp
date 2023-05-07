@@ -1,9 +1,12 @@
 #include "hal.h"
 
 
-// Интерфейсы экрана и тачскрина
+// Интерфейc экрана
 Arduino_ESP32RGBPanel *bus;
 Arduino_RGB_Display *gfx;
+
+// Интерфейс тачскрина
+TAMC_GT911 *touch;
 
 bool is_display_open = false;
 
@@ -27,6 +30,11 @@ void hw_setup() {
 
     gfx->begin();
 
+    touch = new TAMC_GT911(TOUCH_GT911_SDA, TOUCH_GT911_SCL, TOUCH_GT911_INT, TOUCH_GT911_RST, TFT_WIDTH, TFT_HEIGHT);
+
+    Wire.begin(TOUCH_GT911_SDA, TOUCH_GT911_SCL);
+    touch->begin();
+    touch->setRotation(TOUCH_GT911_ROTATION);
 }
 
 void hw_lvgl_setup() {
@@ -48,13 +56,11 @@ void hw_lvgl_setup() {
     lv_disp_drv_register( &disp_drv );
 
     // Драйвер тачскрина
-    /*
-       static lv_indev_drv_t indev_drv;
-       lv_indev_drv_init( &indev_drv );
-       indev_drv.type = LV_INDEV_TYPE_POINTER;
-       indev_drv.read_cb = update_touch_position;
-       lv_indev_drv_register( &indev_drv );
-       */
+    static lv_indev_drv_t indev_drv;
+    lv_indev_drv_init( &indev_drv );
+    indev_drv.type = LV_INDEV_TYPE_POINTER;
+    indev_drv.read_cb = update_touch_position;
+    lv_indev_drv_register( &indev_drv );
 
 }
 
@@ -85,7 +91,42 @@ void update_display(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *colo
 }
 
 void update_touch_position(lv_indev_drv_t * drv, lv_indev_data_t*data) {
-    // TODO
-    return;
+#ifdef TOUCH_DEBUG
+  Serial.println("#");
+#endif
+
+  static uint16_t lastx = 0;
+  static uint16_t lasty = 0;
+
+  touch->read();
+  if (!touch->isTouched) {
+
+     data->state = LV_INDEV_STATE_REL;
+     data->point.x = lastx;
+     data->point.y = lasty;
+     return;
+  }
+
+  TP_Point touchPos = touch->points[0];
+  data->state = LV_INDEV_STATE_PR;
+
+#ifdef TOUCH_DEBUG
+  Serial.println("touch at " + String(touchPos.x) + "x" + String(touchPos.y));
+#endif
+#if defined(TOUCH_SWAP_XY)
+    lastx = map(touchPos.y, TOUCH_MAP_X1, TOUCH_MAP_X2, 0, gfx->width() - 1);
+    lasty = map(touchPos.x, TOUCH_MAP_Y1, TOUCH_MAP_Y2, 0, gfx->height() - 1);
+#else
+    lastx = map(touchPos.x, TOUCH_MAP_X1, TOUCH_MAP_X2, 0, gfx->width() - 1);
+    lasty = map(touchPos.y, TOUCH_MAP_Y1, TOUCH_MAP_Y2, 0, gfx->height() - 1);
+#endif
+#ifdef TOUCH_DEBUG
+  Serial.println("mapped to " + String(xpos) + "x" + String(ypos));
+#endif
+
+  data->point.x = lastx;
+  data->point.y = lasty;
+
+  return;
 }
 

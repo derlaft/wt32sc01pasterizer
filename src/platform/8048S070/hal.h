@@ -5,6 +5,8 @@
 #include <esp_freertos_hooks.h>
 #include <SPI.h>
 #include <Arduino_GFX_Library.h>
+#include <Wire.h>
+#include <TAMC_GT911.h>
 
 extern void hw_setup();
 
