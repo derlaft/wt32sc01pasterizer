@@ -20,7 +20,7 @@ void hw_setup() {
             0 /* hsync_polarity */, 180 /* hsync_front_porch */, 30 /* hsync_pulse_width */, 16 /* hsync_back_porch */,
             0 /* vsync_polarity */, 12 /* vsync_front_porch */, 13 /* vsync_pulse_width */, 10 /* vsync_back_porch */);
     gfx = new Arduino_RGB_Display(
-            TFT_WIDTH /* width */, TFT_HEIGHT /* height */, bus, 1 /* rotation */, true /* auto_flush */);
+            TFT_WIDTH /* width */, TFT_HEIGHT /* height */, bus, 0 /* rotation */, true /* auto_flush */);
 
     gfx->begin();
 
@@ -38,8 +38,8 @@ void hw_lvgl_setup() {
     lv_disp_drv_init( &disp_drv );
 
     // Установка корректного размера дисплея
-    disp_drv.hor_res = TFT_HEIGHT;
-    disp_drv.ver_res = TFT_WIDTH;
+    disp_drv.hor_res = TFT_WIDTH;
+    disp_drv.ver_res = TFT_HEIGHT;
     disp_drv.flush_cb = update_display;
     disp_drv.draw_buf = &draw_buf;
     lv_disp_drv_register( &disp_drv );
