@@ -25,8 +25,8 @@ void setup()
 #endif
 
   // enable second serial
-  Serial2.begin(LOGIC_SERIAL_SPEED, SERIAL_8N2, LOGIC_SERIAL_RX, LOGIC_SERIAL_TX);
-  Serial2.setTimeout(LOGIC_SERIAL_TIMEOUT);
+  // Serial2.begin(LOGIC_SERIAL_SPEED, SERIAL_8N2, LOGIC_SERIAL_RX, LOGIC_SERIAL_TX);
+  // Serial2.setTimeout(LOGIC_SERIAL_TIMEOUT);
 
   // enable serial
   Serial.begin(115200);
@@ -35,16 +35,16 @@ void setup()
   hal_setup();
 
   // initialize wifi
-  wifi_setup();
+  // wifi_setup();
 
   // read settings
-  _GUI_LOCK(settings_setup());
+  // _GUI_LOCK(settings_setup());
 
   // Initialize logic
-  logic_setup();
+  // logic_setup();
 
   // configure temperature readings
-  temperature_task_setup();
+  // temperature_task_setup();
 }
 
 

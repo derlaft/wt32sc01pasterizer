@@ -1,5 +1,3 @@
-#define _DEVICE WT32SC01
-
 // конфигурация различных пинов, связанных в основном с дисплеем и тачем
 #define CONFIG_TOUCH_CS -1
 #define TOUCH_SDA 18

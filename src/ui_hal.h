@@ -5,13 +5,13 @@
 #include <lvgl.h>
 #include <esp_freertos_hooks.h>
 #include <SPI.h>
-#include <TFT_eSPI.h> 
-#include <Adafruit_FT6206.h>
 
 #include "ui.h"
 
-#if _DEVICE == WT32SC01
+#ifdef _DEVICE_WT32SC01
 #include "platform/wt32sc01/hal.h"
+#elif _DEVICE_8048S070
+#include "platform/8048S070/hal.h"
 #endif
 
 extern SemaphoreHandle_t xGuiSemaphore;
