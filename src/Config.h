@@ -17,7 +17,7 @@
 #define PROBE_MAX_ERRORS 10
 
 // DEBUG
-// #define DEBUG_SERIAL_TEMPERATURE
+#define DEBUG_SERIAL_TEMPERATURE
 
 // разрешение графика температуры
 #define TEMP_CHART_RESOLUTION_MS (1000 * 60)
