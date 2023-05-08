@@ -20,9 +20,8 @@ void hw_setup() {
             14 /* R0 */, 21 /* R1 */, 47 /* R2 */, 48 /* R3 */, 45 /* R4 */,
             9 /* G0 */, 46 /* G1 */, 3 /* G2 */, 8 /* G3 */, 16 /* G4 */, 1 /* G5 */,
             15 /* B0 */, 7 /* B1 */, 6 /* B2 */, 5 /* B3 */, 4 /* B4 */,
-            0 /* hsync_polarity */, 210 /* hsync_front_porch */, 30 /* hsync_pulse_width */, 16 /* hsync_back_porch */,
-            0 /* vsync_polarity */, 22 /* vsync_front_porch */, 13 /* vsync_pulse_width */, 10 /* vsync_back_porch */,
-            1 /* pclk_active_neg */, 16000000 /* prefer_speed */
+            0 /* hsync_polarity */, 180 /* hsync_front_porch */, 30 /* hsync_pulse_width */, 16 /* hsync_back_porch */,
+            0 /* vsync_polarity */, 12 /* vsync_front_porch */, 13 /* vsync_pulse_width */, 10 /* vsync_back_porch */
     );
 
     gfx = new Arduino_RGB_Display(
@@ -40,7 +39,7 @@ void hw_setup() {
 void hw_lvgl_setup() {
 
     // Буфер для отрисовки
-    auto buf_size = TFT_WIDTH*TFT_HEIGHT/4;
+    auto buf_size = TFT_WIDTH*TFT_HEIGHT/10;
     disp_draw_buf = (lv_color_t *)heap_caps_malloc(sizeof(lv_color_t)* buf_size, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
     lv_disp_draw_buf_init( &draw_buf, disp_draw_buf, NULL, buf_size);
 
@@ -76,6 +75,11 @@ void update_display(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *colo
     uint32_t w = (area->x2 - area->x1 + 1);
     uint32_t h = (area->y2 - area->y1 + 1);
 
+    if (!is_display_open) {
+        is_display_open = true;
+        vTaskPrioritySet(NULL, tskIDLE_PRIORITY + 2);
+    }
+
 #if (LV_COLOR_16_SWAP != 0)
     gfx->draw16bitBeRGBBitmap(area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
 #else
@@ -84,6 +88,7 @@ void update_display(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *colo
 
     if (lv_disp_flush_is_last(disp)) {
         gfx->flush();
+        vTaskPrioritySet( NULL, tskIDLE_PRIORITY);
     }
 
     lv_disp_flush_ready(disp);
