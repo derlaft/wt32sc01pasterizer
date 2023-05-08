@@ -16,3 +16,4 @@
 #define TOUCH_MAP_X2 0
 #define TOUCH_MAP_Y1 480
 #define TOUCH_MAP_Y2 0
+

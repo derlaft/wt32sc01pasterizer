@@ -3,7 +3,7 @@
 
 // Интерфейc экрана
 Arduino_ESP32RGBPanel *bus;
-Arduino_RGB_Display *gfx;
+Arduino_RPi_DPI_RGBPanel *gfx;
 
 // Интерфейс тачскрина
 TAMC_GT911 *touch;
@@ -15,17 +15,25 @@ static lv_disp_draw_buf_t draw_buf;
 static lv_color_t *disp_draw_buf;
 
 void hw_setup() {
+
     bus = new Arduino_ESP32RGBPanel(
+            GFX_NOT_DEFINED /* CS */, GFX_NOT_DEFINED /* SCK */, GFX_NOT_DEFINED /* SDA */,
             41 /* DE */, 40 /* VSYNC */, 39 /* HSYNC */, 42 /* PCLK */,
             14 /* R0 */, 21 /* R1 */, 47 /* R2 */, 48 /* R3 */, 45 /* R4 */,
             9 /* G0 */, 46 /* G1 */, 3 /* G2 */, 8 /* G3 */, 16 /* G4 */, 1 /* G5 */,
-            15 /* B0 */, 7 /* B1 */, 6 /* B2 */, 5 /* B3 */, 4 /* B4 */,
-            0 /* hsync_polarity */, 180 /* hsync_front_porch */, 30 /* hsync_pulse_width */, 16 /* hsync_back_porch */,
-            0 /* vsync_polarity */, 12 /* vsync_front_porch */, 13 /* vsync_pulse_width */, 10 /* vsync_back_porch */
-    );
+            15 /* B0 */, 7 /* B1 */, 6 /* B2 */, 5 /* B3 */, 4 /* B4 */
+            );
+    // option 1:
+    // 7寸 50PIN 800*480
+    gfx = new Arduino_RPi_DPI_RGBPanel(
+            bus,
+            //  800 /* width */, 0 /* hsync_polarity */, 8/* hsync_front_porch */, 2 /* hsync_pulse_width */, 43/* hsync_back_porch */,
+            //  480 /* height */, 0 /* vsync_polarity */, 8 /* vsync_front_porch */, 2/* vsync_pulse_width */, 12 /* vsync_back_porch */,
+            //  1 /* pclk_active_neg */, 16000000 /* prefer_speed */, true /* auto_flush */);
 
-    gfx = new Arduino_RGB_Display(
-            TFT_WIDTH /* width */, TFT_HEIGHT /* height */, bus, 0 /* rotation */, false /* auto_flush */);
+                             800 /* width */, 0 /* hsync_polarity */, 210 /* hsync_front_porch */, 30 /* hsync_pulse_width */, 16 /* hsync_back_porch */,
+                             480 /* height */, 0 /* vsync_polarity */, 22 /* vsync_front_porch */, 13 /* vsync_pulse_width */, 10 /* vsync_back_porch */,
+                             1 /* pclk_active_neg */, 16000000 /* prefer_speed */, true /* auto_flush */);
 
     gfx->begin();
 
@@ -87,7 +95,7 @@ void update_display(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *colo
 #endif
 
     if (lv_disp_flush_is_last(disp)) {
-        gfx->flush();
+        // gfx->flush()
         vTaskPrioritySet( NULL, tskIDLE_PRIORITY);
     }
 
