@@ -11,8 +11,7 @@ bool is_display_open = false;
 
 // Области памяти для отрисовки
 static lv_disp_draw_buf_t draw_buf;
-static const int buf_size = TFT_WIDTH*TFT_HEIGHT/4;
-DMA_ATTR lv_color_t disp_draw_buf[buf_size];
+static lv_color_t *disp_draw_buf;
 
 void hw_setup() {
 
@@ -29,6 +28,8 @@ void hw_setup() {
 void hw_lvgl_setup() {
 
     // Буфер для отрисовки
+    auto buf_size = TFT_WIDTH*TFT_HEIGHT/4;
+    disp_draw_buf = (lv_color_t *)heap_caps_malloc(sizeof(lv_color_t)* buf_size, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
     lv_disp_draw_buf_init( &draw_buf, disp_draw_buf, NULL, buf_size);
 
     // Создание дисплея
@@ -40,7 +41,6 @@ void hw_lvgl_setup() {
     disp_drv.ver_res = TFT_HEIGHT;
     disp_drv.flush_cb = update_display;
     disp_drv.draw_buf = &draw_buf;
-    disp_drv.full_refresh = true;
     lv_disp_drv_register( &disp_drv );
 
     // Драйвер тачскрина
@@ -72,6 +72,7 @@ IRAM_ATTR void update_display(lv_disp_drv_t *disp, const lv_area_t *area, lv_col
     screen->draw16bitRGBBitmap(area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
 
     if (lv_disp_flush_is_last(disp)) {
+        screen->flush();
         vTaskPrioritySet( NULL, tskIDLE_PRIORITY);
     }
 
