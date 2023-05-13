@@ -59,7 +59,7 @@ void hw_enable_backlight() {
 }
 
 
-void update_display(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
+IRAM_ATTR void update_display(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
 {
     uint32_t w = (area->x2 - area->x1 + 1);
     uint32_t h = (area->y2 - area->y1 + 1);
@@ -77,7 +77,6 @@ void update_display(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *colo
     }
 
     lv_disp_flush_ready(disp);
-
 }
 
 void update_touch_position(lv_indev_drv_t * drv, lv_indev_data_t*data) {

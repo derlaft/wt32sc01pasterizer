@@ -83,7 +83,7 @@ private:
   uint16_t _vsync_pulse_width = 2;
   uint16_t _vsync_back_porch = 12;
   uint16_t _pclk_active_neg = 1;
-  int32_t _prefer_speed = 16000000;
+  int32_t _prefer_speed = 16000000L;
   bool _auto_flush = false;
 
   uint16_t _w = 800;
@@ -94,7 +94,7 @@ private:
   int8_t _r0 = 14, _r1 = 21, _r2 = 47, _r3 = 48, _r4 = 45;
   int8_t _g0 = 9, _g1 = 46, _g2 = 3, _g3 = 9, _g4 = 16, _g5 = 1;
   int8_t _b0 = 15, _b1 = 7, _b2 = 6, _b3 = 5, _b4 = 4;
-  bool _useBigEndian = true;
+  bool _useBigEndian = false;
 
   esp_lcd_panel_handle_t _panel_handle = NULL;
   esp_rgb_panel_t *_rgb_panel;
