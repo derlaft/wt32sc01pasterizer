@@ -19,12 +19,6 @@ void RGBDisplay8048S070::begin(bool psram_fb, int32_t speed)
     _speed = speed;
   }
 
-  _framebuffer = getFramebuffer();
-  _framebuffer_size = _w * _h * 2;
-}
-
-uint16_t *RGBDisplay8048S070::getFramebuffer() {
-
   esp_lcd_rgb_panel_config_t *_panel_config = (esp_lcd_rgb_panel_config_t *)heap_caps_calloc(1, sizeof(esp_lcd_rgb_panel_config_t), MALLOC_CAP_DMA | MALLOC_CAP_INTERNAL);
 
   _panel_config->clk_src = LCD_CLK_SRC_PLL160M;
@@ -107,14 +101,15 @@ uint16_t *RGBDisplay8048S070::getFramebuffer() {
 
   _rgb_panel = __containerof(_panel_handle, esp_rgb_panel_t, base);
 
-  //auto _framebuffer_size = _w * _h * 2;
-  //Cache_WriteBack_Addr((uint32_t)_rgb_panel->fb, _framebuffer_size);
-
-  return (uint16_t *)_rgb_panel->fb;
+  _framebuffer = (uint16_t *)_rgb_panel->fb;
+  _framebuffer_size = _w * _h * 2;
 }
 
-IRAM_ATTR void RGBDisplay8048S070::draw16bitRGBBitmap(int16_t x, int16_t y, uint16_t *bitmap, int16_t w, int16_t h)
-{
+uint16_t *RGBDisplay8048S070::getFramebuffer() {
+    return _framebuffer;
+}
+
+IRAM_ATTR void RGBDisplay8048S070::draw16bitRGBBitmap(int16_t x, int16_t y, uint16_t *bitmap, int16_t w, int16_t h) {
     ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(_panel_handle, x, y, x+w,y+h, (void*) bitmap));
 }
 
