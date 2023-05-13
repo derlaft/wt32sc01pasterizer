@@ -21,6 +21,11 @@
 // This function is located in ROM (also see esp_rom/${target}/ld/${target}.rom.ld)
 extern int Cache_WriteBack_Addr(uint32_t addr, uint32_t size);
 
+#define MSB_16_SET(var, val)                                 \
+    {                                                        \
+        (var) = (((val)&0xFF00) >> 8) | (((val)&0xFF) << 8); \
+    }
+
 typedef volatile uint32_t *PORTreg_t;
 
 // extract from esp-idf esp_lcd_rgb_panel.c
@@ -65,55 +70,31 @@ public:
 
   uint16_t *getFramebuffer();
 
-  void begin(int32_t speed = GFX_NOT_DEFINED, int8_t dataMode = GFX_NOT_DEFINED);
-  void beginWrite();
-  void endWrite();
-  void writeCommand(uint8_t);
-  void write(uint8_t);
-
 protected:
   uint16_t *_framebuffer;
   size_t _framebuffer_size;
 private:
-  uint16_t _hsync_polarity;
-  uint16_t _hsync_front_porch;
-  uint16_t _hsync_pulse_width;
-  uint16_t _hsync_back_porch;
-  uint16_t _vsync_polarity;
-  uint16_t _vsync_front_porch;
-  uint16_t _vsync_pulse_width;
-  uint16_t _vsync_back_porch;
-  uint16_t _pclk_active_neg;
-  int32_t _prefer_speed;
-  bool _auto_flush;
+  uint16_t _hsync_polarity = 0;
+  uint16_t _hsync_front_porch = 8;
+  uint16_t _hsync_pulse_width = 2;
+  uint16_t _hsync_back_porch = 43;
+  uint16_t _vsync_polarity = 0;
+  uint16_t _vsync_front_porch = 8;
+  uint16_t _vsync_pulse_width = 2;
+  uint16_t _vsync_back_porch = 12;
+  uint16_t _pclk_active_neg = 1;
+  int32_t _prefer_speed = 16000000;
+  bool _auto_flush = false;
 
-  uint16_t _w;
-  uint16_t _h;
+  uint16_t _w = 800;
+  uint16_t _h = 480;
 
   int32_t _speed;
-  int8_t _cs, _sck, _sda;
-  int8_t _de, _vsync, _hsync, _pclk;
-  int8_t _r0, _r1, _r2, _r3, _r4;
-  int8_t _g0, _g1, _g2, _g3, _g4, _g5;
-  int8_t _b0, _b1, _b2, _b3, _b4;
-  bool _useBigEndian;
-
-  PORTreg_t _csPortSet;  ///< PORT register for chip select SET
-  PORTreg_t _csPortClr;  ///< PORT register for chip select CLEAR
-  PORTreg_t _sckPortSet; ///< PORT register for SCK SET
-  PORTreg_t _sckPortClr; ///< PORT register for SCK CLEAR
-  PORTreg_t _sdaPortSet; ///< PORT register for SCK SET
-  PORTreg_t _sdaPortClr; ///< PORT register for SCK CLEAR
-  uint32_t _csPinMask;   ///< Bitmask for chip select
-  uint32_t _sckPinMask;  ///< Bitmask for SCK
-  uint32_t _sdaPinMask;  ///< Bitmask for SCK
-
-  INLINE void CS_HIGH(void);
-  INLINE void CS_LOW(void);
-  INLINE void SCK_HIGH(void);
-  INLINE void SCK_LOW(void);
-  INLINE void SDA_HIGH(void);
-  INLINE void SDA_LOW(void);
+  int8_t _de = 41, _vsync = 40, _hsync = 39, _pclk = 42;
+  int8_t _r0 = 14, _r1 = 21, _r2 = 47, _r3 = 48, _r4 = 45;
+  int8_t _g0 = 9, _g1 = 46, _g2 = 3, _g3 = 9, _g4 = 16, _g5 = 1;
+  int8_t _b0 = 15, _b1 = 7, _b2 = 6, _b3 = 5, _b4 = 4;
+  bool _useBigEndian = true;
 
   esp_lcd_panel_handle_t _panel_handle = NULL;
   esp_rgb_panel_t *_rgb_panel;

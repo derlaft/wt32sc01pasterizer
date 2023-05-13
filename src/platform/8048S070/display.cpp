@@ -1,5 +1,8 @@
 #include "display.h"
 
+RGBDisplay8048S070:: RGBDisplay8048S070() {
+
+}
 
 void RGBDisplay8048S070::begin(bool psram_fb, int32_t speed)
 {
@@ -16,114 +19,8 @@ void RGBDisplay8048S070::begin(bool psram_fb, int32_t speed)
     _speed = speed;
   }
 
-  if (_cs != GFX_NOT_DEFINED)
-  {
-    pinMode(_cs, OUTPUT);
-    digitalWrite(_cs, HIGH); // disable chip select
-  }
-  if (_cs >= 32)
-  {
-    _csPinMask = digitalPinToBitMask(_cs);
-    _csPortSet = (PORTreg_t)&GPIO.out1_w1ts.val;
-    _csPortClr = (PORTreg_t)&GPIO.out1_w1tc.val;
-  }
-  else
-  {
-    _csPinMask = digitalPinToBitMask(_cs);
-    _csPortSet = (PORTreg_t)&GPIO.out_w1ts;
-    _csPortClr = (PORTreg_t)&GPIO.out_w1tc;
-  }
-  if (_sck != GFX_NOT_DEFINED)
-  {
-    pinMode(_sck, OUTPUT);
-    digitalWrite(_sck, LOW);
-  }
-  if (_sck >= 32)
-  {
-    _sckPinMask = digitalPinToBitMask(_sck);
-    _sckPortSet = (PORTreg_t)&GPIO.out1_w1ts.val;
-    _sckPortClr = (PORTreg_t)&GPIO.out1_w1tc.val;
-  }
-  else
-  {
-    _sckPinMask = digitalPinToBitMask(_sck);
-    _sckPortSet = (PORTreg_t)&GPIO.out_w1ts;
-    _sckPortClr = (PORTreg_t)&GPIO.out_w1tc;
-  }
-  if (_sda != GFX_NOT_DEFINED)
-  {
-    pinMode(_sda, OUTPUT);
-    digitalWrite(_sda, LOW);
-  }
-  if (_sda >= 32)
-  {
-    _sdaPinMask = digitalPinToBitMask(_sda);
-    _sdaPortSet = (PORTreg_t)&GPIO.out1_w1ts.val;
-    _sdaPortClr = (PORTreg_t)&GPIO.out1_w1tc.val;
-  }
-  else
-  {
-    _sdaPinMask = digitalPinToBitMask(_sda);
-    _sdaPortSet = (PORTreg_t)&GPIO.out_w1ts;
-    _sdaPortClr = (PORTreg_t)&GPIO.out_w1tc;
-  }
-}
-
-void RGBDisplay8048S070::beginWrite()
-{
-  CS_LOW();
-}
-
-void RGBDisplay8048S070::endWrite()
-{
-  CS_HIGH();
-}
-
-void RGBDisplay8048S070::writeCommand(uint8_t c)
-{
-  // D/C bit, command
-  SDA_LOW();
-  SCK_HIGH();
-  SCK_LOW();
-
-  uint8_t bit = 0x80;
-  while (bit)
-  {
-    if (c & bit)
-    {
-      SDA_HIGH();
-    }
-    else
-    {
-      SDA_LOW();
-    }
-    SCK_HIGH();
-    bit >>= 1;
-    SCK_LOW();
-  }
-}
-
-void RGBDisplay8048S070::write(uint8_t d) {
-  // D/C bit, data
-  SDA_HIGH();
-  SCK_HIGH();
-  SCK_LOW();
-
-  uint8_t bit = 0x80;
-  while (bit)
-  {
-    if (d & bit)
-    {
-      SDA_HIGH();
-    }
-    else
-    {
-      SDA_LOW();
-    }
-    SCK_HIGH();
-    bit >>= 1;
-    SCK_LOW();
-  }
+  _framebuffer = getFramebuffer();
+  _framebuffer_size = _w * _h * 2;
 }
 
 uint16_t *RGBDisplay8048S070::getFramebuffer() {
@@ -145,7 +42,7 @@ uint16_t *RGBDisplay8048S070::getFramebuffer() {
   _panel_config->timings.flags.hsync_idle_low = (_hsync_polarity == 0) ? 1 : 0;
   _panel_config->timings.flags.vsync_idle_low = (_vsync_polarity == 0) ? 1 : 0;
   _panel_config->timings.flags.de_idle_high = 0;
-  _panel_config->timings.flags.pclk_active_neg = pclk_active_neg;
+  _panel_config->timings.flags.pclk_active_neg = _pclk_active_neg;
   _panel_config->timings.flags.pclk_idle_high = 0;
 
   _panel_config->data_width = 16; // RGB565 in parallel mode, thus 16bit in width
@@ -199,7 +96,7 @@ uint16_t *RGBDisplay8048S070::getFramebuffer() {
 
   _panel_config->flags.disp_active_low = 0;
   _panel_config->flags.relax_on_idle = 0;
-  _panel_config->flags.fb_in_psram = 1;             // allocate frame buffer in PSRAM
+  _panel_config->flags.fb_in_psram = 1;
 
   ESP_ERROR_CHECK(esp_lcd_new_rgb_panel(_panel_config, &_panel_handle));
   ESP_ERROR_CHECK(esp_lcd_panel_reset(_panel_handle));
@@ -210,35 +107,73 @@ uint16_t *RGBDisplay8048S070::getFramebuffer() {
 
   _rgb_panel = __containerof(_panel_handle, esp_rgb_panel_t, base);
 
+  //auto _framebuffer_size = _w * _h * 2;
+  //Cache_WriteBack_Addr((uint32_t)_rgb_panel->fb, _framebuffer_size);
+
   return (uint16_t *)_rgb_panel->fb;
 }
 
-INLINE void RGBDisplay8048S070::CS_HIGH(void)
+void RGBDisplay8048S070::draw16bitRGBBitmap(int16_t x, int16_t y, uint16_t *bitmap, int16_t w, int16_t h)
 {
-  *_csPortSet = _csPinMask;
+    auto _max_x = _w;
+    auto _max_y = _h;
+
+    if (
+        ((x + w - 1) < 0) || // Outside left
+        ((y + h - 1) < 0) || // Outside top
+        (x > _max_x) ||      // Outside right
+        (y > _max_y)         // Outside bottom
+    )
+    {
+        return;
+    }
+    else
+    {
+        int16_t xskip = 0;
+        if ((y + h - 1) > _max_y)
+        {
+            h -= (y + h - 1) - _max_y;
+        }
+        if (y < 0)
+        {
+            bitmap -= y * w;
+            h += y;
+            y = 0;
+        }
+        if ((x + w - 1) > _max_x)
+        {
+            xskip = (x + w - 1) - _max_x;
+            w -= xskip;
+        }
+        if (x < 0)
+        {
+            bitmap -= x;
+            xskip -= x;
+            w += x;
+            x = 0;
+        }
+        uint16_t *row = _framebuffer;
+        row += y * _w;
+        uint32_t cachePos = (uint32_t)row;
+        row += x;
+        uint16_t color;
+        for (int j = 0; j < h; j++)
+        {
+            for (int i = 0; i < w; i++)
+            {
+                color = *bitmap++;
+                MSB_16_SET(row[i], color);
+            }
+            bitmap += xskip;
+            row += _w;
+        }
+        if (_auto_flush)
+        {
+            Cache_WriteBack_Addr(cachePos, _w* h * 2);
+        }
+    }
 }
 
-INLINE void RGBDisplay8048S070::CS_LOW(void)
-{
-  *_csPortClr = _csPinMask;
-}
-
-INLINE void RGBDisplay8048S070::SCK_HIGH(void)
-{
-  *_sckPortSet = _sckPinMask;
-}
-
-INLINE void RGBDisplay8048S070::SCK_LOW(void)
-{
-  *_sckPortClr = _sckPinMask;
-}
-
-INLINE void RGBDisplay8048S070::SDA_HIGH(void)
-{
-  *_sdaPortSet = _sdaPinMask;
-}
-
-INLINE void RGBDisplay8048S070::SDA_LOW(void)
-{
-  *_sdaPortClr = _sdaPinMask;
+void RGBDisplay8048S070::flush() {
+    Cache_WriteBack_Addr((uint32_t)_framebuffer, _framebuffer_size);
 }

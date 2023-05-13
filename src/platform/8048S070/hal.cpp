@@ -2,8 +2,7 @@
 
 
 // Интерфейc экрана
-Arduino_ESP32RGBPanel *bus;
-Arduino_RPi_DPI_RGBPanel *gfx;
+RGBDisplay8048S070 *screen;
 
 // Интерфейс тачскрина
 TAMC_GT911 *touch;
@@ -16,26 +15,8 @@ static lv_color_t *disp_draw_buf;
 
 void hw_setup() {
 
-    bus = new Arduino_ESP32RGBPanel(
-            GFX_NOT_DEFINED /* CS */, GFX_NOT_DEFINED /* SCK */, GFX_NOT_DEFINED /* SDA */,
-            41 /* DE */, 40 /* VSYNC */, 39 /* HSYNC */, 42 /* PCLK */,
-            14 /* R0 */, 21 /* R1 */, 47 /* R2 */, 48 /* R3 */, 45 /* R4 */,
-            9 /* G0 */, 46 /* G1 */, 3 /* G2 */, 8 /* G3 */, 16 /* G4 */, 1 /* G5 */,
-            15 /* B0 */, 7 /* B1 */, 6 /* B2 */, 5 /* B3 */, 4 /* B4 */
-            );
-    // option 1:
-    // 7寸 50PIN 800*480
-    gfx = new Arduino_RPi_DPI_RGBPanel(
-            bus,
-            //  800 /* width */, 0 /* hsync_polarity */, 8/* hsync_front_porch */, 2 /* hsync_pulse_width */, 43/* hsync_back_porch */,
-            //  480 /* height */, 0 /* vsync_polarity */, 8 /* vsync_front_porch */, 2/* vsync_pulse_width */, 12 /* vsync_back_porch */,
-            //  1 /* pclk_active_neg */, 16000000 /* prefer_speed */, true /* auto_flush */);
-
-                             800 /* width */, 0 /* hsync_polarity */, 210 /* hsync_front_porch */, 30 /* hsync_pulse_width */, 16 /* hsync_back_porch */,
-                             480 /* height */, 0 /* vsync_polarity */, 22 /* vsync_front_porch */, 13 /* vsync_pulse_width */, 10 /* vsync_back_porch */,
-                             1 /* pclk_active_neg */, 16000000 /* prefer_speed */, true /* auto_flush */);
-
-    gfx->begin();
+    screen = new RGBDisplay8048S070();
+    screen->begin();
 
     touch = new TAMC_GT911(TOUCH_GT911_SDA, TOUCH_GT911_SCL, TOUCH_GT911_INT, TOUCH_GT911_RST, TFT_WIDTH, TFT_HEIGHT);
 
@@ -88,14 +69,10 @@ void update_display(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *colo
         vTaskPrioritySet(NULL, tskIDLE_PRIORITY + 2);
     }
 
-#if (LV_COLOR_16_SWAP != 0)
-    gfx->draw16bitBeRGBBitmap(area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
-#else
-    gfx->draw16bitRGBBitmap(area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
-#endif
+    screen->draw16bitRGBBitmap(area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
 
     if (lv_disp_flush_is_last(disp)) {
-        // gfx->flush()
+        screen->flush();
         vTaskPrioritySet( NULL, tskIDLE_PRIORITY);
     }
 
@@ -127,11 +104,11 @@ void update_touch_position(lv_indev_drv_t * drv, lv_indev_data_t*data) {
   Serial.println("touch at " + String(touchPos.x) + "x" + String(touchPos.y));
 #endif
 #if defined(TOUCH_SWAP_XY)
-    lastx = map(touchPos.y, TOUCH_MAP_X1, TOUCH_MAP_X2, 0, gfx->width() - 1);
-    lasty = map(touchPos.x, TOUCH_MAP_Y1, TOUCH_MAP_Y2, 0, gfx->height() - 1);
+    lastx = map(touchPos.y, TOUCH_MAP_X1, TOUCH_MAP_X2, 0, TFT_WIDTH - 1);
+    lasty = map(touchPos.x, TOUCH_MAP_Y1, TOUCH_MAP_Y2, 0, TFT_HEIGHT - 1);
 #else
-    lastx = map(touchPos.x, TOUCH_MAP_X1, TOUCH_MAP_X2, 0, gfx->width() - 1);
-    lasty = map(touchPos.y, TOUCH_MAP_Y1, TOUCH_MAP_Y2, 0, gfx->height() - 1);
+    lastx = map(touchPos.x, TOUCH_MAP_X1, TOUCH_MAP_X2, 0, TFT_WIDTH - 1);
+    lasty = map(touchPos.y, TOUCH_MAP_Y1, TOUCH_MAP_Y2, 0, TFT_HEIGHT - 1);
 #endif
 #ifdef TOUCH_DEBUG
   Serial.println("mapped to " + String(xpos) + "x" + String(ypos));
