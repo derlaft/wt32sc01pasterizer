@@ -17,3 +17,5 @@
 #define TOUCH_MAP_Y1 480
 #define TOUCH_MAP_Y2 0
 
+// отладка производительности
+#define LV_USE_PERF_MONITOR 1

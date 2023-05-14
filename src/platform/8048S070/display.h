@@ -75,11 +75,11 @@ protected:
   size_t _framebuffer_size;
 private:
   uint16_t _hsync_polarity = 0;
-  uint16_t _hsync_front_porch = 180;
+  uint16_t _hsync_front_porch = 210;
   uint16_t _hsync_pulse_width = 30;
   uint16_t _hsync_back_porch = 16;
   uint16_t _vsync_polarity = 0;
-  uint16_t _vsync_front_porch = 12;
+  uint16_t _vsync_front_porch = 22;
   uint16_t _vsync_pulse_width = 13;
   uint16_t _vsync_back_porch = 10;
   uint16_t _pclk_active_neg = 1;

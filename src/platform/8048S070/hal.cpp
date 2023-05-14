@@ -28,8 +28,9 @@ void hw_setup() {
 void hw_lvgl_setup() {
 
     // Буфер для отрисовки
-    disp_draw_buf = (lv_color_t *) screen->getFramebuffer();
-    lv_disp_draw_buf_init( &draw_buf, disp_draw_buf, NULL, TFT_WIDTH * TFT_HEIGHT * 2);
+    auto buf_size = TFT_WIDTH*TFT_HEIGHT/4;
+    disp_draw_buf = (lv_color_t *)heap_caps_malloc(sizeof(lv_color_t)* buf_size, MALLOC_CAP_INTERNAL | MALLOC_CAP_8BIT);
+    lv_disp_draw_buf_init( &draw_buf, disp_draw_buf, NULL, buf_size);
 
     // Создание дисплея
     static lv_disp_drv_t disp_drv;
@@ -38,9 +39,8 @@ void hw_lvgl_setup() {
     // Установка корректного размера дисплея
     disp_drv.hor_res = TFT_WIDTH;
     disp_drv.ver_res = TFT_HEIGHT;
-    disp_drv.draw_buf = &draw_buf;
     disp_drv.flush_cb = update_display;
-    disp_drv.direct_mode = true;
+    disp_drv.draw_buf = &draw_buf;
     lv_disp_drv_register( &disp_drv );
 
     // Драйвер тачскрина
@@ -52,25 +52,31 @@ void hw_lvgl_setup() {
 
 }
 
+void hw_enable_backlight() {
+    // Включить подсветку экрана (в последнюю очередь, чтобы не было видно никаких морганий при запуске)
+    pinMode(TFT_BL, OUTPUT);
+    digitalWrite(TFT_BL, 1);
+}
+
+
 IRAM_ATTR void update_display(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
 {
+    uint32_t w = (area->x2 - area->x1 + 1);
+    uint32_t h = (area->y2 - area->y1 + 1);
 
     if (!is_display_open) {
         is_display_open = true;
         vTaskPrioritySet(NULL, tskIDLE_PRIORITY + 2);
     }
 
+    screen->draw16bitRGBBitmap(area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
+
     if (lv_disp_flush_is_last(disp)) {
-        screen->flush();
+        // screen->flush();
         vTaskPrioritySet( NULL, tskIDLE_PRIORITY);
     }
-    lv_disp_flush_ready(disp);
-}
 
-void hw_enable_backlight() {
-    // Включить подсветку экрана (в последнюю очередь, чтобы не было видно никаких морганий при запуске)
-    pinMode(TFT_BL, OUTPUT);
-    digitalWrite(TFT_BL, 1);
+    lv_disp_flush_ready(disp);
 }
 
 void update_touch_position(lv_indev_drv_t * drv, lv_indev_data_t*data) {
