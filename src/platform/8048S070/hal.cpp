@@ -55,22 +55,18 @@ void hw_lvgl_setup() {
 void hw_enable_backlight() {
     // Включить подсветку экрана (в последнюю очередь, чтобы не было видно никаких морганий при запуске)
     pinMode(TFT_BL, OUTPUT);
-    digitalWrite(TFT_BL, 1);
+    analogWrite(TFT_BL, 128);
 }
 
 
 IRAM_ATTR void update_display(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
 {
-    uint32_t w = (area->x2 - area->x1 + 1);
-    uint32_t h = (area->y2 - area->y1 + 1);
-
     if (!is_display_open) {
         is_display_open = true;
         vTaskPrioritySet(NULL, tskIDLE_PRIORITY + 2);
     }
 
-    screen->draw16bitRGBBitmap(area->x1, area->y1, (uint16_t *)&color_p->full, w, h);
-
+    screen->draw16bitRGBBitmap(area->x1, area->y1, area->x2+1, area->y2+1, (uint16_t *)&color_p->full);
     if (lv_disp_flush_is_last(disp)) {
         // screen->flush();
         vTaskPrioritySet( NULL, tskIDLE_PRIORITY);

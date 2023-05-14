@@ -6,24 +6,11 @@ RGBDisplay8048S070:: RGBDisplay8048S070() {
 
 void RGBDisplay8048S070::begin(bool psram_fb, int32_t speed)
 {
-  if (speed == GFX_NOT_DEFINED)
-  {
-#ifdef CONFIG_SPIRAM_MODE_QUAD
-    _speed = 6000000L;
-#else
-    _speed = 12000000L;
-#endif
-  }
-  else
-  {
-    _speed = speed;
-  }
-
-  esp_lcd_rgb_panel_config_t *_panel_config = (esp_lcd_rgb_panel_config_t *)heap_caps_calloc(1, sizeof(esp_lcd_rgb_panel_config_t), MALLOC_CAP_DMA | MALLOC_CAP_INTERNAL);
+    esp_lcd_rgb_panel_config_t *_panel_config = (esp_lcd_rgb_panel_config_t *)heap_caps_calloc(1, sizeof(esp_lcd_rgb_panel_config_t), MALLOC_CAP_DMA | MALLOC_CAP_INTERNAL);
 
   _panel_config->clk_src = LCD_CLK_SRC_PLL160M;
 
-  _panel_config->timings.pclk_hz = (_prefer_speed == GFX_NOT_DEFINED) ? _speed : _prefer_speed;
+  _panel_config->timings.pclk_hz = _pclk_hz;
   _panel_config->timings.h_res = _w;
   _panel_config->timings.v_res = _h;
   // The following parameters should refer to LCD spec
@@ -88,31 +75,15 @@ void RGBDisplay8048S070::begin(bool psram_fb, int32_t speed)
 
   _panel_config->disp_gpio_num = GPIO_NUM_NC;
 
-  _panel_config->flags.disp_active_low = 0;
-  _panel_config->flags.relax_on_idle = 0;
+  _panel_config->flags.disp_active_low = 1;
+  _panel_config->flags.relax_on_idle = 1;
   _panel_config->flags.fb_in_psram = 1;
 
   ESP_ERROR_CHECK(esp_lcd_new_rgb_panel(_panel_config, &_panel_handle));
   ESP_ERROR_CHECK(esp_lcd_panel_reset(_panel_handle));
   ESP_ERROR_CHECK(esp_lcd_panel_init(_panel_handle));
-
-  uint16_t color = random(0xffff);
-  ESP_ERROR_CHECK(_panel_handle->draw_bitmap(_panel_handle, 0, 0, 1, 1, &color));
-
-  _rgb_panel = __containerof(_panel_handle, esp_rgb_panel_t, base);
-
-  _framebuffer = (uint16_t *)_rgb_panel->fb;
-  _framebuffer_size = _w * _h * 2;
 }
 
-uint16_t *RGBDisplay8048S070::getFramebuffer() {
-    return _framebuffer;
-}
-
-IRAM_ATTR void RGBDisplay8048S070::draw16bitRGBBitmap(int16_t x, int16_t y, uint16_t *bitmap, int16_t w, int16_t h) {
-    ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(_panel_handle, x, y, x+w,y+h, (void*) bitmap));
-}
-
-IRAM_ATTR void RGBDisplay8048S070::flush() {
-    Cache_WriteBack_Addr((uint32_t)_framebuffer, _framebuffer_size);
+IRAM_ATTR void RGBDisplay8048S070::draw16bitRGBBitmap(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t *bitmap) {
+    ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(_panel_handle, x1, y1, x2, y2, (void*) bitmap));
 }
