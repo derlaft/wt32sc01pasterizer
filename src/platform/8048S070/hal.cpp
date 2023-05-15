@@ -28,7 +28,7 @@ void hw_setup() {
 void hw_lvgl_setup() {
 
     // Буфер для отрисовки
-    auto buf_size = TFT_WIDTH*TFT_HEIGHT;
+    auto buf_size = TFT_WIDTH*10;
     disp_draw_buf = (lv_color_t *)heap_caps_malloc(sizeof(lv_color_t)* buf_size, MALLOC_CAP_SPIRAM);
     lv_disp_draw_buf_init( &draw_buf, disp_draw_buf, NULL, buf_size);
 

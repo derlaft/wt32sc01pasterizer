@@ -21,8 +21,7 @@ void hal_setup() {
   hw_lvgl_setup();
 
   // инициализация интерфейса
-  // ui_init();
-  lv_demo_widgets();
+  ui_init();
 
   // Включить подсветку
   hw_enable_backlight();
