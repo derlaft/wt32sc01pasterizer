@@ -76,7 +76,7 @@ void RGBDisplay8048S070::begin(bool psram_fb, int32_t speed)
   _panel_config->disp_gpio_num = GPIO_NUM_NC;
 
   _panel_config->flags.disp_active_low = 1;
-  _panel_config->flags.relax_on_idle = 1;
+  _panel_config->flags.relax_on_idle = 0;
   _panel_config->flags.fb_in_psram = 1;
 
   ESP_ERROR_CHECK(esp_lcd_new_rgb_panel(_panel_config, &_panel_handle));

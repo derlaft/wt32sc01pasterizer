@@ -1,4 +1,5 @@
 #include "ui_hal.h"
+#include "demos/lv_demos.h"
 
 SemaphoreHandle_t xGuiSemaphore;
 
@@ -20,7 +21,8 @@ void hal_setup() {
   hw_lvgl_setup();
 
   // инициализация интерфейса
-  ui_init();
+  // ui_init();
+  lv_demo_widgets();
 
   // Включить подсветку
   hw_enable_backlight();
