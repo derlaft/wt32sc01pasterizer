@@ -68,7 +68,6 @@ IRAM_ATTR void update_display(lv_disp_drv_t *disp, const lv_area_t *area, lv_col
 
     screen->draw16bitRGBBitmap(area->x1, area->y1, area->x2+1, area->y2+1, (uint16_t *)&color_p->full);
     if (lv_disp_flush_is_last(disp)) {
-        // screen->flush();
         vTaskPrioritySet( NULL, tskIDLE_PRIORITY);
     }
 
@@ -85,7 +84,6 @@ void update_touch_position(lv_indev_drv_t * drv, lv_indev_data_t*data) {
 
   touch->read();
   if (!touch->isTouched) {
-
      data->state = LV_INDEV_STATE_REL;
      data->point.x = lastx;
      data->point.y = lasty;

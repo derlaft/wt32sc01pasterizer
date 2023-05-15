@@ -34,7 +34,7 @@ private:
   uint16_t _vsync_pulse_width = 13;
   uint16_t _vsync_back_porch = 10;
   uint16_t _pclk_active_neg = 1;
-  int32_t _pclk_hz = 16000000L;
+  int32_t _pclk_hz = 14000000L;
 
   uint16_t _w = 800;
   uint16_t _h = 480;
