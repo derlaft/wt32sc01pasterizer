@@ -11,7 +11,8 @@ bool is_display_open = false;
 
 // Области памяти для отрисовки
 static lv_disp_draw_buf_t draw_buf;
-static lv_color_t *disp_draw_buf;
+const auto buf_size = TFT_WIDTH*60;
+DRAM_ATTR static lv_color_t disp_draw_buf[buf_size];
 
 void hw_setup() {
 
@@ -21,6 +22,7 @@ void hw_setup() {
     touch = new TAMC_GT911(TOUCH_GT911_SDA, TOUCH_GT911_SCL, TOUCH_GT911_INT, TOUCH_GT911_RST, TFT_WIDTH, TFT_HEIGHT);
 
     Wire.begin(TOUCH_GT911_SDA, TOUCH_GT911_SCL);
+
     touch->begin();
     touch->setRotation(TOUCH_GT911_ROTATION);
 }
@@ -28,8 +30,6 @@ void hw_setup() {
 void hw_lvgl_setup() {
 
     // Буфер для отрисовки
-    auto buf_size = TFT_WIDTH*10;
-    disp_draw_buf = (lv_color_t *)heap_caps_malloc(sizeof(lv_color_t)* buf_size, MALLOC_CAP_SPIRAM);
     lv_disp_draw_buf_init( &draw_buf, disp_draw_buf, NULL, buf_size);
 
     // Создание дисплея
