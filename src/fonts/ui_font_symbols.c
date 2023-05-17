@@ -4,7 +4,7 @@
  * Opts: --bpp 4 --size 40 --font /data/home/user/steamer/assets/icomoon.ttf -o /data/home/user/steamer/assets/ui_font_symbols.c --format lvgl -r 0x41-0x47 --no-compress --no-prefilter
  ******************************************************************************/
 
-#include "ui.h"
+#include "../ui.h"
 
 #ifndef UI_FONT_SYMBOLS
 #define UI_FONT_SYMBOLS 1

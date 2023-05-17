@@ -4,7 +4,7 @@
  * Opts: --bpp 4 --size 18 --font /data/home/user/steamer/assets/Roboto-Regular.ttf -o /data/home/user/steamer/assets/ui_font_hack.c --format lvgl -r 0x20 --symbols АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя(:0123456789), --no-compress --no-prefilter --lcd
  ******************************************************************************/
 
-#include "ui.h"
+#include "../ui.h"
 
 #ifndef UI_FONT_HACK
 #define UI_FONT_HACK 1

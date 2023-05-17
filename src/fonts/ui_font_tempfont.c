@@ -4,7 +4,7 @@
  * Opts: --bpp 4 --size 60 --font /Users/user/past/assets/Roboto-Light.ttf -o /Users/user/past/assets/ui_font_tempfont.c --format lvgl --symbols 0123456789.C°+- --no-compress --no-prefilter --lcd
  ******************************************************************************/
 
-#include "ui.h"
+#include "../ui.h"
 
 #ifndef UI_FONT_TEMPFONT
 #define UI_FONT_TEMPFONT 1

@@ -15,7 +15,6 @@ void _ui_basic_set_property(lv_obj_t * target, int id, int val)
     if(id == _UI_BASIC_PROPERTY_HEIGHT) lv_obj_set_height(target, val);
 }
 
-
 void _ui_dropdown_set_property(lv_obj_t * target, int id, int val)
 {
     if(id == _UI_DROPDOWN_PROPERTY_SELECTED) lv_dropdown_set_selected(target, val);
@@ -26,11 +25,10 @@ void _ui_image_set_property(lv_obj_t * target, int id, uint8_t * val)
     if(id == _UI_IMAGE_PROPERTY_IMAGE) lv_img_set_src(target, val);
 }
 
-void _ui_label_set_property(lv_obj_t * target, int id, char * val)
+void _ui_label_set_property(lv_obj_t * target, int id, const char * val)
 {
     if(id == _UI_LABEL_PROPERTY_TEXT) lv_label_set_text(target, val);
 }
-
 
 void _ui_roller_set_property(lv_obj_t * target, int id, int val)
 {
@@ -43,7 +41,6 @@ void _ui_slider_set_property(lv_obj_t * target, int id, int val)
     if(id == _UI_SLIDER_PROPERTY_VALUE_WITH_ANIM) lv_slider_set_value(target, val, LV_ANIM_ON);
     if(id == _UI_SLIDER_PROPERTY_VALUE) lv_slider_set_value(target, val, LV_ANIM_OFF);
 }
-
 
 void _ui_screen_change(lv_obj_t * target, lv_scr_load_anim_t fademode, int spd, int delay)
 {
@@ -204,23 +201,22 @@ int32_t _ui_anim_callback_get_image_frame(lv_anim_t * a)
     return usr->val;
 }
 
-void _ui_arc_set_text_value(lv_obj_t * trg, lv_obj_t * src, char * prefix, char * postfix)
+void _ui_arc_set_text_value(lv_obj_t * trg, lv_obj_t * src, const char * prefix, const char * postfix)
 {
     char buf[_UI_TEMPORARY_STRING_BUFFER_SIZE];
     lv_snprintf(buf, sizeof(buf), "%s%d%s", prefix, (int)lv_arc_get_value(src), postfix);
     lv_label_set_text(trg, buf);
 }
 
-void _ui_slider_set_text_value(lv_obj_t * trg, lv_obj_t * src, char * prefix, char * postfix)
+void _ui_slider_set_text_value(lv_obj_t * trg, lv_obj_t * src, const char * prefix, const char * postfix)
 {
     char buf[_UI_TEMPORARY_STRING_BUFFER_SIZE];
     lv_snprintf(buf, sizeof(buf), "%s%d%s", prefix, (int)lv_slider_get_value(src), postfix);
     lv_label_set_text(trg, buf);
 }
-void _ui_checked_set_text_value(lv_obj_t * trg, lv_obj_t * src, char * txt_on, char * txt_off)
+void _ui_checked_set_text_value(lv_obj_t * trg, lv_obj_t * src, const char * txt_on, const char * txt_off)
 {
     if(lv_obj_has_state(src, LV_STATE_CHECKED)) lv_label_set_text(trg, txt_on);
     else lv_label_set_text(trg, txt_off);
 }
-
 

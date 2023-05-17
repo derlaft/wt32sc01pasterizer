@@ -18,7 +18,10 @@ extern "C" {
 #include "lvgl.h"
 #endif
 
+#include "ui_helpers.h"
 #include "ui_events.h"
+// SCREEN: ui_MainScreen
+void ui_MainScreen_screen_init(void);
 void ui_event_MainScreen(lv_event_t * e);
 extern lv_obj_t * ui_MainScreen;
 extern lv_obj_t * ui_TopPanel;
@@ -42,6 +45,8 @@ extern lv_obj_t * ui_CleaningAcidButtonLabel;
 void ui_event_CleaningBaseButton(lv_event_t * e);
 extern lv_obj_t * ui_CleaningBaseButton;
 extern lv_obj_t * ui_CleaningBaseButtonLabel;
+// SCREEN: ui_ManualControlScreen
+void ui_ManualControlScreen_screen_init(void);
 void ui_event_ManualControlScreen(lv_event_t * e);
 extern lv_obj_t * ui_ManualControlScreen;
 extern lv_obj_t * ui_TopPanel1;
@@ -49,6 +54,8 @@ extern lv_obj_t * ui_TemperatureDisplay1;
 void ui_event_ManualControlButton1(lv_event_t * e);
 extern lv_obj_t * ui_ManualControlButton1;
 extern lv_obj_t * ui_MainScreenPanel;
+// SCREEN: ui_SettingsScreen
+void ui_SettingsScreen_screen_init(void);
 void ui_event_SettingsScreen(lv_event_t * e);
 extern lv_obj_t * ui_SettingsScreen;
 extern lv_obj_t * ui_SettingsPanel;
@@ -97,6 +104,8 @@ void ui_event_SettingsButton2(lv_event_t * e);
 extern lv_obj_t * ui_SettingsButton2;
 void ui_event_ManualControlButton2(lv_event_t * e);
 extern lv_obj_t * ui_ManualControlButton2;
+// SCREEN: ui_WirelessConnectionScreen
+void ui_WirelessConnectionScreen_screen_init(void);
 void ui_event_WirelessConnectionScreen(lv_event_t * e);
 extern lv_obj_t * ui_WirelessConnectionScreen;
 extern lv_obj_t * ui_SettingsPanel1;
@@ -118,14 +127,10 @@ extern lv_obj_t * ui_ManualControlButton4;
 void ui_event____initial_actions0(lv_event_t * e);
 extern lv_obj_t * ui____initial_actions0;
 
-
-
-
 LV_FONT_DECLARE(ui_font_bigfont);
 LV_FONT_DECLARE(ui_font_hack);
 LV_FONT_DECLARE(ui_font_symbols);
 LV_FONT_DECLARE(ui_font_tempfont);
-
 
 void ui_init(void);
 

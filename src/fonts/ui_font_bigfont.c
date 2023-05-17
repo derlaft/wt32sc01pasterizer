@@ -4,7 +4,7 @@
  * Opts: --bpp 4 --size 30 --font /Users/user/past/assets/Roboto-Regular.ttf -o /Users/user/past/assets/ui_font_bigfont.c --format lvgl -r 0x20 --symbols АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя01234567,°89.+- --no-compress --no-prefilter --lcd
  ******************************************************************************/
 
-#include "ui.h"
+#include "../ui.h"
 
 #ifndef UI_FONT_BIGFONT
 #define UI_FONT_BIGFONT 1
