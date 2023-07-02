@@ -29,7 +29,6 @@ extern lv_obj_t * ui_MainScreenPanel;
 void ui_SettingsScreen_screen_init(lv_obj_t *root);
 void ui_event_SettingsScreen(lv_event_t * e);
 extern lv_obj_t * ui_SettingsScreen;
-extern lv_obj_t * ui_SettingsPanel;
 extern lv_obj_t * ui_Setting1Panel;
 extern lv_obj_t * ui_Setting1InfoLabel;
 void ui_event_Setting1Decr(lv_event_t * e);

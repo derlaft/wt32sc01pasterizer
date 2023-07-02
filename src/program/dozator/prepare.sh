@@ -8,6 +8,7 @@ sed -i '/ui_[A-Za-z]*Screen_screen_init(void)/s|(void)|(lv_obj_t *root)|' screen
 sed -i '/ui_[A-Za-z]*Screen = lv_obj_create/s|NULL|root|' screens/ui_*
 sed -i '/ SCREENS /,+100d' ui.c
 sed -i 's/_UI_EVENTS_H/_UI_DOZATOR_EVENTS_H/' ui_events.h
+sed -i '/Describes an animation/,+6d' ui_helpers.h
 
 # already covered by shared component
 rm -rf fonts/

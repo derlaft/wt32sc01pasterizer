@@ -5,28 +5,10 @@ void ui_SettingsScreen_screen_init(lv_obj_t *root)
 {
     ui_SettingsScreen = lv_obj_create(root);
     lv_obj_clear_flag(ui_SettingsScreen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_flex_flow(ui_SettingsScreen, LV_FLEX_FLOW_COLUMN_REVERSE);
+    lv_obj_set_flex_flow(ui_SettingsScreen, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_flex_align(ui_SettingsScreen, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
 
-    ui_SettingsPanel = lv_obj_create(ui_SettingsScreen);
-    lv_obj_set_width(ui_SettingsPanel, lv_pct(96));
-    lv_obj_set_flex_grow(ui_SettingsPanel, 1);
-    lv_obj_set_x(ui_SettingsPanel, -9);
-    lv_obj_set_y(ui_SettingsPanel, -19);
-    lv_obj_set_align(ui_SettingsPanel, LV_ALIGN_BOTTOM_MID);
-    lv_obj_set_flex_flow(ui_SettingsPanel, LV_FLEX_FLOW_COLUMN);
-    lv_obj_set_flex_align(ui_SettingsPanel, LV_FLEX_ALIGN_START, LV_FLEX_ALIGN_CENTER, LV_FLEX_ALIGN_START);
-    lv_obj_set_style_pad_left(ui_SettingsPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_right(ui_SettingsPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_top(ui_SettingsPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_bottom(ui_SettingsPanel, 2, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    lv_obj_set_style_pad_left(ui_SettingsPanel, 5, LV_PART_SCROLLBAR | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_right(ui_SettingsPanel, 5, LV_PART_SCROLLBAR | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_top(ui_SettingsPanel, 5, LV_PART_SCROLLBAR | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_bottom(ui_SettingsPanel, 5, LV_PART_SCROLLBAR | LV_STATE_DEFAULT);
-
-    ui_Setting1Panel = lv_label_create(ui_SettingsPanel);
+    ui_Setting1Panel = lv_label_create(ui_SettingsScreen);
     lv_obj_set_width(ui_Setting1Panel, lv_pct(100));
     lv_obj_set_height(ui_Setting1Panel, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_Setting1Panel, 0);
@@ -101,7 +83,7 @@ void ui_SettingsScreen_screen_init(lv_obj_t *root)
     lv_label_set_text(ui_Setting2IncrLabel, "+");
     lv_obj_set_style_text_font(ui_Setting2IncrLabel, &ui_font_bigfont, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_Setting2Panel = lv_label_create(ui_SettingsPanel);
+    ui_Setting2Panel = lv_label_create(ui_SettingsScreen);
     lv_obj_set_width(ui_Setting2Panel, lv_pct(100));
     lv_obj_set_height(ui_Setting2Panel, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_Setting2Panel, -1);
@@ -177,7 +159,7 @@ void ui_SettingsScreen_screen_init(lv_obj_t *root)
     lv_label_set_text(ui_Setting1IncrLabel, "+");
     lv_obj_set_style_text_font(ui_Setting1IncrLabel, &ui_font_bigfont, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_ApplyButton = lv_btn_create(ui_SettingsPanel);
+    ui_ApplyButton = lv_btn_create(ui_SettingsScreen);
     lv_obj_set_width(ui_ApplyButton, lv_pct(100));
     lv_obj_set_height(ui_ApplyButton, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(ui_ApplyButton, -1);

@@ -14,7 +14,6 @@ lv_obj_t * ui_MainScreenPanel;
 void ui_SettingsScreen_screen_init(lv_obj_t *root);
 void ui_event_SettingsScreen(lv_event_t * e);
 lv_obj_t * ui_SettingsScreen;
-lv_obj_t * ui_SettingsPanel;
 lv_obj_t * ui_Setting1Panel;
 lv_obj_t * ui_Setting1InfoLabel;
 void ui_event_Setting1Decr(lv_event_t * e);
@@ -52,6 +51,8 @@ lv_obj_t * ui_WiFINamePanel;
 lv_obj_t * ui_Screen3_Label14;
 void ui_event_WifiName(lv_event_t * e);
 lv_obj_t * ui_WifiName;
+void ui_event____initial_actions0(lv_event_t * e);
+lv_obj_t * ui____initial_actions0;
 
 ///////////////////// TEST LVGL SETTINGS ////////////////////
 #if LV_COLOR_DEPTH != 16
@@ -69,7 +70,7 @@ void ui_event_ManualControlScreen(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_SCREEN_LOADED) {
-        on_manual_control_screen_loaded(e);
+//        on_manual_control_screen_loaded(e);
     }
 }
 void ui_event_SettingsScreen(lv_event_t * e)
@@ -77,7 +78,7 @@ void ui_event_SettingsScreen(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_SCREEN_LOADED) {
-        on_settings_screen_loaded(e);
+//        on_settings_screen_loaded(e);
     }
 }
 void ui_event_Setting1Decr(lv_event_t * e)
@@ -85,7 +86,7 @@ void ui_event_Setting1Decr(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_CLICKED) {
-        on_setting_1_decr(e);
+//        on_setting_1_decr(e);
     }
 }
 void ui_event_Setting1Incr(lv_event_t * e)
@@ -93,7 +94,7 @@ void ui_event_Setting1Incr(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_CLICKED) {
-        on_setting1_incr(e);
+//        on_setting1_incr(e);
     }
 }
 void ui_event_Setting2Decr(lv_event_t * e)
@@ -101,7 +102,7 @@ void ui_event_Setting2Decr(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_CLICKED) {
-        on_setting_2_decr(e);
+//        on_setting_2_decr(e);
     }
 }
 void ui_event_Setting2Incr(lv_event_t * e)
@@ -109,7 +110,7 @@ void ui_event_Setting2Incr(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_CLICKED) {
-        on_setting_2_incr(e);
+//        on_setting_2_incr(e);
     }
 }
 void ui_event_ApplyButton(lv_event_t * e)
@@ -117,7 +118,7 @@ void ui_event_ApplyButton(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_CLICKED) {
-        on_save_settings(e);
+//        on_save_settings(e);
     }
 }
 void ui_event_WirelessConnectionScreen(lv_event_t * e)
@@ -125,7 +126,7 @@ void ui_event_WirelessConnectionScreen(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_SCREEN_LOADED) {
-        on_wireless_screen_loaded(e);
+//        on_wireless_screen_loaded(e);
     }
 }
 void ui_event_WifiKeyboard(lv_event_t * e)
@@ -133,7 +134,7 @@ void ui_event_WifiKeyboard(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_READY) {
-        on_keyboard_press(e);
+//        on_keyboard_press(e);
     }
 }
 void ui_event_WifiPassword(lv_event_t * e)
@@ -141,7 +142,7 @@ void ui_event_WifiPassword(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_FOCUSED) {
-        on_password_focused(e);
+//        on_password_focused(e);
     }
 }
 void ui_event_WifiName(lv_event_t * e)
@@ -149,6 +150,15 @@ void ui_event_WifiName(lv_event_t * e)
     lv_event_code_t event_code = lv_event_get_code(e);
     lv_obj_t * target = lv_event_get_target(e);
     if(event_code == LV_EVENT_FOCUSED) {
-        on_ap_focused(e);
+//        on_ap_focused(e);
     }
 }
+void ui_event____initial_actions0(lv_event_t * e)
+{
+    lv_event_code_t event_code = lv_event_get_code(e);
+    lv_obj_t * target = lv_event_get_target(e);
+    if(event_code == LV_EVENT_SCREEN_LOAD_START) {
+        setup_button_map(e);
+    }
+}
+
