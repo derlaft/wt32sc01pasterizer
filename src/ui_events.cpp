@@ -16,6 +16,8 @@
 #define _DEBUG(...) {}
 #endif
 
+/*
+
 lv_obj_t * ui_ManualControlMatrix;
 
 static const char *btnm_map[] = {
@@ -167,10 +169,14 @@ void on_password_focused(lv_event_t * e)
   lv_keyboard_set_textarea(ui_WifiKeyboard,ui_WifiPassword);
 }
 
+*/
+
 void on_main_screen_loaded(lv_event_t * e)
 {
   settings_setup();
 }
+
+/*
 
 void on_manual_control_screen_loaded(lv_event_t * e)
 {
@@ -261,3 +267,5 @@ void wifi_sync_ui(bool connected) {
     lv_obj_add_state( ui_SettingsButton4, LV_STATE_DISABLED);
   }
 }
+
+*/

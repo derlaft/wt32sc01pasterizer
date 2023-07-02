@@ -47,7 +47,7 @@ void settings_setup() {
 
   preferences.end();
 
-  update_settings_values();
+  // update_settings_values();
 }
 
 void settings_update() {

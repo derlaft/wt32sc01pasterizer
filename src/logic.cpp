@@ -543,7 +543,7 @@ void logic_safety_check() {
 }
 
 void logic_sync_ui() {
-
+/*
     // синхронизировать состояние логического модуля с интерфейсом пользователя
     auto const disabled_color = lv_color_hex(0x1499FF);
     auto const enabled_color = lv_color_hex(0x800000);
@@ -618,6 +618,7 @@ void logic_sync_ui() {
             lv_btnmatrix_clear_btn_ctrl(ui_ManualControlMatrix, c, LV_BTNMATRIX_CTRL_CHECKED);
         }
     }
+*/
 }
 
 Preferences backup;

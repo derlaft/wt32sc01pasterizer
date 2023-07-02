@@ -1,9 +1,9 @@
 
 #include "../ui.h"
 
-void ui_WirelessConnectionScreen_screen_init(void)
+void ui_WirelessConnectionScreen_screen_init(lv_obj_t *root)
 {
-    ui_WirelessConnectionScreen = lv_obj_create(NULL);
+    ui_WirelessConnectionScreen = lv_obj_create(root);
     lv_obj_clear_flag(ui_WirelessConnectionScreen, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
     lv_obj_set_flex_flow(ui_WirelessConnectionScreen, LV_FLEX_FLOW_COLUMN_REVERSE);
     lv_obj_set_flex_align(ui_WirelessConnectionScreen, LV_FLEX_ALIGN_SPACE_AROUND, LV_FLEX_ALIGN_CENTER,
@@ -109,67 +109,10 @@ void ui_WirelessConnectionScreen_screen_init(void)
     lv_obj_set_scrollbar_mode(ui_WifiName, LV_SCROLLBAR_MODE_OFF);
     lv_obj_set_style_text_align(ui_WifiName, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
 
-    ui_TopPanel4 = lv_label_create(ui_WirelessConnectionScreen);
-    lv_obj_set_width(ui_TopPanel4, lv_pct(100));
-    lv_obj_set_height(ui_TopPanel4, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_TopPanel4, LV_ALIGN_TOP_MID);
-    lv_label_set_text(ui_TopPanel4, "");
-    lv_obj_set_style_text_color(ui_TopPanel4, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_opa(ui_TopPanel4, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_align(ui_TopPanel4, LV_TEXT_ALIGN_LEFT, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_decor(ui_TopPanel4, LV_TEXT_DECOR_NONE, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_TopPanel4, &ui_font_hack, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_color(ui_TopPanel4, lv_color_hex(0x1499FF), LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_bg_opa(ui_TopPanel4, 255, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_left(ui_TopPanel4, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_right(ui_TopPanel4, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_top(ui_TopPanel4, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_bottom(ui_TopPanel4, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_TemperatureDisplay4 = lv_label_create(ui_TopPanel4);
-    lv_obj_set_width(ui_TemperatureDisplay4, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_TemperatureDisplay4, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_TemperatureDisplay4, LV_ALIGN_TOP_MID);
-    lv_label_set_text(ui_TemperatureDisplay4, "+125°");
-    lv_obj_set_style_text_align(ui_TemperatureDisplay4, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_TemperatureDisplay4, &ui_font_tempfont, LV_PART_MAIN | LV_STATE_DEFAULT);
-
-    ui_SettingsButton4 = lv_label_create(ui_TopPanel4);
-    lv_obj_set_width(ui_SettingsButton4, 70);
-    lv_obj_set_height(ui_SettingsButton4, 63);
-    lv_obj_set_x(ui_SettingsButton4, -19);
-    lv_obj_set_y(ui_SettingsButton4, -12);
-    lv_obj_set_align(ui_SettingsButton4, LV_ALIGN_TOP_RIGHT);
-    lv_label_set_text(ui_SettingsButton4, "A");
-    lv_obj_add_state(ui_SettingsButton4, LV_STATE_DISABLED);       /// States
-    lv_obj_set_style_text_align(ui_SettingsButton4, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_SettingsButton4, &ui_font_symbols, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_left(ui_SettingsButton4, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_right(ui_SettingsButton4, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_top(ui_SettingsButton4, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_bottom(ui_SettingsButton4, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_color(ui_SettingsButton4, lv_color_hex(0x808080), LV_PART_MAIN | LV_STATE_DISABLED);
-    lv_obj_set_style_text_opa(ui_SettingsButton4, 128, LV_PART_MAIN | LV_STATE_DISABLED);
-
-    ui_ManualControlButton4 = lv_label_create(ui_TopPanel4);
-    lv_obj_set_width(ui_ManualControlButton4, 70);
-    lv_obj_set_height(ui_ManualControlButton4, 63);
-    lv_obj_set_x(ui_ManualControlButton4, 19);
-    lv_obj_set_y(ui_ManualControlButton4, -12);
-    lv_label_set_text(ui_ManualControlButton4, "F");
-    lv_obj_add_flag(ui_ManualControlButton4, LV_OBJ_FLAG_CLICKABLE);     /// Flags
-    lv_obj_set_style_text_align(ui_ManualControlButton4, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_text_font(ui_ManualControlButton4, &ui_font_symbols, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_left(ui_ManualControlButton4, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_right(ui_ManualControlButton4, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_top(ui_ManualControlButton4, 15, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_bottom(ui_ManualControlButton4, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-
     lv_keyboard_set_textarea(ui_WifiKeyboard, ui_WifiName);
     lv_obj_add_event_cb(ui_WifiKeyboard, ui_event_WifiKeyboard, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_WifiPassword, ui_event_WifiPassword, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_WifiName, ui_event_WifiName, LV_EVENT_ALL, NULL);
-    lv_obj_add_event_cb(ui_ManualControlButton4, ui_event_ManualControlButton4, LV_EVENT_ALL, NULL);
     lv_obj_add_event_cb(ui_WirelessConnectionScreen, ui_event_WirelessConnectionScreen, LV_EVENT_ALL, NULL);
 
 }

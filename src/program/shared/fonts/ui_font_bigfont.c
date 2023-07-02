@@ -1,7 +1,7 @@
 /*******************************************************************************
  * Size: 30 px
  * Bpp: 4
- * Opts: --bpp 4 --size 30 --font /Users/user/past/assets/Roboto-Regular.ttf -o /Users/user/past/assets/ui_font_bigfont.c --format lvgl -r 0x20 --symbols АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя01234567,°89.+- --no-compress --no-prefilter --lcd
+ * Opts: --bpp 4 --size 30 --font /data/home/user/steamer/assets/Roboto-Regular.ttf -o /data/home/user/steamer/assets/ui_font_bigfont.c --format lvgl -r 0x20 --symbols АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯабвгдеёжзийклмнопрстуфхцчшщъыьэюя01234567,°89.+- --no-compress --no-prefilter --lcd
  ******************************************************************************/
 
 #include "../ui.h"
