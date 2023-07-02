@@ -19,5 +19,5 @@
 #define LV_ATTRIBUTE_LARGE_RAM_ARRAY DRAM_ATTR
 
 // частота обновления экрана
-#define LV_DISP_DEF_REFR_PERIOD 15
+#define LV_DISP_DEF_REFR_PERIOD 20
 #define LV_INDEV_DEF_READ_PERIOD 30 

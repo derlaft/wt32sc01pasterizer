@@ -11,7 +11,7 @@ bool is_display_open = false;
 
 // Области памяти для отрисовки
 static lv_disp_draw_buf_t draw_buf;
-const auto buf_size = TFT_WIDTH*60;
+const auto buf_size = TFT_WIDTH*120;
 DRAM_ATTR static lv_color_t disp_draw_buf[buf_size];
 
 void hw_setup() {
