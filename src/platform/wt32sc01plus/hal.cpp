@@ -44,9 +44,6 @@ void hw_lvgl_setup() {
 }
 
 void hw_enable_backlight() {
-  // Включить подсветку экрана (в последнюю очередь, чтобы не было видно никаких морганий при запуске)
-  pinMode(TFT_BL, OUTPUT);
-  digitalWrite(TFT_BL, 1);
 }
 
 
