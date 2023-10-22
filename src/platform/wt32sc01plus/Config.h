@@ -2,6 +2,8 @@
 #define TOUCH_DRIVER 0x6336
 #define HASP_USE_LGFX_TOUCH 1
 
+#define LV_COLOR_16_SWAP 0
+
 // Portrait
 #define TFT_WIDTH   320
 #define TFT_HEIGHT  480

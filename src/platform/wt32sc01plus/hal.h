@@ -56,9 +56,6 @@ SOFTWARE.
 #define SD_SCLK       GPIO_NUM_39
 #define SD_CS         GPIO_NUM_41
 
-// Portrait
-#define TFT_WIDTH   320
-#define TFT_HEIGHT  480
 
 class LGFX : public lgfx::LGFX_Device
 {
@@ -72,31 +69,31 @@ public:
   {
     {
       auto cfg = _bus_instance.config();
-      cfg.freq_write = 40000000;    
-      cfg.pin_wr = 47;             
-      cfg.pin_rd = -1;             
-      cfg.pin_rs = 0;              
+      cfg.freq_write = 40000000;
+      cfg.pin_wr = 47;
+      cfg.pin_rd = -1;
+      cfg.pin_rs = 0;
 
       // LCD data interface, 8bit MCU (8080)
-      cfg.pin_d0 = 9;              
-      cfg.pin_d1 = 46;             
-      cfg.pin_d2 = 3;              
-      cfg.pin_d3 = 8;              
-      cfg.pin_d4 = 18;             
-      cfg.pin_d5 = 17;             
-      cfg.pin_d6 = 16;             
-      cfg.pin_d7 = 15;             
+      cfg.pin_d0 = 9;
+      cfg.pin_d1 = 46;
+      cfg.pin_d2 = 3;
+      cfg.pin_d3 = 8;
+      cfg.pin_d4 = 18;
+      cfg.pin_d5 = 17;
+      cfg.pin_d6 = 16;
+      cfg.pin_d7 = 15;
 
-      _bus_instance.config(cfg);   
-      _panel_instance.setBus(&_bus_instance);      
+      _bus_instance.config(cfg);
+      _panel_instance.setBus(&_bus_instance);
     }
 
     { 
-      auto cfg = _panel_instance.config();    
+      auto cfg = _panel_instance.config();
 
-      cfg.pin_cs           =    -1;  
-      cfg.pin_rst          =    4;  
-      cfg.pin_busy         =    -1; 
+      cfg.pin_cs           =    -1;
+      cfg.pin_rst          =    4;
+      cfg.pin_busy         =    -1;
 
       cfg.panel_width      =   TFT_WIDTH;
       cfg.panel_height     =   TFT_HEIGHT;
@@ -115,15 +112,15 @@ public:
     }
 
     {
-      auto cfg = _light_instance.config();    
+      auto cfg = _light_instance.config();
 
-      cfg.pin_bl = 45;              
-      cfg.invert = false;           
-      cfg.freq   = 44100;           
-      cfg.pwm_channel = 7;          
+      cfg.pin_bl = 45;
+      cfg.invert = false;
+      cfg.freq   = 44100;
+      cfg.pwm_channel = 7;
 
       _light_instance.config(cfg);
-      _panel_instance.setLight(&_light_instance);  
+      _panel_instance.setLight(&_light_instance);
     }
 
     { 
@@ -131,10 +128,10 @@ public:
 
       cfg.x_min      = 0;
       cfg.x_max      = 319;
-      cfg.y_min      = 0;  
+      cfg.y_min      = 0;
       cfg.y_max      = 479;
-      cfg.pin_int    = 7;  
-      cfg.bus_shared = true; 
+      cfg.pin_int    = 7;
+      cfg.bus_shared = true;
       cfg.offset_rotation = 0;
 
       cfg.i2c_port = 1;//I2C_NUM_1;
