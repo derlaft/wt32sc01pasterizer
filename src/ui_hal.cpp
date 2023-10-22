@@ -24,7 +24,7 @@ void hal_setup() {
   ui_init();
 
   // Включить подсветку
-  hw_enable_backlight();
+  // hw_enable_backlight();
 
   /* If you want to use a task to create the graphic, you NEED to create a Pinned task
    * Otherwise there can be problem such as memory corruption and so on.

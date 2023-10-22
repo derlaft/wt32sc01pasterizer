@@ -173,7 +173,7 @@ void on_password_focused(lv_event_t * e)
 
 void on_main_screen_loaded(lv_event_t * e)
 {
-  settings_setup();
+  // settings_setup();
 }
 
 /*

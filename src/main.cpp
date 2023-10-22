@@ -18,6 +18,8 @@
 void setup()
 {
 
+	delay(1000);
+
 #ifdef DEBUG_WIPE_PREFERENCES
   nvs_flash_erase(); // erase the NVS partition and...
   nvs_flash_init(); // initialize the NVS partition.
@@ -50,6 +52,8 @@ void setup()
 
 void loop()
 {
-    vTaskDelay(pdMS_TO_TICKS(100));
+    //vTaskDelay(pdMS_TO_TICKS(100));
+    vTaskDelay(pdMS_TO_TICKS(10000));
     esp_rom_delay_us(1);
+    Serial.println("ready");
 }

@@ -12,6 +12,8 @@
 #include "platform/wt32sc01/hal.h"
 #elif _DEVICE_8048S070
 #include "platform/8048S070/hal.h"
+#elif _DEVICE_WT32SC01PLUS
+#include "platform/wt32sc01plus/hal.h"
 #endif
 
 extern SemaphoreHandle_t xGuiSemaphore;
