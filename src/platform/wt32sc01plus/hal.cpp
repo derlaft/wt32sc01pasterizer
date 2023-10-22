@@ -15,7 +15,7 @@ void hw_setup() {
   // Включить тачскрин на кастомных пинах
   lcd.init();         // Initialize LovyanGFX
   lcd.initDMA();      // Init DMA
-  lcd.setRotation(2);
+  lcd.setRotation(1);
   lcd.setColorDepth(16);
 }
 
@@ -29,8 +29,8 @@ void hw_lvgl_setup() {
   lv_disp_drv_init( &disp_drv );
 
   // Установка корректного размера дисплея
-  disp_drv.hor_res = TFT_WIDTH;
-  disp_drv.ver_res = TFT_HEIGHT;
+  disp_drv.hor_res = TFT_HEIGHT;
+  disp_drv.ver_res = TFT_WIDTH;
   disp_drv.flush_cb = update_display;
   disp_drv.draw_buf = &draw_buf;
   lv_disp_drv_register( &disp_drv );
@@ -49,8 +49,8 @@ void hw_enable_backlight() {
 
 void update_display(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p)
 {
-    uint32_t w = (area->x2 - area->x1 + 1);
-    uint32_t h = (area->y2 - area->y1 + 1);
+    uint32_t h = (area->x2 - area->x1 + 1);
+    uint32_t w = (area->y2 - area->y1 + 1);
 
     /* Without DMA */
     // lcd.startWrite();
