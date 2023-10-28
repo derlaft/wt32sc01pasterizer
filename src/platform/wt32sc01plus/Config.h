@@ -41,3 +41,9 @@
 #define SD_MOSI       GPIO_NUM_40
 #define SD_SCLK       GPIO_NUM_39
 #define SD_CS         GPIO_NUM_41
+
+// RS485
+#define RS485_BAUD 9600
+#define RS485_RXD 1
+#define RS485_RTS 2
+#define RS485_TXD 42

@@ -1,4 +1,5 @@
 #include "ui.h"
+#include "logic.hpp"
 #include "../mainscreen/ui_events.h"
 #include "../mainscreen/ui.h"
 #include "../shared/ui.h"
@@ -11,30 +12,42 @@ lv_obj_t *ui_TabWifiSettings;
 
 void inc_register(lv_event_t *e) {
     lv_event_code_t code = lv_event_get_code(e);
-    if(code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT) {
+    if (code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT) {
         lv_spinbox_increment(ui_Register);
     }
 }
 
 void inc_value(lv_event_t *e) {
     lv_event_code_t code = lv_event_get_code(e);
-    if(code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT) {
+    if (code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT) {
         lv_spinbox_increment(ui_Value);
     }
 }
 
 void dec_register(lv_event_t *e) {
     lv_event_code_t code = lv_event_get_code(e);
-    if(code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT) {
+    if (code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT) {
         lv_spinbox_decrement(ui_Register);
     }
 }
 
 void dec_value(lv_event_t *e) {
     lv_event_code_t code = lv_event_get_code(e);
-    if(code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT) {
+    if (code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT) {
         lv_spinbox_decrement(ui_Value);
     }
+}
+
+void on_manual_write(lv_event_t *e) {
+    lv_event_code_t code = lv_event_get_code(e);
+    if (code != LV_EVENT_SHORT_CLICKED) {
+	    return;
+    }
+
+    uint8_t reg = (uint8_t) lv_spinbox_get_value(ui_Register);
+    uint16_t value = (uint16_t) lv_spinbox_get_value(ui_Value);
+
+    logic_debug_send_write(reg, value);
 }
 
 void app_init() {
@@ -78,6 +91,9 @@ void app_init() {
 	lv_obj_add_event_cb(ui_Dec, dec_register, LV_EVENT_ALL,  NULL);
 	lv_obj_add_event_cb(ui_Inc1, inc_value, LV_EVENT_ALL,  NULL);
 	lv_obj_add_event_cb(ui_Dec1, dec_value, LV_EVENT_ALL,  NULL);
+
+	// write
+	lv_obj_add_event_cb(ui_WriteButton, on_manual_write, LV_EVENT_ALL, NULL);
 }
 
 void on_back_button(lv_event_t * e) {

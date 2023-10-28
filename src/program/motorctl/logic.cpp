@@ -1,11 +1,28 @@
 #include "logic.hpp"
 #include <ModbusRTU.h>
+#include <Arduino.h>
 
 ModbusRTU mb;
+HardwareSerial sp(1);
+
+bool cbWrite(Modbus::ResultCode event, uint16_t transactionId, void* data) {
+  Serial.printf_P("Request result: 0x%02X, Mem: %d\n", event, ESP.getFreeHeap());
+  return true;
+}
 
 void logic_setup() {
-	Serial1.begin(9600, SERIAL_8N1);
-	mb.begin(&Serial1);
-	mb.setBaudrate(9600);
+	Serial.println("watin");
+
+	sp.begin(RS485_BAUD, SERIAL_8N1, RS485_RXD, RS485_TXD);
+
+	mb.begin(&sp, RS485_RTS);
+	mb.setBaudrate(RS485_BAUD);
 	mb.master();
+
+	Serial.println("watout");
+}
+
+void logic_debug_send_write(uint8_t reg, uint16_t value) {
+	Serial.println("test");
+	mb.writeHreg(CTL_ADDR, reg, &value);
 }

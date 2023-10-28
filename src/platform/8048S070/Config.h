@@ -19,3 +19,4 @@
 
 // отладка производительности
 #define LV_USE_PERF_MONITOR 1
+
