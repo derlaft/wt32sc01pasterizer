@@ -7,7 +7,6 @@
 #include "ui_events.hpp"
 #include "ui_hal.h"
 #include "ui.h"
-#include "logic.hpp"
 #include "wifi.hpp"
 #include "settings.hpp"
 
@@ -43,7 +42,7 @@ void setup()
   // _GUI_LOCK(settings_setup());
 
   // Initialize logic
-  // logic_setup();
+  logic_setup();
 
   // configure temperature readings
   // temperature_task_setup();
