@@ -9,5 +9,3 @@ extern lv_obj_t * ui_MainScreen;
 extern void ui_MainScreen_screen_init(void);
 
 extern void ui_init(void);
-
-extern void app_init(void);

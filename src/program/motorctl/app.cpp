@@ -9,6 +9,34 @@ lv_obj_t *ui_TabProgram;
 lv_obj_t *ui_TabSettings;
 lv_obj_t *ui_TabWifiSettings;
 
+void inc_register(lv_event_t *e) {
+    lv_event_code_t code = lv_event_get_code(e);
+    if(code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT) {
+        lv_spinbox_increment(ui_Register);
+    }
+}
+
+void inc_value(lv_event_t *e) {
+    lv_event_code_t code = lv_event_get_code(e);
+    if(code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT) {
+        lv_spinbox_increment(ui_Value);
+    }
+}
+
+void dec_register(lv_event_t *e) {
+    lv_event_code_t code = lv_event_get_code(e);
+    if(code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT) {
+        lv_spinbox_decrement(ui_Register);
+    }
+}
+
+void dec_value(lv_event_t *e) {
+    lv_event_code_t code = lv_event_get_code(e);
+    if(code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT) {
+        lv_spinbox_decrement(ui_Value);
+    }
+}
+
 void app_init() {
 	// спрятать все лишнее для этой программы
 	lv_obj_add_flag(ui_TempAndWarningGroup, LV_OBJ_FLAG_HIDDEN);
@@ -44,6 +72,12 @@ void app_init() {
 	lv_obj_set_style_pad_right(ui_TabSettings, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 	lv_obj_set_style_pad_top(ui_TabSettings, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 	lv_obj_set_style_pad_bottom(ui_TabSettings, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+	// increment/decrement
+	lv_obj_add_event_cb(ui_Inc, inc_register, LV_EVENT_ALL,  NULL);
+	lv_obj_add_event_cb(ui_Dec, dec_register, LV_EVENT_ALL,  NULL);
+	lv_obj_add_event_cb(ui_Inc1, inc_value, LV_EVENT_ALL,  NULL);
+	lv_obj_add_event_cb(ui_Dec1, dec_value, LV_EVENT_ALL,  NULL);
 }
 
 void on_back_button(lv_event_t * e) {
