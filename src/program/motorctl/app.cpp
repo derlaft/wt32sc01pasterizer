@@ -50,6 +50,17 @@ void on_manual_write(lv_event_t *e) {
     logic_debug_send_write(reg, value);
 }
 
+void on_manual_read(lv_event_t *e) {
+    lv_event_code_t code = lv_event_get_code(e);
+    if (code != LV_EVENT_SHORT_CLICKED) {
+	    return;
+    }
+
+    uint8_t reg = (uint8_t) lv_spinbox_get_value(ui_Register);
+
+    logic_debug_send_read(reg);
+}
+
 void app_init() {
 	// спрятать все лишнее для этой программы
 	lv_obj_add_flag(ui_TempAndWarningGroup, LV_OBJ_FLAG_HIDDEN);
@@ -94,6 +105,7 @@ void app_init() {
 
 	// write
 	lv_obj_add_event_cb(ui_WriteButton, on_manual_write, LV_EVENT_ALL, NULL);
+	lv_obj_add_event_cb(ui_ReadButton1, on_manual_read, LV_EVENT_ALL, NULL);
 }
 
 void on_back_button(lv_event_t * e) {

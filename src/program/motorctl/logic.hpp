@@ -5,5 +5,6 @@
 
 void logic_setup();
 void logic_debug_send_write(uint8_t reg, uint16_t value);
+void logic_debug_send_read(uint8_t reg);
 
 #endif
