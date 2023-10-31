@@ -10,6 +10,9 @@
 #include "wifi.hpp"
 #include "settings.hpp"
 
+// TODO
+#include "program/motorctl/logic.hpp"
+
 #ifdef DEBUG_WIPE_PREFERENCES
 #include <nvs_flash.h>
 #endif
