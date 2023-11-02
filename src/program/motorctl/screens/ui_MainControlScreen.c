@@ -52,8 +52,8 @@ ui_Register = lv_spinbox_create(ui_RegisterSelector);
 lv_obj_set_width( ui_Register, 70);
 lv_obj_set_height( ui_Register, 42);
 lv_obj_set_align( ui_Register, LV_ALIGN_CENTER );
-lv_spinbox_set_digit_format( ui_Register, 2, 2);
-lv_spinbox_set_range( ui_Register, 0,18 );
+lv_spinbox_set_digit_format( ui_Register, 5, 0);
+lv_spinbox_set_range( ui_Register, 0,65535 );
 lv_spinbox_set_step( ui_Register, round(pow(10, 1 - 1)) );
 
 
@@ -115,7 +115,7 @@ lv_obj_set_width( ui_Value, 70);
 lv_obj_set_height( ui_Value, 42);
 lv_obj_set_align( ui_Value, LV_ALIGN_CENTER );
 lv_spinbox_set_digit_format( ui_Value, 5, 0);
-lv_spinbox_set_range( ui_Value, 0,65536 );
+lv_spinbox_set_range( ui_Value, 0,65535 );
 lv_spinbox_set_step( ui_Value, round(pow(10, 1 - 1)) );
 
 

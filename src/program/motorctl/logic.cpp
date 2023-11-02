@@ -25,10 +25,10 @@ void logic_setup() {
 	Serial.println("watout");
 }
 
-void logic_debug_send_write(uint8_t reg, uint16_t value) {
-	mb.writeHreg(CTL_ADDR, reg, &value);
+void logic_debug_send_write(uint16_t reg, uint16_t value) {
+	mb.writeHreg(CTL_ADDR, reg, value);
 }
 
-void logic_debug_send_read(uint8_t reg) {
+void logic_debug_send_read(uint16_t reg) {
 	mb.readHreg(CTL_ADDR, reg, &res, 1, cbWrite);
 }
