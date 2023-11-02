@@ -44,7 +44,7 @@ void on_manual_write(lv_event_t *e) {
 	    return;
     }
 
-    uint8_t reg = (uint8_t) lv_spinbox_get_value(ui_Register);
+    uint8_t reg = (uint16_t) lv_spinbox_get_value(ui_Register);
     uint16_t value = (uint16_t) lv_spinbox_get_value(ui_Value);
 
     logic_debug_send_write(reg, value);
@@ -56,7 +56,7 @@ void on_manual_read(lv_event_t *e) {
 	    return;
     }
 
-    uint8_t reg = (uint8_t) lv_spinbox_get_value(ui_Register);
+    uint8_t reg = (uint16_t) lv_spinbox_get_value(ui_Register);
 
     logic_debug_send_read(reg);
 }
