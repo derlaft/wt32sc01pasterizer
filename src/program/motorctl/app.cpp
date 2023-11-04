@@ -19,12 +19,14 @@ setting_decl freq_base = setting_decl{
 		.value = DEF_FREQ_BASE,
 		.min = 0,
 		.max = 50,
+		.digits = 2,
 };
 
 setting_decl freq_delta = setting_decl{
 		.value = DEF_FREQ_DELTA,
 		.min = 0,
 		.max = 50,
+		.digits = 2,
 		.odd = true,
 };
 

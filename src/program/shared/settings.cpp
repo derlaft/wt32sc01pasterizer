@@ -1,6 +1,32 @@
 #include "settings.h"
 #include <Arduino.h>
 
+int ipow(int base, int exp)
+{
+    int result = 1;
+    for (;;)
+    {
+        if (exp & 1)
+            result *= base;
+        exp >>= 1;
+        if (!exp)
+            break;
+        base *= base;
+    }
+
+    return result;
+}
+
+void update_setting_value(lv_obj_t *obj, setting_decl *opts) {
+	int ta = opts->value / ipow(10, opts->digits);
+	int tb = opts->value % ipow(10, opts->digits);
+
+	char buf[12];
+	lv_snprintf(buf, sizeof(buf), "%d.%d", ta, tb);
+
+	lv_textarea_set_text(opts->widget, buf);
+}
+
 void on_setting_incr(lv_event_t * e)
 {
 	setting_decl *opts = (setting_decl*) lv_event_get_user_data(e);
@@ -8,11 +34,11 @@ void on_setting_incr(lv_event_t * e)
 	lv_obj_t *obj = lv_event_get_target(e);
 
 	opts->value += 1;
-	if (opts->value > opts->max) {
-		opts->value = opts->max;
+	if (opts->value > opts->max * ipow(10, opts->digits)) {
+		opts->value = opts->max * ipow(10, opts->digits);
 	}
 
-	lv_textarea_set_text(opts->widget, String(opts->value).c_str());
+	update_setting_value(obj, opts);
 }
 
 void on_setting_decr(lv_event_t * e)
@@ -22,11 +48,11 @@ void on_setting_decr(lv_event_t * e)
 	lv_obj_t *obj = lv_event_get_target(e);
 
 	opts->value -= 1;
-	if (opts->value < opts->min) {
-		opts->value = opts->min;
+	if (opts->value < opts->min * ipow(10, opts->digits)) {
+		opts->value = opts->min * ipow(10, opts->digits);
 	}
 
-	lv_textarea_set_text(opts->widget, String(opts->value).c_str());
+	update_setting_value(obj, opts);
 }
 
 
@@ -92,13 +118,13 @@ void ui_setting_add(const char *name, setting_decl *opts) {
     lv_obj_set_style_text_font(DecrLabel, &ui_font_bigfont, LV_PART_MAIN | LV_STATE_DEFAULT);
 
     Setting = lv_textarea_create(Panel);
-    lv_obj_set_width(Setting, 80);
+    lv_obj_set_width(Setting, 100);
     lv_obj_set_height(Setting, LV_SIZE_CONTENT);    /// 1
     lv_obj_set_x(Setting, 100);
     lv_obj_set_y(Setting, 0);
     lv_obj_set_align(Setting, LV_ALIGN_CENTER);
     lv_textarea_set_max_length(Setting, 128);
-    lv_textarea_set_text(Setting, "4");
+    lv_textarea_set_text(Setting, "");
     lv_textarea_set_placeholder_text(Setting, "");
     lv_obj_clear_flag(Setting, LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE |
                       LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
@@ -124,10 +150,12 @@ void ui_setting_add(const char *name, setting_decl *opts) {
     lv_obj_set_style_text_font(IncrLabel, &ui_font_bigfont, LV_PART_MAIN | LV_STATE_DEFAULT);
 
 	// increment/decrement callbacks
-	lv_obj_add_event_cb(Incr, on_setting_incr, (lv_event_code_t)(LV_EVENT_PRESSED), opts);
-	lv_obj_add_event_cb(Decr, on_setting_decr, (lv_event_code_t)(LV_EVENT_PRESSED), opts);
+	lv_obj_add_event_cb(Incr, on_setting_incr, (lv_event_code_t)(LV_EVENT_PRESSED | LV_EVENT_LONG_PRESSED_REPEAT), opts);
+	lv_obj_add_event_cb(Decr, on_setting_decr, (lv_event_code_t)(LV_EVENT_PRESSED | LV_EVENT_LONG_PRESSED_REPEAT), opts);
+
 	// set initial value
-	lv_textarea_set_text(Setting, String(opts->value).c_str());
+	opts->value *= ipow(10, opts->digits);
+	update_setting_value(Setting, opts);
 }
 
 void ui_setting_add_apply() {

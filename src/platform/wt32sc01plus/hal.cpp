@@ -40,6 +40,8 @@ void hw_lvgl_setup() {
   lv_indev_drv_init( &indev_drv );
   indev_drv.type = LV_INDEV_TYPE_POINTER;
   indev_drv.read_cb = update_touch_position;
+  indev_drv.long_press_time = 300;
+  indev_drv.long_press_repeat_time = 25;
   lv_indev_drv_register( &indev_drv );
 }
 
