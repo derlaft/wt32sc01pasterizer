@@ -14,6 +14,19 @@ lv_obj_t *ui_TabWifiSettings;
 uint8_t freq = 0;
 uint8_t delta_freq = 0;
 
+setting_decl freq_base = setting_decl{
+		.value = 10,
+		.min = 0,
+		.max = 50,
+};
+
+setting_decl freq_delta = setting_decl{
+		.value = 10,
+		.min = 0,
+		.max = 50,
+		.odd = true,
+};
+
 void inc_register(lv_event_t *e) {
    lv_event_code_t code = lv_event_get_code(e);
     if (code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT) {
@@ -112,17 +125,8 @@ void app_init() {
 	lv_obj_add_event_cb(ui_ReadButton1, on_manual_read, LV_EVENT_ALL, NULL);
    
 	// настройки
-    ui_setting_add("Базовая частота", setting_decl{
-			.value = 10,
-			.min = 0,
-			.max = 50,
-	});
-    ui_setting_add("Дельта частоты", setting_decl{
-			.value = 10,
-			.min = 0,
-			.max = 50,
-			.odd = true,
-	});
+    ui_setting_add("Базовая частота", &freq_base);
+    ui_setting_add("Дельта частоты", &freq_delta);
 	ui_setting_add_apply();
 }
 

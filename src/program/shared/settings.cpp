@@ -1,8 +1,9 @@
 #include "settings.h"
+#include <Arduino.h>
 
 void on_setting_incr(lv_event_t * e)
 {
-	setting_decl *opts = lv_event_get_user_data(e);
+	setting_decl *opts = (setting_decl*) lv_event_get_user_data(e);
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e);
 
@@ -11,13 +12,12 @@ void on_setting_incr(lv_event_t * e)
 		opts->value = opts->max;
 	}
 
-	// lv_textarea_set_text(obj, String(opts->value).c_str());
-	lv_label_set_text_fmt(obj, "%d", opts->value);
+	lv_textarea_set_text(opts->widget, String(opts->value).c_str());
 }
 
 void on_setting_decr(lv_event_t * e)
 {
-	setting_decl *opts = lv_event_get_user_data(e);
+	setting_decl *opts = (setting_decl*)lv_event_get_user_data(e);
 	lv_event_code_t code = lv_event_get_code(e);
 	lv_obj_t *obj = lv_event_get_target(e);
 
@@ -26,11 +26,11 @@ void on_setting_decr(lv_event_t * e)
 		opts->value = opts->min;
 	}
 
-	lv_label_set_text_fmt(obj, "%d", opts->value);
+	lv_textarea_set_text(opts->widget, String(opts->value).c_str());
 }
 
 
-void ui_setting_add(const char *name, setting_decl opts) {
+void ui_setting_add(const char *name, setting_decl *opts) {
 
 	lv_obj_t *Panel;
 	lv_obj_t *InfoLabel;
@@ -57,7 +57,7 @@ void ui_setting_add(const char *name, setting_decl opts) {
     lv_obj_set_style_pad_bottom(Panel, 5, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_clear_flag(Panel, LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_CHAIN);
 
-	if (opts.odd) {
+	if (opts->odd) {
 		lv_obj_set_style_bg_color(Panel, lv_color_hex(0x0000FF), LV_PART_MAIN | LV_STATE_DEFAULT);
 		lv_obj_set_style_bg_opa(Panel, 16, LV_PART_MAIN | LV_STATE_DEFAULT);
 	}
@@ -105,6 +105,8 @@ void ui_setting_add(const char *name, setting_decl opts) {
     lv_obj_set_style_text_align(Setting, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(Setting, &ui_font_bigfont, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+	opts->widget = Setting;
+
     Incr = lv_btn_create(Panel);
     lv_obj_set_width(Incr, 60);
     lv_obj_set_height(Incr, LV_SIZE_CONTENT);    /// 50
@@ -121,6 +123,11 @@ void ui_setting_add(const char *name, setting_decl opts) {
     lv_label_set_text(IncrLabel, "+");
     lv_obj_set_style_text_font(IncrLabel, &ui_font_bigfont, LV_PART_MAIN | LV_STATE_DEFAULT);
 
+	// increment/decrement callbacks
+	lv_obj_add_event_cb(Incr, on_setting_incr, (lv_event_code_t)(LV_EVENT_PRESSED), opts);
+	lv_obj_add_event_cb(Decr, on_setting_decr, (lv_event_code_t)(LV_EVENT_PRESSED), opts);
+	// set initial value
+	lv_textarea_set_text(Setting, String(opts->value).c_str());
 }
 
 void ui_setting_add_apply() {
