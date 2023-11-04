@@ -15,13 +15,13 @@ uint8_t freq = 0;
 uint8_t delta_freq = 0;
 
 setting_decl freq_base = setting_decl{
-		.value = 10,
+		.value = DEF_FREQ_BASE,
 		.min = 0,
 		.max = 50,
 };
 
 setting_decl freq_delta = setting_decl{
-		.value = 10,
+		.value = DEF_FREQ_DELTA,
 		.min = 0,
 		.max = 50,
 		.odd = true,

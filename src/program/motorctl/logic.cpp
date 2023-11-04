@@ -32,7 +32,7 @@ void logic_setup() {
 
 void logic_task(void *pvParameter) {
 	while (1) {
-		vTaskDelay(pdMS_TO_TICKS(500));
+		vTaskDelay(pdMS_TO_TICKS(LOGIC_INTERVAL_MS));
 		mb.task();
 	}
 	vTaskDelete(NULL);
