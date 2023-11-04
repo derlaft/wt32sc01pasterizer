@@ -7,7 +7,8 @@
 #include <Arduino.h>
 
 lv_obj_t *ui_TabView;
-lv_obj_t *ui_TabProgram;
+lv_obj_t *ui_TabMainPanel;
+lv_obj_t *ui_TabManualControl;
 lv_obj_t *ui_TabSettings;
 lv_obj_t *ui_TabWifiSettings;
 
@@ -92,18 +93,31 @@ void app_init() {
 	// lv_obj_add_flag(lv_tabview_get_tab_btns(ui_TabView), LV_OBJ_FLAG_HIDDEN);
 
 	// создать tab для главного экрана
-	ui_TabProgram = lv_tabview_add_tab(ui_TabView, "1");
-	ui_MainControlScreen_screen_init(ui_TabProgram);
-	// костыли: установить размеры, убрать отступы
-	lv_obj_set_width(ui_MainControlScreen, lv_pct(100));
-	lv_obj_set_height(ui_MainControlScreen, lv_pct(100));
-	lv_obj_set_style_pad_left(ui_TabProgram, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-	lv_obj_set_style_pad_right(ui_TabProgram, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-	lv_obj_set_style_pad_top(ui_TabProgram, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-	lv_obj_set_style_pad_bottom(ui_TabProgram, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+	ui_TabMainPanel = lv_tabview_add_tab(ui_TabView, "1");
+	ui_MainPanelScreen_screen_init(ui_TabMainPanel);
 
-	// создать tab
-	ui_TabSettings = lv_tabview_add_tab(ui_TabView, "2");
+	// костыли: установить размеры, убрать отступы
+	lv_obj_set_width(ui_MainPanelScreen, lv_pct(100));
+	lv_obj_set_height(ui_MainPanelScreen, lv_pct(100));
+	lv_obj_set_style_pad_left(ui_TabMainPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+	lv_obj_set_style_pad_right(ui_TabMainPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+	lv_obj_set_style_pad_top(ui_TabMainPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+	lv_obj_set_style_pad_bottom(ui_TabMainPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+	// создать tab для ручного управления
+	ui_TabManualControl = lv_tabview_add_tab(ui_TabView, "2");
+	ui_ManualControlScreen_screen_init(ui_TabManualControl);
+
+	// костыли: установить размеры, убрать отступы
+	lv_obj_set_width(ui_ManualControlScreen, lv_pct(100));
+	lv_obj_set_height(ui_ManualControlScreen, lv_pct(100));
+	lv_obj_set_style_pad_left(ui_TabManualControl, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+	lv_obj_set_style_pad_right(ui_TabManualControl, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+	lv_obj_set_style_pad_top(ui_TabManualControl, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+	lv_obj_set_style_pad_bottom(ui_TabManualControl, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+	// создать tab для настроек
+	ui_TabSettings = lv_tabview_add_tab(ui_TabView, "3");
 	ui_SettingsScreen_screen_init(ui_TabSettings);
 
 	// костыли: установить размеры, убрать отступы

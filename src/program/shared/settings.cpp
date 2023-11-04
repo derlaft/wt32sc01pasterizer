@@ -131,24 +131,27 @@ void ui_setting_add(const char *name, setting_decl *opts) {
 }
 
 void ui_setting_add_apply() {
-    ui_ApplyButton = lv_btn_create(ui_SettingsScreen);
-    lv_obj_set_width(ui_ApplyButton, lv_pct(100));
-    lv_obj_set_height(ui_ApplyButton, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_x(ui_ApplyButton, -1);
-    lv_obj_set_y(ui_ApplyButton, -1);
-    lv_obj_set_align(ui_ApplyButton, LV_ALIGN_BOTTOM_RIGHT);
-    lv_obj_add_flag(ui_ApplyButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
-    lv_obj_clear_flag(ui_ApplyButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
-    lv_obj_set_style_radius(ui_ApplyButton, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+	lv_obj_t *ApplyButton;
+	lv_obj_t *ApplyButtonLabel;
 
-    ui_StartStopLabel1 = lv_label_create(ui_ApplyButton);
-    lv_obj_set_width(ui_StartStopLabel1, LV_SIZE_CONTENT);   /// 1
-    lv_obj_set_height(ui_StartStopLabel1, LV_SIZE_CONTENT);    /// 1
-    lv_obj_set_align(ui_StartStopLabel1, LV_ALIGN_CENTER);
-    lv_label_set_text(ui_StartStopLabel1, "Сохранить");
-    lv_obj_set_style_text_font(ui_StartStopLabel1, &ui_font_bigfont, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_left(ui_StartStopLabel1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_right(ui_StartStopLabel1, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_top(ui_StartStopLabel1, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_obj_set_style_pad_bottom(ui_StartStopLabel1, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    ApplyButton = lv_btn_create(ui_SettingsScreen);
+    lv_obj_set_width(ApplyButton, lv_pct(100));
+    lv_obj_set_height(ApplyButton, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_x(ApplyButton, -1);
+    lv_obj_set_y(ApplyButton, -1);
+    lv_obj_set_align(ApplyButton, LV_ALIGN_BOTTOM_RIGHT);
+    lv_obj_add_flag(ApplyButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS);     /// Flags
+    lv_obj_clear_flag(ApplyButton, LV_OBJ_FLAG_SCROLLABLE);      /// Flags
+    lv_obj_set_style_radius(ApplyButton, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    ApplyButtonLabel = lv_label_create(ApplyButton);
+    lv_obj_set_width(ApplyButtonLabel, LV_SIZE_CONTENT);   /// 1
+    lv_obj_set_height(ApplyButtonLabel, LV_SIZE_CONTENT);    /// 1
+    lv_obj_set_align(ApplyButtonLabel, LV_ALIGN_CENTER);
+    lv_label_set_text(ApplyButtonLabel, "Сохранить");
+    lv_obj_set_style_text_font(ApplyButtonLabel, &ui_font_bigfont, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_left(ApplyButtonLabel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_right(ApplyButtonLabel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_top(ApplyButtonLabel, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_bottom(ApplyButtonLabel, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
 }

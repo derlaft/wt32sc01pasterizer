@@ -20,9 +20,9 @@ extern "C" {
 
 #include "ui_helpers.h"
 #include "ui_events.h"
-// SCREEN: ui_MainControlScreen
-void ui_MainControlScreen_screen_init(lv_obj_t *root);
-extern lv_obj_t *ui_MainControlScreen;
+// SCREEN: ui_ManualControlScreen
+void ui_ManualControlScreen_screen_init(lv_obj_t *root);
+extern lv_obj_t *ui_ManualControlScreen;
 extern lv_obj_t *ui_RegisterPanel;
 extern lv_obj_t *ui_RegisterSelector;
 extern lv_obj_t *ui_Dec;
@@ -39,13 +39,20 @@ extern lv_obj_t *ui_Value;
 extern lv_obj_t *ui_Inc1;
 extern lv_obj_t *ui_IncLabel1;
 extern lv_obj_t *ui_RegisterLabel1;
-extern lv_obj_t *ui_Label3;
+extern lv_obj_t *ui_ReadWritePanel;
 void ui_event_ReadButton1( lv_event_t * e);
 extern lv_obj_t *ui_ReadButton1;
 extern lv_obj_t *ui_ReadButtonLabel1;
 void ui_event_WriteButton( lv_event_t * e);
 extern lv_obj_t *ui_WriteButton;
 extern lv_obj_t *ui_WriteButtonLabel;
+// SCREEN: ui_MainPanelScreen
+void ui_MainPanelScreen_screen_init(lv_obj_t *root);
+extern lv_obj_t *ui_MainPanelScreen;
+extern lv_obj_t *ui_MainButtonPanel;
+void ui_event_ReadButton2( lv_event_t * e);
+extern lv_obj_t *ui_ReadButton2;
+extern lv_obj_t *ui_ReadButtonLabel2;
 extern lv_obj_t *ui____initial_actions0;
 
 
