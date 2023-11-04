@@ -21,7 +21,7 @@ bool cb(Modbus::ResultCode event, uint16_t transactionId, void* data) { // Modbu
 }
 
 void logic_setup() {
-	sp.begin(RS485_BAUD, SERIAL_8N1, RS485_RXD, RS485_TXD);
+	sp.begin(RS485_BAUD, SERIAL_8N2, RS485_RXD, RS485_TXD);
 
 	mb.begin(&sp, RS485_RTS);
 	mb.setBaudrate(RS485_BAUD);
