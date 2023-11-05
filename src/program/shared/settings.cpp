@@ -18,11 +18,11 @@ int ipow(int base, int exp)
 }
 
 void update_setting_value(lv_obj_t *obj, setting_decl *opts) {
-	int ta = opts->value / ipow(10, opts->digits);
-	int tb = opts->value % ipow(10, opts->digits);
 
-	char buf[12];
-	lv_snprintf(buf, sizeof(buf), "%d.%d", ta, tb);
+	float v = float(opts->value) / float(ipow(10, opts->digits));
+
+	char buf[16] = {0};
+	lv_snprintf(buf, sizeof(buf), opts->fmt, v);
 
 	lv_textarea_set_text(opts->widget, buf);
 }

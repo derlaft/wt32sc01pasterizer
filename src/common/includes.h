@@ -10,6 +10,7 @@
 #define LV_FONT_MONTSERRAT_30 1
 #define USER_SETUP_LOADED 1
 #define LV_USE_LARGE_COORD 1
+#define PRINTF_SUPPORT_FLOAT 1
 
 // производительность
 #define LV_ATTRIBUTE_TICK_INC IRAM_ATTR

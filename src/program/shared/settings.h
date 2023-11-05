@@ -13,6 +13,7 @@ typedef struct {
 	int min;
 	int max;
 	char digits;
+	const char *fmt;
 	bool odd;
 } setting_decl;
 

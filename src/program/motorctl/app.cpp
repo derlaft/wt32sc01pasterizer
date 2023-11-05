@@ -20,6 +20,7 @@ setting_decl freq_base = setting_decl{
 		.min = 0,
 		.max = 50,
 		.digits = 2,
+		.fmt = "%2.2f",
 };
 
 setting_decl freq_delta = setting_decl{
@@ -27,6 +28,7 @@ setting_decl freq_delta = setting_decl{
 		.min = 0,
 		.max = 50,
 		.digits = 2,
+		.fmt = "%2.2f",
 		.odd = true,
 };
 
