@@ -18,7 +18,6 @@ extern "C" {
   #include "lvgl.h"
 #endif
 
-#include "ui_helpers.h"
 #include "ui_events.h"
 // SCREEN: ui_SettingsScreen
 void ui_SettingsScreen_screen_init(lv_obj_t *root);

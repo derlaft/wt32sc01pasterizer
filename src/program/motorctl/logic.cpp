@@ -37,10 +37,12 @@ void logic_task(void *pvParameter) {
 		mb.task();
 		bool a = digitalRead(MOTORCTL_IN) == HIGH;
 		if (a) {
-			int v = freq_base.value * 2;
+			// int v = freq_base.value * 2;
+			int v = 1500;
 			mb.writeHreg(CTL_ADDR, MODBUS_FREQ_ADDR, (uint16_t)v, cb);
 		} else {
-			int v = (freq_base.value + freq_delta.value) * 2;
+			// int v = (freq_base.value + freq_delta.value) * 2;
+			int v = 3000;
 			mb.writeHreg(CTL_ADDR, MODBUS_FREQ_ADDR, (uint16_t)v, cb);
 		}
 

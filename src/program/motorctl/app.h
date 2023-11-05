@@ -1,8 +1,6 @@
 #ifndef _MOTORCTL_APP_H
 #define _MOTORCTL_APP_H
 
-#include "../shared/settings.h"
-
 // Настройки
 #define CTL_ADDR 0x1
 #define CTRL_REG 0x0
@@ -15,7 +13,7 @@
 
 void app_init();
 
-extern setting_decl freq_base;
-extern setting_decl freq_delta;
+//extern setting_decl freq_base;
+//extern setting_decl freq_delta;
 
 #endif
