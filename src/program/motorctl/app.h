@@ -13,7 +13,5 @@
 
 void app_init();
 
-//extern setting_decl freq_base;
-//extern setting_decl freq_delta;
 
 #endif

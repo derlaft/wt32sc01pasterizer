@@ -1,14 +1,12 @@
 #ifndef _SHAREDSETTINGS_X_UI_H
 #define _SHAREDSETTINGS_X_UI_H
 
-#include "ui.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 typedef struct {
-	lv_obj_t *widget;
+	void *widget;
 	int value;
 	int min;
 	int max;

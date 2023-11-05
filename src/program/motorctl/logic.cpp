@@ -1,12 +1,16 @@
 #include "logic.hpp"
 #include <ModbusRTU.h>
 #include <Arduino.h>
+#include "../shared/settings.h"
 
 ModbusRTU mb;
 HardwareSerial sp(1);
 
 // TODO
 static uint16_t res = 0;
+
+extern setting_decl freq_base;
+extern setting_decl freq_delta;
 
 SemaphoreHandle_t xLogicSemaphore;
 EventGroupHandle_t xLogicGroup;
@@ -37,12 +41,10 @@ void logic_task(void *pvParameter) {
 		mb.task();
 		bool a = digitalRead(MOTORCTL_IN) == HIGH;
 		if (a) {
-			// int v = freq_base.value * 2;
-			int v = 1500;
+			int v = freq_base.value * 2;
 			mb.writeHreg(CTL_ADDR, MODBUS_FREQ_ADDR, (uint16_t)v, cb);
 		} else {
-			// int v = (freq_base.value + freq_delta.value) * 2;
-			int v = 3000;
+			int v = (freq_base.value + freq_delta.value) * 2;
 			mb.writeHreg(CTL_ADDR, MODBUS_FREQ_ADDR, (uint16_t)v, cb);
 		}
 

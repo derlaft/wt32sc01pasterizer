@@ -1,4 +1,5 @@
 #include "settings.h"
+#include "ui.h"
 #include <Arduino.h>
 
 int ipow(int base, int exp)
@@ -17,42 +18,40 @@ int ipow(int base, int exp)
     return result;
 }
 
-void update_setting_value(lv_obj_t *obj, setting_decl *opts) {
+void update_setting_value(setting_decl *opts) {
 
 	float v = float(opts->value) / float(ipow(10, opts->digits));
 
 	char buf[16] = {0};
 	lv_snprintf(buf, sizeof(buf), opts->fmt, v);
 
-	lv_textarea_set_text(opts->widget, buf);
+	lv_textarea_set_text((lv_obj_t*) opts->widget, buf);
 }
 
 void on_setting_incr(lv_event_t * e)
 {
 	setting_decl *opts = (setting_decl*) lv_event_get_user_data(e);
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
 
 	opts->value += 1;
 	if (opts->value > opts->max * ipow(10, opts->digits)) {
 		opts->value = opts->max * ipow(10, opts->digits);
 	}
 
-	update_setting_value(obj, opts);
+	update_setting_value(opts);
 }
 
 void on_setting_decr(lv_event_t * e)
 {
 	setting_decl *opts = (setting_decl*)lv_event_get_user_data(e);
 	lv_event_code_t code = lv_event_get_code(e);
-	lv_obj_t *obj = lv_event_get_target(e);
 
 	opts->value -= 1;
 	if (opts->value < opts->min * ipow(10, opts->digits)) {
 		opts->value = opts->min * ipow(10, opts->digits);
 	}
 
-	update_setting_value(obj, opts);
+	update_setting_value(opts);
 }
 
 
@@ -155,7 +154,7 @@ void ui_setting_add(const char *name, setting_decl *opts) {
 
 	// set initial value
 	opts->value *= ipow(10, opts->digits);
-	update_setting_value(Setting, opts);
+	update_setting_value(opts);
 }
 
 void ui_setting_add_apply() {
