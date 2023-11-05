@@ -3,7 +3,6 @@
 #include "../mainscreen/ui_events.h"
 #include "../mainscreen/ui.h"
 #include "../shared/ui.h"
-#include "../shared/settings.h"
 #include <Arduino.h>
 
 lv_obj_t *ui_TabView;

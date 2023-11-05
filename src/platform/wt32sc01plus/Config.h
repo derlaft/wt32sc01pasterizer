@@ -47,3 +47,6 @@
 #define RS485_RXD 1
 #define RS485_RTS 2
 #define RS485_TXD 42
+
+// Motorctrl-specific
+#define MOTORCTL_IN 10

@@ -27,13 +27,24 @@ void logic_setup() {
 	mb.setBaudrate(RS485_BAUD);
 	mb.master();
 
+	pinMode(MOTORCTL_IN, INPUT);
+
 	xTaskCreatePinnedToCore(logic_task, "logic", 4096*2, NULL, tskIDLE_PRIORITY+10, NULL, 1);
 }
 
 void logic_task(void *pvParameter) {
 	while (1) {
-		vTaskDelay(pdMS_TO_TICKS(LOGIC_INTERVAL_MS));
 		mb.task();
+		bool a = digitalRead(MOTORCTL_IN) == HIGH;
+		if (a) {
+			int v = freq_base.value * 2;
+			mb.writeHreg(CTL_ADDR, MODBUS_FREQ_ADDR, (uint16_t)v, cb);
+		} else {
+			int v = (freq_base.value + freq_delta.value) * 2;
+			mb.writeHreg(CTL_ADDR, MODBUS_FREQ_ADDR, (uint16_t)v, cb);
+		}
+
+		vTaskDelay(pdMS_TO_TICKS(LOGIC_INTERVAL_MS));
 	}
 	vTaskDelete(NULL);
 }
