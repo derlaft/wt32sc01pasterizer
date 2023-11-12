@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include "../shared/settings.h"
 #include "ui.h"
+#include "../../ui_hal.h"
 
 ModbusRTU mb;
 HardwareSerial sp(1);
@@ -74,7 +75,7 @@ void logic_setup() {
 
 void logic_task(void *pvParameter) {
 	// инициализировать начальное состояние интерфейса
-	// _GUI_LOCK(logic_sync_ui());
+	_GUI_LOCK(logic_sync_ui());
 
 	TickType_t xLastWakeTime;
 	xLastWakeTime = xTaskGetTickCount();
@@ -105,12 +106,29 @@ void logic_task(void *pvParameter) {
 			_DEBUG("uxBits %d", uxBits);
 		}
 
-		// _GUI_LOCK(logic_sync_ui())
+		_GUI_LOCK(logic_sync_ui())
 
 		prev_start = esp_timer_get_time();
 	}
 
 	vTaskDelete(NULL);
+}
+
+void logic_sync_ui() {
+    // синхронизировать состояние логического модуля с интерфейсом пользователя
+    auto const disabled_color = lv_color_hex(0x1499FF);
+    auto const enabled_color = lv_color_hex(0x800000);
+    auto const done_color = lv_color_hex(0x008000);
+
+    // состояние кнопки охлаждения
+    switch (state) {
+        case Freq_Control:
+            lv_obj_set_style_bg_color(ui_StartStopButton, enabled_color, LV_PART_MAIN | LV_STATE_DEFAULT);
+            break;
+        default:
+            lv_obj_set_style_bg_color(ui_StartStopButton, disabled_color, LV_PART_MAIN | LV_STATE_DEFAULT);
+            break;
+    }
 }
 
 bool modbusWait = false;
