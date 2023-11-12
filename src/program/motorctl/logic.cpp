@@ -102,9 +102,7 @@ void logic_task(void *pvParameter) {
 				xDelay             // максимальное время ожидания
 		);
 
-		if (uxBits) {
-			_DEBUG("uxBits %d", uxBits);
-		}
+		logic_tick(uxBits);
 
 		_GUI_LOCK(logic_sync_ui())
 
@@ -112,6 +110,26 @@ void logic_task(void *pvParameter) {
 	}
 
 	vTaskDelete(NULL);
+}
+
+void logic_tick(EventBits_t uxBits) {
+
+	switch (state) {
+		case LogicState::Idle:
+			if (uxBits & LogicEvent::StartStopProg) {
+				state = LogicState::FreqControl;
+			}
+			break;
+
+		case LogicState::Activating:
+		case LogicState::FreqControl:
+			if (uxBits & LogicEvent::StartStopProg) {
+				// state = LogicState::Deactivating;
+				state = LogicState::Idle;
+			}
+			break;
+	}
+
 }
 
 void logic_sync_ui() {
@@ -122,11 +140,14 @@ void logic_sync_ui() {
 
     // состояние кнопки охлаждения
     switch (state) {
-        case Freq_Control:
+        case FreqControl:
+        case Deactivating:
             lv_obj_set_style_bg_color(ui_StartStopButton, enabled_color, LV_PART_MAIN | LV_STATE_DEFAULT);
+			lv_label_set_text(ui_ReadButtonLabel2,"Стоп");
             break;
         default:
             lv_obj_set_style_bg_color(ui_StartStopButton, disabled_color, LV_PART_MAIN | LV_STATE_DEFAULT);
+			lv_label_set_text(ui_ReadButtonLabel2,"Старт");
             break;
     }
 }

@@ -17,7 +17,8 @@ enum LogicState {
   Unknown = 0,
   Idle = 1,
   Activating = 2,
-  Freq_Control = 3,
+  FreqControl = 3,
+  Deactivating = 4,
 };
 typedef enum LogicState LogicState_t;
 
@@ -40,6 +41,7 @@ void logic_setup();
 void logic_debug_send_write(uint16_t reg, uint16_t value);
 void logic_debug_send_read(uint16_t reg);
 void logic_task(void *pvParameter);
+void logic_tick(EventBits_t uxBits);
 
 void logic_sync_ui();
 
