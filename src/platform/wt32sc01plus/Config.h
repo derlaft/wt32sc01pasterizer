@@ -50,3 +50,4 @@
 
 // Motorctrl-specific
 #define MOTORCTL_IN 10
+#define LOGIC_DEBUG

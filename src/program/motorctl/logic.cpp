@@ -15,6 +15,9 @@ extern setting_decl freq_delta;
 SemaphoreHandle_t xLogicSemaphore;
 EventGroupHandle_t xLogicGroup;
 
+const int modbusQueueLength = 16;
+QueueHandle_t modbusQueue;
+
 LogicState state = LogicState::Idle;
 
 #define _LOGIC_LOCK(BODY) if (pdTRUE == xSemaphoreTake(xLogicSemaphore, portMAX_DELAY)) { \
@@ -26,10 +29,11 @@ LogicState state = LogicState::Idle;
 
 bool cb(Modbus::ResultCode event, uint16_t transactionId, void* data) { // Modbus Transaction callback
   if (event != Modbus::EX_SUCCESS)                  // If transaction got an error
-    Serial.printf("Modbus result: %02X\n", event);  // Display Modbus error code
+    _DEBUG("Modbus result: %02X\n", event);  // Display Modbus error code
   if (event == Modbus::EX_TIMEOUT) {    // If Transaction timeout took place
-    Serial.printf("Modbus timeout\n");
+    _DEBUG("Modbus timeout\n");
   }
+  logic_modbus_on_cb();
   return true;
 }
 
@@ -42,13 +46,14 @@ void logic_setup() {
 
 	pinMode(MOTORCTL_IN, INPUT);
 
+	modbusQueue = xQueueCreate(modbusQueueLength, sizeof(LambdaRequest));
+
 	xTaskCreatePinnedToCore(logic_task, "logic", 4096*2, NULL, tskIDLE_PRIORITY+10, NULL, 1);
+	xTaskCreatePinnedToCore(logic_modbus_task, "modbus", 4096*2, NULL, tskIDLE_PRIORITY+11, NULL, 1);
 }
 
 void logic_task(void *pvParameter) {
 	while (1) {
-		mb.task();
-
 		/*
 		Serial.println("debug logic_task");
 		bool a = digitalRead(MOTORCTL_IN) == HIGH;
@@ -66,12 +71,50 @@ void logic_task(void *pvParameter) {
 	vTaskDelete(NULL);
 }
 
+bool modbusWait = false;
+
+void logic_modbus_on_cb() {
+	modbusWait = false;
+}
+
+void logic_modbus_send(lambda_t req) {
+    LambdaRequest msg = {.lambda = req};
+    BaseType_t xStatus;
+	xStatus = xQueueSend(modbusQueue, &msg, pdMS_TO_TICKS(LOGIC_INTERVAL_MS));
+	if (xStatus != pdPASS) {
+		_DEBUG("logic_modbus_send_task error: %d", xStatus);
+	}
+	_DEBUG("enqueue");
+}
+
+void logic_modbus_task(void *pvParameter) {
+    LambdaRequest msg;
+    BaseType_t xStatus;
+	while (1) {
+		mb.task();
+		if (modbusWait) {
+			vTaskDelay(pdMS_TO_TICKS(100)); // TODO
+			continue;
+		}
+        xStatus = xQueueReceive(modbusQueue, &msg, portMAX_DELAY);
+		_DEBUG("dequeue");
+        if (xStatus == pdPASS) {
+			modbusWait = true;
+			msg.lambda();
+		} else {
+			_DEBUG("logic_modbus_send_task error: %d", xStatus);
+			continue;
+		}
+	}
+	vTaskDelete(NULL);
+}
+
 void logic_debug_send_write(uint16_t reg, uint16_t value) {
-	Serial.println("debugwrite");
+	_DEBUG("debugwrite");
 	mb.writeHreg(CTL_ADDR, reg, value, cb);
 }
 
 void logic_debug_send_read(uint16_t reg) {
-	Serial.println("debugread");
+	_DEBUG("debugread");
 	mb.readHreg(CTL_ADDR, reg, &res, 1, cb);
 }

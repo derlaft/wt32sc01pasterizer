@@ -3,6 +3,16 @@
 
 #include <Arduino.h>
 
+#ifdef LOGIC_DEBUG
+#define _DEBUG(...) { \
+    char buf[256]; \
+    snprintf(buf, sizeof(buf), __VA_ARGS__); \
+    Serial.println(buf); \
+};
+#else
+#define _DEBUG(...) {}
+#endif
+
 enum LogicState {
   Unknown = 0,
   Idle = 1,
@@ -12,9 +22,19 @@ enum LogicState {
 };
 typedef enum LogicState LogicState_t;
 
+typedef void (*lambda_t)();
+struct LambdaRequest {
+	lambda_t lambda;
+};
+
 void logic_setup();
 void logic_debug_send_write(uint16_t reg, uint16_t value);
 void logic_debug_send_read(uint16_t reg);
 void logic_task(void *pvParameter);
+
+void logic_modbus_send(lambda_t req);
+void logic_modbus_task(void *pvParameter);
+void logic_modbus_on_cb();
+
 
 #endif
