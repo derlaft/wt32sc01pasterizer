@@ -22,6 +22,10 @@ QueueHandle_t modbusQueue;
 
 bool fatal_error = false;
 
+// frequency
+int16_t want_freq = 0;
+int16_t remote_freq = 0;
+
 LogicState state = LogicState::Idle;
 
 #define _LOGIC_LOCK(BODY) if (pdTRUE == xSemaphoreTake(xLogicSemaphore, portMAX_DELAY)) { \
@@ -31,7 +35,7 @@ LogicState state = LogicState::Idle;
 
 #define _TO_MS(BODY) ((BODY) * 60ll * 1000ll)
 
-bool cb(Modbus::ResultCode event, uint16_t transactionId, void* data) { // Modbus Transaction callback
+bool cb(Modbus::ResultCode event, uint16_t transactionId, void* data) {
   if (event != Modbus::EX_SUCCESS) {
     _DEBUG("Modbus result: %02X\n", event);
 	fatal_error = true;
@@ -115,6 +119,17 @@ void logic_task(void *pvParameter) {
 	vTaskDelete(NULL);
 }
 
+bool update_remote_freq_cb(Modbus::ResultCode event, uint16_t transactionId, void* data) {
+	if (event == Modbus::EX_SUCCESS) {
+		remote_freq = ((TRegister*)data)->value;
+	}
+	return cb(event, transactionId, data);
+}
+
+void update_remote_freq() {
+	mb.writeHreg(CTL_ADDR, MODBUS_FREQ_ADDR, want_freq, update_remote_freq_cb);
+}
+
 void logic_tick(EventBits_t uxBits) {
 
 	switch (state) {
@@ -126,10 +141,25 @@ void logic_tick(EventBits_t uxBits) {
 
 		case LogicState::Activating:
 		case LogicState::FreqControl:
+
 			if (uxBits & LogicEvent::StartStopProg) {
 				// state = LogicState::Deactivating;
 				state = LogicState::Idle;
+				break;
 			}
+
+			// freq control
+			if (digitalRead(MOTORCTL_IN) == HIGH) {
+				want_freq = (uint16_t) (freq_base.value * MODBUS_FREQ_MULTIPLIER / 100);
+			} else {
+				want_freq = (uint16_t) ((freq_base.value + freq_delta.value) * MODBUS_FREQ_MULTIPLIER / 100);
+			}
+
+			if (want_freq != remote_freq) {
+				_DEBUG("%d!=%d", want_freq, remote_freq);
+				logic_modbus_send(update_remote_freq);
+			}
+
 			break;
 	}
 
