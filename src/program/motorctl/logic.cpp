@@ -80,7 +80,7 @@ void logic_modbus_on_cb() {
 void logic_modbus_send(lambda_t req) {
     LambdaRequest msg = {.lambda = req};
     BaseType_t xStatus;
-	xStatus = xQueueSend(modbusQueue, &msg, pdMS_TO_TICKS(LOGIC_INTERVAL_MS));
+	xStatus = xQueueSend(modbusQueue, &msg, pdMS_TO_TICKS(LOGIC_MODBUS_QUEUE_TIMEOUT_MS));
 	if (xStatus != pdPASS) {
 		_DEBUG("logic_modbus_send_task error: %d", xStatus);
 	}
@@ -93,7 +93,7 @@ void logic_modbus_task(void *pvParameter) {
 	while (1) {
 		mb.task();
 		if (modbusWait) {
-			vTaskDelay(pdMS_TO_TICKS(100)); // TODO
+			vTaskDelay(pdMS_TO_TICKS(LOGIC_MODBUS_QUEUE_WAIT_MS));
 			continue;
 		}
         xStatus = xQueueReceive(modbusQueue, &msg, portMAX_DELAY);

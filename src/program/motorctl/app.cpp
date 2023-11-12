@@ -60,23 +60,25 @@ void dec_value(lv_event_t *e) {
     }
 }
 
+uint16_t manual_reg = 0;
+uint16_t manual_value = 0;
+
 void do_manual_send() {
-    uint16_t reg = (uint16_t) lv_spinbox_get_value(ui_Register);
-    uint16_t value = (uint16_t) lv_spinbox_get_value(ui_Value);
-    logic_debug_send_write(reg, value);
+    logic_debug_send_write(manual_reg, manual_value);
 }
 
 void on_manual_write(lv_event_t *e) {
+    manual_reg = (uint16_t) lv_spinbox_get_value(ui_Register);
+    manual_value = (uint16_t) lv_spinbox_get_value(ui_Value);
 	logic_modbus_send(do_manual_send);
 }
 
 void do_manual_read() {
-    uint16_t reg = (uint16_t) lv_spinbox_get_value(ui_Register);
-
-    logic_debug_send_read(reg);
+    logic_debug_send_read(manual_reg);
 }
 
 void on_manual_read(lv_event_t *e) {
+    manual_reg = (uint16_t) lv_spinbox_get_value(ui_Register);
 	logic_modbus_send(do_manual_read);
 }
 
