@@ -88,10 +88,12 @@ void on_start_stop(lv_event_t *e) {
 
 void app_init() {
 	// спрятать все лишнее для этой программы
-	lv_obj_add_flag(ui_TempAndWarningGroup, LV_OBJ_FLAG_HIDDEN);
+	lv_obj_add_flag(ui_TemperatureDisplay, LV_OBJ_FLAG_HIDDEN);
 	lv_obj_add_flag(ui_ManualControlButton, LV_OBJ_FLAG_HIDDEN);
 	lv_obj_add_flag(ui_ForwardButton, LV_OBJ_FLAG_HIDDEN);
 	lv_obj_add_flag(ui_BackButton, LV_OBJ_FLAG_HIDDEN);
+
+	lv_obj_add_flag(ui_WarningIndicator, LV_OBJ_FLAG_HIDDEN);
 
 	// создать tab view для содержимого
 	ui_TabView = lv_tabview_create(ui_MainPanel, LV_DIR_LEFT, 50);

@@ -20,6 +20,8 @@ EventGroupHandle_t xLogicGroup;
 const int modbusQueueLength = 16;
 QueueHandle_t modbusQueue;
 
+bool fatal_error = false;
+
 LogicState state = LogicState::Idle;
 
 #define _LOGIC_LOCK(BODY) if (pdTRUE == xSemaphoreTake(xLogicSemaphore, portMAX_DELAY)) { \
@@ -30,10 +32,11 @@ LogicState state = LogicState::Idle;
 #define _TO_MS(BODY) ((BODY) * 60ll * 1000ll)
 
 bool cb(Modbus::ResultCode event, uint16_t transactionId, void* data) { // Modbus Transaction callback
-  if (event != Modbus::EX_SUCCESS)                  // If transaction got an error
-    _DEBUG("Modbus result: %02X\n", event);  // Display Modbus error code
-  if (event == Modbus::EX_TIMEOUT) {    // If Transaction timeout took place
-    _DEBUG("Modbus timeout\n");
+  if (event != Modbus::EX_SUCCESS) {
+    _DEBUG("Modbus result: %02X\n", event);
+	fatal_error = true;
+  } else {
+	fatal_error = false;
   }
   logic_modbus_on_cb();
   return true;
@@ -148,6 +151,16 @@ void logic_sync_ui() {
         default:
             lv_obj_set_style_bg_color(ui_StartStopButton, disabled_color, LV_PART_MAIN | LV_STATE_DEFAULT);
 			lv_label_set_text(ui_ReadButtonLabel2,"Старт");
+            break;
+    }
+
+    // состояния индикатора ошибки
+    switch (fatal_error) {
+        case false:
+            lv_obj_add_flag(ui_WarningIndicator, LV_OBJ_FLAG_HIDDEN);
+            break;
+        case true:
+            lv_obj_clear_flag(ui_WarningIndicator, LV_OBJ_FLAG_HIDDEN);
             break;
     }
 }
