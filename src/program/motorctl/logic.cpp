@@ -119,14 +119,18 @@ void logic_task(void *pvParameter) {
 	vTaskDelete(NULL);
 }
 
+bool update_freq_going = false;
+
 bool update_remote_freq_cb(Modbus::ResultCode event, uint16_t transactionId, void* data) {
+	update_freq_going = false;
 	if (event == Modbus::EX_SUCCESS) {
-		remote_freq = ((TRegister*)data)->value;
+		remote_freq = want_freq;
 	}
 	return cb(event, transactionId, data);
 }
 
 void update_remote_freq() {
+	update_freq_going = true;
 	mb.writeHreg(CTL_ADDR, MODBUS_FREQ_ADDR, want_freq, update_remote_freq_cb);
 }
 
@@ -135,7 +139,7 @@ void logic_tick(EventBits_t uxBits) {
 	switch (state) {
 		case LogicState::Idle:
 			if (uxBits & LogicEvent::StartStopProg) {
-				state = LogicState::FreqControl;
+				state = LogicState::Activating;
 			}
 			break;
 
@@ -143,8 +147,7 @@ void logic_tick(EventBits_t uxBits) {
 		case LogicState::FreqControl:
 
 			if (uxBits & LogicEvent::StartStopProg) {
-				// state = LogicState::Deactivating;
-				state = LogicState::Idle;
+				state = LogicState::Deactivating;
 				break;
 			}
 
@@ -155,7 +158,27 @@ void logic_tick(EventBits_t uxBits) {
 				want_freq = (uint16_t) ((freq_base.value + freq_delta.value) * MODBUS_FREQ_MULTIPLIER / 100);
 			}
 
-			if (want_freq != remote_freq) {
+			if (!update_freq_going) {
+				if (want_freq != remote_freq) {
+					_DEBUG("%d!=%d", want_freq, remote_freq);
+					logic_modbus_send(update_remote_freq);
+				} else if (state == LogicState::Activating) {
+					state = LogicState::FreqControl;
+				}
+			}
+
+			break;
+
+		case LogicState::Deactivating:
+
+			want_freq = 0;
+
+			if (remote_freq == 0) {
+				state = LogicState::Idle;
+				break;
+			}
+
+			if (!update_freq_going && want_freq != remote_freq) {
 				_DEBUG("%d!=%d", want_freq, remote_freq);
 				logic_modbus_send(update_remote_freq);
 			}
