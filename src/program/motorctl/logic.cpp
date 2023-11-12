@@ -2,6 +2,7 @@
 #include <ModbusRTU.h>
 #include <Arduino.h>
 #include "../shared/settings.h"
+#include "ui.h"
 
 ModbusRTU mb;
 HardwareSerial sp(1);
@@ -37,6 +38,24 @@ bool cb(Modbus::ResultCode event, uint16_t transactionId, void* data) { // Modbu
   return true;
 }
 
+void logic_interrupt(LogicEvent_t evt) {
+    BaseType_t xHigherPriorityTaskWoken, xResult;
+    xHigherPriorityTaskWoken = pdFALSE;
+
+    // отправить событие
+    xResult = xEventGroupSetBitsFromISR(
+            xLogicGroup,
+            (EventBits_t) evt,
+            &xHigherPriorityTaskWoken
+    );
+
+    // если успешно, попросить freeRTOS пробудить таск с логикой
+    if(xResult != pdFAIL) {
+        portYIELD_FROM_ISR(xHigherPriorityTaskWoken);
+    }
+
+}
+
 void logic_setup() {
 	sp.begin(RS485_BAUD, SERIAL_8N2, RS485_RXD, RS485_TXD);
 
@@ -47,27 +66,50 @@ void logic_setup() {
 	pinMode(MOTORCTL_IN, INPUT);
 
 	modbusQueue = xQueueCreate(modbusQueueLength, sizeof(LambdaRequest));
+	xLogicGroup = xEventGroupCreate();
 
 	xTaskCreatePinnedToCore(logic_task, "logic", 4096*2, NULL, tskIDLE_PRIORITY+10, NULL, 1);
 	xTaskCreatePinnedToCore(logic_modbus_task, "modbus", 4096*2, NULL, tskIDLE_PRIORITY+11, NULL, 1);
 }
 
 void logic_task(void *pvParameter) {
-	while (1) {
-		/*
-		Serial.println("debug logic_task");
-		bool a = digitalRead(MOTORCTL_IN) == HIGH;
-		if (a) {
-			int v = freq_base.value * 2;
-			mb.writeHreg(CTL_ADDR, MODBUS_FREQ_ADDR, (uint16_t)v, cb);
-		} else {
-			int v = (freq_base.value + freq_delta.value) * 2;
-			mb.writeHreg(CTL_ADDR, MODBUS_FREQ_ADDR, (uint16_t)v, cb);
-		}
-		*/
+	// инициализировать начальное состояние интерфейса
+	// _GUI_LOCK(logic_sync_ui());
 
-		vTaskDelay(pdMS_TO_TICKS(LOGIC_INTERVAL_MS));
+	TickType_t xLastWakeTime;
+	xLastWakeTime = xTaskGetTickCount();
+	EventBits_t uxBits;
+
+	int64_t prev_start = esp_timer_get_time();
+
+	while(1) {
+
+		// посмотреть, сколько нужно ждать
+		int64_t last_iter = (esp_timer_get_time() - prev_start);
+		int64_t block_ms = LOGIC_INTERVAL_MS - last_iter;
+		if (block_ms > LOGIC_INTERVAL_MS || block_ms < 0) {
+			_DEBUG("_logic_task: %lldms block is invalid", block_ms);
+			block_ms = LOGIC_INTERVAL_MS;
+		}
+
+		TickType_t xDelay = pdMS_TO_TICKS(block_ms);
+		uxBits = xEventGroupWaitBits(
+				xLogicGroup,
+				LogicEvent::Any,   // ждать любого события
+				pdTRUE,            // сбросить бит события
+				pdFALSE,           // не ждать установки всех битов
+				xDelay             // максимальное время ожидания
+		);
+
+		if (uxBits) {
+			_DEBUG("uxBits %d", uxBits);
+		}
+
+		// _GUI_LOCK(logic_sync_ui())
+
+		prev_start = esp_timer_get_time();
 	}
+
 	vTaskDelete(NULL);
 }
 

@@ -82,6 +82,10 @@ void on_manual_read(lv_event_t *e) {
 	logic_modbus_send(do_manual_read);
 }
 
+void on_start_stop(lv_event_t *e) {
+	logic_interrupt(LogicEvent::StartStopProg);
+}
+
 void app_init() {
 	// спрятать все лишнее для этой программы
 	lv_obj_add_flag(ui_TempAndWarningGroup, LV_OBJ_FLAG_HIDDEN);
@@ -139,7 +143,10 @@ void app_init() {
 
 	// write
 	lv_obj_add_event_cb(ui_WriteButton, on_manual_write, LV_EVENT_SHORT_CLICKED, NULL);
-	lv_obj_add_event_cb(ui_ReadButton1, on_manual_read, LV_EVENT_SHORT_CLICKED, NULL);
+	lv_obj_add_event_cb(ui_ReadButton, on_manual_read, LV_EVENT_SHORT_CLICKED, NULL);
+
+	// start/stop
+	lv_obj_add_event_cb(ui_StartStopButton, on_start_stop, LV_EVENT_SHORT_CLICKED, NULL);
    
 	// настройки
     ui_setting_add("Базовая частота", &freq_base);

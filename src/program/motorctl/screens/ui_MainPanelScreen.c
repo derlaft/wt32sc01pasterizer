@@ -27,17 +27,17 @@ lv_obj_set_style_pad_right(ui_MainButtonPanel, 0, LV_PART_MAIN| LV_STATE_DEFAULT
 lv_obj_set_style_pad_top(ui_MainButtonPanel, 0, LV_PART_MAIN| LV_STATE_DEFAULT);
 lv_obj_set_style_pad_bottom(ui_MainButtonPanel, 0, LV_PART_MAIN| LV_STATE_DEFAULT);
 
-ui_ReadButton2 = lv_btn_create(ui_MainButtonPanel);
-lv_obj_set_width( ui_ReadButton2, lv_pct(80));
-lv_obj_set_height( ui_ReadButton2, LV_SIZE_CONTENT);   /// 60
-lv_obj_set_align( ui_ReadButton2, LV_ALIGN_BOTTOM_RIGHT );
-lv_obj_add_flag( ui_ReadButton2, LV_OBJ_FLAG_SCROLL_ON_FOCUS );   /// Flags
-lv_obj_clear_flag( ui_ReadButton2, LV_OBJ_FLAG_SCROLLABLE );    /// Flags
-lv_obj_set_style_radius(ui_ReadButton2, 0, LV_PART_MAIN| LV_STATE_DEFAULT);
-lv_obj_set_style_bg_color(ui_ReadButton2, lv_color_hex(0x1499FF), LV_PART_MAIN | LV_STATE_DEFAULT );
-lv_obj_set_style_bg_opa(ui_ReadButton2, 255, LV_PART_MAIN| LV_STATE_DEFAULT);
+ui_StartStopButton = lv_btn_create(ui_MainButtonPanel);
+lv_obj_set_width( ui_StartStopButton, lv_pct(80));
+lv_obj_set_height( ui_StartStopButton, LV_SIZE_CONTENT);   /// 60
+lv_obj_set_align( ui_StartStopButton, LV_ALIGN_BOTTOM_RIGHT );
+lv_obj_add_flag( ui_StartStopButton, LV_OBJ_FLAG_SCROLL_ON_FOCUS );   /// Flags
+lv_obj_clear_flag( ui_StartStopButton, LV_OBJ_FLAG_SCROLLABLE );    /// Flags
+lv_obj_set_style_radius(ui_StartStopButton, 0, LV_PART_MAIN| LV_STATE_DEFAULT);
+lv_obj_set_style_bg_color(ui_StartStopButton, lv_color_hex(0x1499FF), LV_PART_MAIN | LV_STATE_DEFAULT );
+lv_obj_set_style_bg_opa(ui_StartStopButton, 255, LV_PART_MAIN| LV_STATE_DEFAULT);
 
-ui_ReadButtonLabel2 = lv_label_create(ui_ReadButton2);
+ui_ReadButtonLabel2 = lv_label_create(ui_StartStopButton);
 lv_obj_set_width( ui_ReadButtonLabel2, LV_SIZE_CONTENT);  /// 1
 lv_obj_set_height( ui_ReadButtonLabel2, LV_SIZE_CONTENT);   /// 1
 lv_obj_set_x( ui_ReadButtonLabel2, 0 );
@@ -46,6 +46,6 @@ lv_obj_set_align( ui_ReadButtonLabel2, LV_ALIGN_TOP_MID );
 lv_label_set_text(ui_ReadButtonLabel2,"Старт");
 lv_obj_set_style_text_font(ui_ReadButtonLabel2, &ui_font_bigfont, LV_PART_MAIN| LV_STATE_DEFAULT);
 
-lv_obj_add_event_cb(ui_ReadButton2, ui_event_ReadButton2, LV_EVENT_ALL, NULL);
+lv_obj_add_event_cb(ui_StartStopButton, ui_event_StartStopButton, LV_EVENT_ALL, NULL);
 
 }
