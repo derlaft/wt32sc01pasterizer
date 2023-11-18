@@ -25,6 +25,9 @@ bool fatal_error = false;
 // frequency
 int16_t want_freq = 0;
 int16_t remote_freq = 0;
+// on/off
+bool want_on = false;
+bool remote_on = false;
 
 LogicState state = LogicState::Idle;
 
@@ -134,6 +137,22 @@ void update_remote_freq() {
 	mb.writeHreg(CTL_ADDR, MODBUS_FREQ_ADDR, want_freq, update_remote_freq_cb);
 }
 
+bool on_off_going = false;
+
+bool update_on_off_cb(Modbus::ResultCode event, uint16_t transactionId, void* data) {
+	on_off_going = false;
+	if (event == Modbus::EX_SUCCESS) {
+		remote_on = want_on;
+	}
+	return cb(event, transactionId, data);
+}
+
+void update_on_off() {
+	on_off_going = true;
+	mb.writeHreg(CTL_ADDR, MODBUS_EN_ADDR, want_on, update_on_off_cb);
+}
+
+
 void logic_tick(EventBits_t uxBits) {
 
 	switch (state) {
@@ -144,6 +163,20 @@ void logic_tick(EventBits_t uxBits) {
 			break;
 
 		case LogicState::Activating:
+
+			want_on = true;
+
+			if (!on_off_going) {
+				logic_modbus_send(update_on_off);
+			}
+
+			if (remote_on) {
+				state = LogicState::FreqControl;
+				break;
+			}
+
+			// fallthrough
+
 		case LogicState::FreqControl:
 
 			if (uxBits & LogicEvent::StartStopProg) {
@@ -152,7 +185,7 @@ void logic_tick(EventBits_t uxBits) {
 			}
 
 			// freq control
-			if (digitalRead(MOTORCTL_IN) == HIGH) {
+			if (digitalRead(MOTORCTL_IN) == LOW) {
 				want_freq = (uint16_t) (freq_base.value * MODBUS_FREQ_MULTIPLIER / 100);
 			} else {
 				want_freq = (uint16_t) ((freq_base.value + freq_delta.value) * MODBUS_FREQ_MULTIPLIER / 100);
@@ -162,14 +195,22 @@ void logic_tick(EventBits_t uxBits) {
 				if (want_freq != remote_freq) {
 					_DEBUG("%d!=%d", want_freq, remote_freq);
 					logic_modbus_send(update_remote_freq);
-				} else if (state == LogicState::Activating) {
-					state = LogicState::FreqControl;
 				}
 			}
 
 			break;
 
 		case LogicState::Deactivating:
+
+			want_on = false;
+			if (!on_off_going) {
+				logic_modbus_send(update_on_off);
+			}
+
+			if (remote_on) {
+				// try later
+				break;
+			}
 
 			want_freq = 0;
 
