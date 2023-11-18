@@ -149,7 +149,7 @@ bool update_on_off_cb(Modbus::ResultCode event, uint16_t transactionId, void* da
 
 void update_on_off() {
 	on_off_going = true;
-	mb.writeHreg(CTL_ADDR, MODBUS_EN_ADDR, want_on, update_on_off_cb);
+	mb.writeHreg(CTL_ADDR, MODBUS_EN_ADDR, want_on ? 1 : 6, update_on_off_cb);
 }
 
 
