@@ -94,6 +94,39 @@ void on_apply_button(lv_event_t *e) {
 	lv_tabview_set_act(ui_TabView, 0, LV_ANIM_OFF);
 }
 
+void on_manual_control_button(lv_event_t * e) {
+	lv_tabview_set_act(ui_TabView, 1, LV_ANIM_OFF);
+}
+
+void on_settings_button(lv_event_t * e) {
+	lv_tabview_set_act(ui_TabView, 2, LV_ANIM_OFF);
+}
+
+void on_back_button(lv_event_t * e) {
+	lv_tabview_set_act(ui_TabView, 0, LV_ANIM_OFF);
+}
+
+void on_tab_change(lv_event_t *e) {
+	switch (lv_tabview_get_tab_act(ui_TabView)) {
+		case 0:
+			lv_obj_set_style_text_color(ui_BackButton, lv_color_hex(0x1499FF), LV_PART_MAIN | LV_STATE_DEFAULT);
+			lv_obj_set_style_text_color(ui_SettingsButton, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+			lv_obj_set_style_text_color(ui_ManualControlButton, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+			break;
+		case 1:
+			lv_obj_set_style_text_color(ui_BackButton, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+			lv_obj_set_style_text_color(ui_SettingsButton, lv_color_hex(0x1499FF), LV_PART_MAIN | LV_STATE_DEFAULT);
+			lv_obj_set_style_text_color(ui_ManualControlButton, lv_color_hex(0x1499FF), LV_PART_MAIN | LV_STATE_DEFAULT);
+			break;
+		case 2:
+			lv_obj_set_style_text_color(ui_BackButton, lv_color_hex(0xFFFFFF), LV_PART_MAIN | LV_STATE_DEFAULT);
+			lv_obj_set_style_text_color(ui_SettingsButton, lv_color_hex(0x1499FF), LV_PART_MAIN | LV_STATE_DEFAULT);
+			lv_obj_set_style_text_color(ui_ManualControlButton, lv_color_hex(0x1499FF), LV_PART_MAIN | LV_STATE_DEFAULT);
+			break;
+	}
+}
+
+
 void app_init() {
 	// спрятать все лишнее для этой программы
 	lv_obj_add_flag(ui_TemperatureDisplay, LV_OBJ_FLAG_HIDDEN);
@@ -103,9 +136,11 @@ void app_init() {
 	// lv_obj_add_flag(ui_WarningIndicator, LV_OBJ_FLAG_HIDDEN);
 	
 	lv_obj_set_style_text_color(ui_WarningIndicator, lv_color_hex(0x1499FF), LV_PART_MAIN | LV_STATE_DEFAULT);
+	lv_obj_set_style_text_color(ui_ForwardButton, lv_color_hex(0x1499FF), LV_PART_MAIN | LV_STATE_DEFAULT);
 
 	// создать tab view для содержимого
 	ui_TabView = lv_tabview_create(ui_MainPanel, LV_DIR_LEFT, 50);
+    	lv_obj_clear_flag(lv_tabview_get_content(ui_TabView), LV_OBJ_FLAG_SCROLLABLE);
 
 	// спрятать кнопки
 	lv_obj_add_flag(lv_tabview_get_tab_btns(ui_TabView), LV_OBJ_FLAG_HIDDEN);
@@ -166,18 +201,18 @@ void app_init() {
 
 	lv_obj_t *ApplyButton = ui_setting_add_apply();
 	lv_obj_add_event_cb(ApplyButton, on_apply_button, LV_EVENT_SHORT_CLICKED, NULL);
+
+
+	// навигация
+	lv_obj_add_event_cb(ui_BackButton, on_back_button, LV_EVENT_SHORT_CLICKED, NULL);
+	lv_obj_add_event_cb(ui_SettingsButton, on_settings_button, LV_EVENT_SHORT_CLICKED, NULL);
+	lv_obj_add_event_cb(ui_ManualControlButton, on_manual_control_button, LV_EVENT_SHORT_CLICKED, NULL);
+	lv_obj_add_event_cb(ui_TabView, on_tab_change, LV_EVENT_VALUE_CHANGED, NULL);
+	on_tab_change(NULL);
 }
 
-void on_back_button(lv_event_t * e) {
-}
-
-void on_manual_control_button(lv_event_t * e) {
-}
 
 void on_warn_button_clicked(lv_event_t * e) {
-}
-
-void on_settings_button(lv_event_t * e) {
 }
 
 void on_forward_button(lv_event_t * e) {
