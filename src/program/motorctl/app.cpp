@@ -5,6 +5,7 @@
 #include "../shared/ui.h"
 #include "../shared/settings.h"
 #include <Arduino.h>
+#include <Preferences.h>
 
 lv_obj_t *ui_TabView;
 lv_obj_t *ui_TabMainPanel;
@@ -12,21 +13,23 @@ lv_obj_t *ui_TabManualControl;
 lv_obj_t *ui_TabSettings;
 lv_obj_t *ui_TabWifiSettings;
 
+Preferences preferences;
+
 uint8_t freq = 0;
 uint8_t delta_freq = 0;
 
 setting_decl freq_base = setting_decl{
-		.value = DEF_FREQ_BASE,
-		.min = 0,
-		.max = 50,
+		.value = DEF_FREQ_BASE * 100,
+		.min = FREQ_BASE_MIN,
+		.max = FREQ_BASE_MAX,
 		.digits = 2,
 		.fmt = "%2.2f",
 };
 
 setting_decl freq_delta = setting_decl{
-		.value = DEF_FREQ_DELTA,
-		.min = 0,
-		.max = 50,
+		.value = DEF_FREQ_DELTA * 100,
+		.min = FREQ_DELTA_MIN,
+		.max = FREQ_DELTA_MAX,
 		.digits = 2,
 		.fmt = "%2.2f",
 		.odd = true,
@@ -84,6 +87,11 @@ void on_manual_read(lv_event_t *e) {
 
 void on_start_stop(lv_event_t *e) {
 	logic_interrupt(LogicEvent::StartStopProg);
+}
+
+void on_apply_button(lv_event_t *e) {
+	settings_update();
+	lv_tabview_set_act(ui_TabView, 0, LV_ANIM_OFF);
 }
 
 void app_init() {
@@ -151,9 +159,12 @@ void app_init() {
 	lv_obj_add_event_cb(ui_StartStopButton, on_start_stop, LV_EVENT_SHORT_CLICKED, NULL);
    
 	// настройки
-    ui_setting_add("Базовая частота", &freq_base);
-    ui_setting_add("Дельта частоты", &freq_delta);
-	ui_setting_add_apply();
+	settings_setup();
+	ui_setting_add("Базовая частота", &freq_base);
+	ui_setting_add("Дельта частоты", &freq_delta);
+
+	lv_obj_t *ApplyButton = ui_setting_add_apply();
+	lv_obj_add_event_cb(ApplyButton, on_apply_button, LV_EVENT_SHORT_CLICKED, NULL);
 }
 
 void on_back_button(lv_event_t * e) {
@@ -173,4 +184,34 @@ void on_forward_button(lv_event_t * e) {
 
 void on_main_button_pressed(lv_event_t * e) {
 
+}
+
+void settings_setup() {
+  if (!preferences.begin("motorctl", true)) {
+    return;
+  }
+
+  freq_base.value = (int) preferences.getInt("freq_base");
+  if (freq_base.value < FREQ_BASE_MIN * 100 || freq_base.value > FREQ_BASE_MAX * 100) {
+	  freq_base.value = DEF_FREQ_BASE * 100;
+  }
+
+  freq_delta.value = (int) preferences.getInt("freq_delta");
+  if (freq_delta.value < FREQ_DELTA_MIN * 100 || freq_delta.value > FREQ_DELTA_MAX * 100) {
+	  freq_delta.value = DEF_FREQ_DELTA * 100;
+  }
+
+  preferences.end();
+}
+
+void settings_update() {
+
+  if (!preferences.begin("motorctl", false)) {
+    return;
+  }
+
+  preferences.putInt("freq_base", freq_base.value);
+  preferences.putInt("freq_delta", freq_delta.value);
+
+  preferences.end();
 }

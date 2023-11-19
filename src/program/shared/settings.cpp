@@ -153,13 +153,13 @@ void ui_setting_add(const char *name, setting_decl *opts) {
 	lv_obj_add_event_cb(Decr, on_setting_decr, (lv_event_code_t)(LV_EVENT_PRESSED | LV_EVENT_LONG_PRESSED_REPEAT), opts);
 
 	// set initial value
-	opts->value *= ipow(10, opts->digits);
 	update_setting_value(opts);
 }
 
-void ui_setting_add_apply() {
-	lv_obj_t *ApplyButton;
-	lv_obj_t *ApplyButtonLabel;
+lv_obj_t* ui_setting_add_apply() {
+
+    lv_obj_t *ApplyButton;
+    lv_obj_t *ApplyButtonLabel;
 
     ApplyButton = lv_btn_create(ui_SettingsScreen);
     lv_obj_set_width(ApplyButton, lv_pct(100));
@@ -181,4 +181,6 @@ void ui_setting_add_apply() {
     lv_obj_set_style_pad_right(ApplyButtonLabel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_top(ApplyButtonLabel, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_pad_bottom(ApplyButtonLabel, 1, LV_PART_MAIN | LV_STATE_DEFAULT);
+
+    return ApplyButton;
 }
