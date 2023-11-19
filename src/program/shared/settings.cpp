@@ -83,8 +83,8 @@ void ui_setting_add(const char *name, setting_decl *opts) {
     lv_obj_clear_flag(Panel, LV_OBJ_FLAG_GESTURE_BUBBLE | LV_OBJ_FLAG_SNAPPABLE | LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_CHAIN);
 
 	if (opts->odd) {
-		lv_obj_set_style_bg_color(Panel, lv_color_hex(0x0000FF), LV_PART_MAIN | LV_STATE_DEFAULT);
-		lv_obj_set_style_bg_opa(Panel, 16, LV_PART_MAIN | LV_STATE_DEFAULT);
+		//lv_obj_set_style_bg_color(Panel, lv_color_hex(0x0000FF), LV_PART_MAIN | LV_STATE_DEFAULT);
+		//lv_obj_set_style_bg_opa(Panel, 16, LV_PART_MAIN | LV_STATE_DEFAULT);
 	}
 
     InfoLabel = lv_label_create(Panel);
@@ -130,6 +130,7 @@ void ui_setting_add(const char *name, setting_decl *opts) {
                       LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_CHAIN);     /// Flags
     lv_obj_set_style_text_align(Setting, LV_TEXT_ALIGN_CENTER, LV_PART_MAIN | LV_STATE_DEFAULT);
     lv_obj_set_style_text_font(Setting, &ui_font_bigfont, LV_PART_MAIN | LV_STATE_DEFAULT);
+
 
 	opts->widget = Setting;
 
