@@ -251,10 +251,10 @@ void logic_sync_ui() {
     // состояния индикатора ошибки
     switch (fatal_error) {
         case false:
-            lv_obj_add_flag(ui_WarningIndicator, LV_OBJ_FLAG_HIDDEN);
+	lv_obj_set_style_text_color(ui_WarningIndicator, lv_color_hex(0x1499FF), LV_PART_MAIN | LV_STATE_DEFAULT);
             break;
         case true:
-            lv_obj_clear_flag(ui_WarningIndicator, LV_OBJ_FLAG_HIDDEN);
+	    lv_obj_set_style_text_color(ui_WarningIndicator, lv_color_hex(0xFF0000), LV_PART_MAIN | LV_STATE_DEFAULT);
             break;
     }
 }

@@ -97,17 +97,18 @@ void on_apply_button(lv_event_t *e) {
 void app_init() {
 	// спрятать все лишнее для этой программы
 	lv_obj_add_flag(ui_TemperatureDisplay, LV_OBJ_FLAG_HIDDEN);
-	lv_obj_add_flag(ui_ManualControlButton, LV_OBJ_FLAG_HIDDEN);
-	lv_obj_add_flag(ui_ForwardButton, LV_OBJ_FLAG_HIDDEN);
-	lv_obj_add_flag(ui_BackButton, LV_OBJ_FLAG_HIDDEN);
-
-	lv_obj_add_flag(ui_WarningIndicator, LV_OBJ_FLAG_HIDDEN);
+	//lv_obj_add_flag(ui_ManualControlButton, LV_OBJ_FLAG_HIDDEN);
+	//lv_obj_add_flag(ui_ForwardButton, LV_OBJ_FLAG_HIDDEN);
+	//lv_obj_add_flag(ui_BackButton, LV_OBJ_FLAG_HIDDEN);
+	// lv_obj_add_flag(ui_WarningIndicator, LV_OBJ_FLAG_HIDDEN);
+	
+	lv_obj_set_style_text_color(ui_WarningIndicator, lv_color_hex(0x1499FF), LV_PART_MAIN | LV_STATE_DEFAULT);
 
 	// создать tab view для содержимого
 	ui_TabView = lv_tabview_create(ui_MainPanel, LV_DIR_LEFT, 50);
 
 	// спрятать кнопки
-	// lv_obj_add_flag(lv_tabview_get_tab_btns(ui_TabView), LV_OBJ_FLAG_HIDDEN);
+	lv_obj_add_flag(lv_tabview_get_tab_btns(ui_TabView), LV_OBJ_FLAG_HIDDEN);
 
 	// создать tab для главного экрана
 	ui_TabMainPanel = lv_tabview_add_tab(ui_TabView, "1");

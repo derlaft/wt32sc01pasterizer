@@ -122,6 +122,7 @@ void ui_setting_add(const char *name, setting_decl *opts) {
     lv_obj_set_x(Setting, 100);
     lv_obj_set_y(Setting, 0);
     lv_obj_set_align(Setting, LV_ALIGN_CENTER);
+    lv_textarea_set_one_line(Setting, true);
     lv_textarea_set_max_length(Setting, 128);
     lv_textarea_set_text(Setting, "");
     lv_textarea_set_placeholder_text(Setting, "");
