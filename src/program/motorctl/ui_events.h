@@ -6,7 +6,7 @@
 extern "C" {
 #endif
 
-void on_main_button_pressed(lv_event_t * e);
+void on_main_button_pressed(lv_event_t *e);
 
 #ifdef __cplusplus
 } /*extern "C"*/

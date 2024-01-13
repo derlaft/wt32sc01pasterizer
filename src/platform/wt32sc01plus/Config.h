@@ -5,8 +5,8 @@
 #define LV_COLOR_16_SWAP 1
 
 // Portrait
-#define TFT_WIDTH   320
-#define TFT_HEIGHT  480
+#define TFT_WIDTH 320
+#define TFT_HEIGHT 480
 
 #define SPI_FREQUENCY 20000000
 
@@ -37,10 +37,10 @@
 
 // SD CARD - SPI
 #define SDSPI_HOST_ID SPI3_HOST
-#define SD_MISO       GPIO_NUM_38 
-#define SD_MOSI       GPIO_NUM_40
-#define SD_SCLK       GPIO_NUM_39
-#define SD_CS         GPIO_NUM_41
+#define SD_MISO GPIO_NUM_38
+#define SD_MOSI GPIO_NUM_40
+#define SD_SCLK GPIO_NUM_39
+#define SD_CS GPIO_NUM_41
 
 // RS485
 #define RS485_BAUD 9600

@@ -1,26 +1,29 @@
 #include "temperature.hpp"
 #include "Config.h"
 #include "ui.h"
-#include "ui_hal.h"
 #include "ui_events.hpp"
+#include "ui_hal.h"
 
-#include <lvgl.h>
 #include <OneWire.h>
+#include <lvgl.h>
 
 #ifdef PROBE_DEBUG
-#define _DEBUG(...) { \
-    char buf[256]; \
-    snprintf(buf, sizeof(buf), __VA_ARGS__); \
-    Serial.println(buf); \
-};
+#define _DEBUG(...)                                                            \
+  {                                                                            \
+    char buf[256];                                                             \
+    snprintf(buf, sizeof(buf), __VA_ARGS__);                                   \
+    Serial.println(buf);                                                       \
+  };
 #else
-#define _DEBUG(...) {}
+#define _DEBUG(...)                                                            \
+  {}
 #endif
 
-OneWire  ds(PIN_PROBE);
+OneWire ds(PIN_PROBE);
 
 void temperature_task_setup() {
-  xTaskCreatePinnedToCore(temperature_task, "temp", 4096*2, NULL, tskIDLE_PRIORITY+10, NULL, 1);
+  xTaskCreatePinnedToCore(temperature_task, "temp", 4096 * 2, NULL,
+                          tskIDLE_PRIORITY + 10, NULL, 1);
 }
 
 float last_temp = -127.0;
@@ -32,17 +35,17 @@ bool temperature_measure() {
   byte type_s;
   byte data[9];
   byte addr[8];
-  
+
   ds.reset_search();
   if (!ds.search(addr)) {
-      _DEBUG("temperature_measure: no more addresses.");
+    _DEBUG("temperature_measure: no more addresses.");
     vTaskDelay(pdMS_TO_TICKS(250));
     return false;
   }
-  
+
 #ifdef PROBE_DEBUG
   Serial.print("ROM =");
-  for( i = 0; i < 8; i++) {
+  for (i = 0; i < 8; i++) {
     Serial.write(' ');
     Serial.print(addr[i], HEX);
   }
@@ -50,53 +53,53 @@ bool temperature_measure() {
 #endif
 
   if (OneWire::crc8(addr, 7) != addr[7]) {
-      _DEBUG("temperature_measure: CRC is not valid!");
-      return false;
+    _DEBUG("temperature_measure: CRC is not valid!");
+    return false;
   }
- 
+
   // the first ROM byte indicates which chip
   switch (addr[0]) {
-    case 0x10:
+  case 0x10:
 #ifdef PROBE_DEBUG
-      Serial.println("  Chip = DS18S20");  // or old DS1820
+    Serial.println("  Chip = DS18S20"); // or old DS1820
 #endif
-      type_s = 1;
-      break;
-    case 0x28:
+    type_s = 1;
+    break;
+  case 0x28:
 #ifdef PROBE_DEBUG
-      Serial.println("  Chip = DS18B20");
+    Serial.println("  Chip = DS18B20");
 #endif
-      type_s = 0;
-      break;
-    case 0x22:
+    type_s = 0;
+    break;
+  case 0x22:
 #ifdef PROBE_DEBUG
-      Serial.println("  Chip = DS1822");
+    Serial.println("  Chip = DS1822");
 #endif
-      type_s = 0;
-      break;
-    default:
+    type_s = 0;
+    break;
+  default:
 #ifdef PROBE_DEBUG
-      Serial.println("Device is not a DS18x20 family device.");
+    Serial.println("Device is not a DS18x20 family device.");
 #endif
-      return false;
-  } 
+    return false;
+  }
 
   ds.reset();
   ds.select(addr);
-  ds.write(0x44, 1);        // start conversion, with parasite power on at the end
-  
+  ds.write(0x44, 1); // start conversion, with parasite power on at the end
+
   vTaskDelay(pdMS_TO_TICKS(1000));
-  
+
   present = ds.reset();
-  ds.select(addr);    
-  ds.write(0xBE);         // Read Scratchpad
+  ds.select(addr);
+  ds.write(0xBE); // Read Scratchpad
 
 #ifdef PROBE_DEBUG
   Serial.print("  Data = ");
   Serial.print(present, HEX);
   Serial.print(" ");
 #endif
-  for ( i = 0; i < 9; i++) {           // we need 9 bytes
+  for (i = 0; i < 9; i++) { // we need 9 bytes
     data[i] = ds.read();
 #ifdef PROBE_DEBUG
     Serial.print(data[i], HEX);
@@ -124,13 +127,16 @@ bool temperature_measure() {
   } else {
     byte cfg = (data[4] & 0x60);
     // at lower res, the low bits are undefined, so let's zero them
-    if (cfg == 0x00) raw = raw & ~7;  // 9 bit resolution, 93.75 ms
-    else if (cfg == 0x20) raw = raw & ~3; // 10 bit res, 187.5 ms
-    else if (cfg == 0x40) raw = raw & ~1; // 11 bit res, 375 ms
+    if (cfg == 0x00)
+      raw = raw & ~7; // 9 bit resolution, 93.75 ms
+    else if (cfg == 0x20)
+      raw = raw & ~3; // 10 bit res, 187.5 ms
+    else if (cfg == 0x40)
+      raw = raw & ~1; // 11 bit res, 375 ms
     //// default is 12 bit resolution, 750 ms conversion time
   }
 
-  if ((float)raw/16.0 == 85.0 && data[6] == 0xC) {
+  if ((float)raw / 16.0 == 85.0 && data[6] == 0xC) {
 #ifdef PROBE_DEBUG
     Serial.println("temperature: request lost");
 #endif
@@ -139,7 +145,6 @@ bool temperature_measure() {
 
   last_temp = (float)raw / 16.0;
   temp_errors = 0;
-
 
 #ifdef PROBE_DEBUG
   Serial.print("  Temperature = ");
@@ -155,7 +160,7 @@ void temperature_task(void *pvParameter) {
   last_temp = 26.6;
   display_temperature(last_temp);
   while (1) {
-    while (Serial.available () == 0) {
+    while (Serial.available() == 0) {
       vTaskDelay(pdMS_TO_TICKS(100));
     }
     float n = Serial.parseFloat();
@@ -166,7 +171,7 @@ void temperature_task(void *pvParameter) {
     vTaskDelay(pdMS_TO_TICKS(1000));
   }
 #else
-  while(1) {
+  while (1) {
     if (!temperature_measure() && ++temp_errors > PROBE_MAX_ERRORS) {
       Serial.println("too many errors, reseting");
       last_temp = -127.0;
@@ -178,6 +183,4 @@ void temperature_task(void *pvParameter) {
 #endif
 }
 
-float temperature_get() {
-  return last_temp;
-}
+float temperature_get() { return last_temp; }

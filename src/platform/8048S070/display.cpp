@@ -1,12 +1,12 @@
 #include "display.h"
 
-RGBDisplay8048S070:: RGBDisplay8048S070() {
+RGBDisplay8048S070::RGBDisplay8048S070() {}
 
-}
-
-void RGBDisplay8048S070::begin(bool psram_fb, int32_t speed)
-{
-    esp_lcd_rgb_panel_config_t *_panel_config = (esp_lcd_rgb_panel_config_t *)heap_caps_calloc(1, sizeof(esp_lcd_rgb_panel_config_t), MALLOC_CAP_DMA | MALLOC_CAP_INTERNAL);
+void RGBDisplay8048S070::begin(bool psram_fb, int32_t speed) {
+  esp_lcd_rgb_panel_config_t *_panel_config =
+      (esp_lcd_rgb_panel_config_t *)heap_caps_calloc(
+          1, sizeof(esp_lcd_rgb_panel_config_t),
+          MALLOC_CAP_DMA | MALLOC_CAP_INTERNAL);
 
   _panel_config->clk_src = LCD_CLK_SRC_PLL160M;
 
@@ -26,7 +26,8 @@ void RGBDisplay8048S070::begin(bool psram_fb, int32_t speed)
   _panel_config->timings.flags.pclk_active_neg = _pclk_active_neg;
   _panel_config->timings.flags.pclk_idle_high = 0;
 
-  _panel_config->data_width = 16; // RGB565 in parallel mode, thus 16bit in width
+  _panel_config->data_width =
+      16; // RGB565 in parallel mode, thus 16bit in width
   _panel_config->sram_trans_align = 8;
   _panel_config->psram_trans_align = 64;
   _panel_config->hsync_gpio_num = _hsync;
@@ -34,8 +35,7 @@ void RGBDisplay8048S070::begin(bool psram_fb, int32_t speed)
   _panel_config->de_gpio_num = _de;
   _panel_config->pclk_gpio_num = _pclk;
 
-  if (_useBigEndian)
-  {
+  if (_useBigEndian) {
     _panel_config->data_gpio_nums[0] = _g3;
     _panel_config->data_gpio_nums[1] = _g4;
     _panel_config->data_gpio_nums[2] = _g5;
@@ -52,9 +52,7 @@ void RGBDisplay8048S070::begin(bool psram_fb, int32_t speed)
     _panel_config->data_gpio_nums[13] = _g0;
     _panel_config->data_gpio_nums[14] = _g1;
     _panel_config->data_gpio_nums[15] = _g2;
-  }
-  else
-  {
+  } else {
     _panel_config->data_gpio_nums[0] = _b0;
     _panel_config->data_gpio_nums[1] = _b1;
     _panel_config->data_gpio_nums[2] = _b2;
@@ -84,6 +82,9 @@ void RGBDisplay8048S070::begin(bool psram_fb, int32_t speed)
   ESP_ERROR_CHECK(esp_lcd_panel_init(_panel_handle));
 }
 
-IRAM_ATTR void RGBDisplay8048S070::draw16bitRGBBitmap(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t *bitmap) {
-    ESP_ERROR_CHECK(esp_lcd_panel_draw_bitmap(_panel_handle, x1, y1, x2, y2, (void*) bitmap));
+IRAM_ATTR void RGBDisplay8048S070::draw16bitRGBBitmap(int16_t x1, int16_t y1,
+                                                      int16_t x2, int16_t y2,
+                                                      uint16_t *bitmap) {
+  ESP_ERROR_CHECK(
+      esp_lcd_panel_draw_bitmap(_panel_handle, x1, y1, x2, y2, (void *)bitmap));
 }

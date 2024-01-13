@@ -1,9 +1,9 @@
 #pragma once
 
 #include <Arduino.h>
-#include <lvgl.h>
-#include <esp_freertos_hooks.h>
 #include <SPI.h>
+#include <esp_freertos_hooks.h>
+#include <lvgl.h>
 
 #define LGFX_USE_V1
 #include <LovyanGFX.hpp>
@@ -14,9 +14,10 @@ extern void hw_lvgl_setup();
 
 extern void hw_enable_backlight();
 
-extern void update_display(lv_disp_drv_t *disp, const lv_area_t *area, lv_color_t *color_p);
+extern void update_display(lv_disp_drv_t *disp, const lv_area_t *area,
+                           lv_color_t *color_p);
 
-extern void update_touch_position(lv_indev_drv_t * drv, lv_indev_data_t*data);
+extern void update_touch_position(lv_indev_drv_t *drv, lv_indev_data_t *data);
 
 /*
 MIT License
@@ -44,29 +45,26 @@ SOFTWARE.
 
 // SD card Working / enable it below
 #define WT32_SC01_PLUS
-#define SD_SUPPORTED 
+#define SD_SUPPORTED
 
 #define LGFX_USE_V1
 #include <LovyanGFX.hpp>
 
 // SD CARD - SPI
 #define SDSPI_HOST_ID SPI3_HOST
-#define SD_MISO       GPIO_NUM_38 
-#define SD_MOSI       GPIO_NUM_40
-#define SD_SCLK       GPIO_NUM_39
-#define SD_CS         GPIO_NUM_41
+#define SD_MISO GPIO_NUM_38
+#define SD_MOSI GPIO_NUM_40
+#define SD_SCLK GPIO_NUM_39
+#define SD_CS GPIO_NUM_41
 
-
-class LGFX : public lgfx::LGFX_Device
-{
-  lgfx::Panel_ST7796  _panel_instance;  // ST7796UI
-  lgfx::Bus_Parallel8 _bus_instance;    // MCU8080 8B
-  lgfx::Light_PWM     _light_instance;
-  lgfx::Touch_FT5x06  _touch_instance;
+class LGFX : public lgfx::LGFX_Device {
+  lgfx::Panel_ST7796 _panel_instance; // ST7796UI
+  lgfx::Bus_Parallel8 _bus_instance;  // MCU8080 8B
+  lgfx::Light_PWM _light_instance;
+  lgfx::Touch_FT5x06 _touch_instance;
 
 public:
-  LGFX(void)
-  {
+  LGFX(void) {
     {
       auto cfg = _bus_instance.config();
       cfg.freq_write = 40000000;
@@ -88,25 +86,25 @@ public:
       _panel_instance.setBus(&_bus_instance);
     }
 
-    { 
+    {
       auto cfg = _panel_instance.config();
 
-      cfg.pin_cs           =    -1;
-      cfg.pin_rst          =    4;
-      cfg.pin_busy         =    -1;
+      cfg.pin_cs = -1;
+      cfg.pin_rst = 4;
+      cfg.pin_busy = -1;
 
-      cfg.panel_width      =   TFT_WIDTH;
-      cfg.panel_height     =   TFT_HEIGHT;
-      cfg.offset_x         =     0;
-      cfg.offset_y         =     0;
-      cfg.offset_rotation  =     0;
-      cfg.dummy_read_pixel =     8;
-      cfg.dummy_read_bits  =     1;
-      cfg.readable         =  false;
-      cfg.invert           = true;
-      cfg.rgb_order        = false;
-      cfg.dlen_16bit       = false;
-      cfg.bus_shared       = false;
+      cfg.panel_width = TFT_WIDTH;
+      cfg.panel_height = TFT_HEIGHT;
+      cfg.offset_x = 0;
+      cfg.offset_y = 0;
+      cfg.offset_rotation = 0;
+      cfg.dummy_read_pixel = 8;
+      cfg.dummy_read_bits = 1;
+      cfg.readable = false;
+      cfg.invert = true;
+      cfg.rgb_order = false;
+      cfg.dlen_16bit = false;
+      cfg.bus_shared = false;
 
       _panel_instance.config(cfg);
     }
@@ -116,34 +114,34 @@ public:
 
       cfg.pin_bl = 45;
       cfg.invert = false;
-      cfg.freq   = 44100;
+      cfg.freq = 44100;
       cfg.pwm_channel = 7;
 
       _light_instance.config(cfg);
       _panel_instance.setLight(&_light_instance);
     }
 
-    { 
+    {
       auto cfg = _touch_instance.config();
 
-      cfg.x_min      = 0;
-      cfg.x_max      = 319;
-      cfg.y_min      = 0;
-      cfg.y_max      = 479;
-      cfg.pin_int    = 7;
+      cfg.x_min = 0;
+      cfg.x_max = 319;
+      cfg.y_min = 0;
+      cfg.y_max = 479;
+      cfg.pin_int = 7;
       cfg.bus_shared = true;
       cfg.offset_rotation = 0;
 
-      cfg.i2c_port = 1;//I2C_NUM_1;
+      cfg.i2c_port = 1; // I2C_NUM_1;
       cfg.i2c_addr = 0x38;
-      cfg.pin_sda  = 6;   
-      cfg.pin_scl  = 5;   
-      cfg.freq = 400000;  
+      cfg.pin_sda = 6;
+      cfg.pin_scl = 5;
+      cfg.freq = 400000;
 
       _touch_instance.config(cfg);
-      _panel_instance.setTouch(&_touch_instance);  
+      _panel_instance.setTouch(&_touch_instance);
     }
 
-    setPanel(&_panel_instance); 
+    setPanel(&_panel_instance);
   }
 };

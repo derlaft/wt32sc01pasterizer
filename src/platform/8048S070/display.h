@@ -3,25 +3,25 @@
 #include <Arduino.h>
 #define INLINE __attribute__((always_inline)) inline
 
+#include "esp_lcd_panel_interface.h"
 #include "esp_lcd_panel_io.h"
+#include "esp_lcd_panel_ops.h"
 #include "esp_lcd_panel_rgb.h"
 #include "esp_lcd_panel_vendor.h"
-#include "esp_lcd_panel_ops.h"
-#include "esp_lcd_panel_interface.h"
-#include "esp_private/gdma.h"
 #include "esp_pm.h"
+#include "esp_private/gdma.h"
 #include "hal/dma_types.h"
 #include "hal/lcd_hal.h"
 #include "hal/lcd_ll.h"
 
 #define GFX_NOT_DEFINED (-1)
 
-class RGBDisplay8048S070
-{
+class RGBDisplay8048S070 {
 public:
   RGBDisplay8048S070();
   void begin(bool psram_fb = true, int32_t speed = GFX_NOT_DEFINED);
-  void draw16bitRGBBitmap(int16_t x1, int16_t y1, int16_t x2, int16_t y2, uint16_t *bitmap);
+  void draw16bitRGBBitmap(int16_t x1, int16_t y1, int16_t x2, int16_t y2,
+                          uint16_t *bitmap);
 
 protected:
 private:
@@ -48,4 +48,3 @@ private:
 
   esp_lcd_panel_handle_t _panel_handle = NULL;
 };
-

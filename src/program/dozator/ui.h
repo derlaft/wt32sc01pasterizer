@@ -18,16 +18,16 @@ extern "C" {
 #include "lvgl.h"
 #endif
 
-#include "ui_helpers.h"
 #include "ui_events.h"
+#include "ui_helpers.h"
 // SCREEN: ui_MainControlScreen
 void ui_MainControlScreen_screen_init(lv_obj_t *root);
-extern lv_obj_t * ui_MainControlScreen;
-void ui_event_StartStopButton(lv_event_t * e);
-extern lv_obj_t * ui_StartStopButton;
-extern lv_obj_t * ui_StartStopLabel;
-extern lv_obj_t * ui_Spinner;
-extern lv_obj_t * ui____initial_actions0;
+extern lv_obj_t *ui_MainControlScreen;
+void ui_event_StartStopButton(lv_event_t *e);
+extern lv_obj_t *ui_StartStopButton;
+extern lv_obj_t *ui_StartStopLabel;
+extern lv_obj_t *ui_Spinner;
+extern lv_obj_t *ui____initial_actions0;
 
 LV_FONT_DECLARE(ui_font_bigfont);
 LV_FONT_DECLARE(ui_font_hack);
