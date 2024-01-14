@@ -14,15 +14,12 @@ bool fatal_error = false;
 
 LogicState state = LogicState::Idle;
 
-#define _LOGIC_LOCK(BODY)                                                      \
-  if (pdTRUE == xSemaphoreTake(xLogicSemaphore, portMAX_DELAY)) {              \
-    BODY;                                                                      \
-    xSemaphoreGive(xLogicSemaphore);                                           \
-  } else {                                                                     \
-    ESP.restart();                                                             \
-  }
+bool channel_status[NUM_CHANNEL] = {false};
+bool want_channel_status[NUM_CHANNEL] = {false};
 
 #define _TO_MS(BODY) ((BODY)*60ll * 1000ll)
+
+static int64_t cycles_in_state = 0;
 
 void logic_interrupt(LogicEvent_t evt) {
   BaseType_t xHigherPriorityTaskWoken, xResult;
@@ -38,15 +35,37 @@ void logic_interrupt(LogicEvent_t evt) {
   }
 }
 
-void logic_setup() {
-  // sp.begin(RS485_BAUD, SERIAL_8N2, RS485_RXD, RS485_TXD);
+void logic_early_setup() {
+  Serial2.begin(LOGIC_SERIAL_SPEED, SERIAL_8N2, LOGIC_SERIAL_RX,
+                LOGIC_SERIAL_TX);
+  Serial2.setTimeout(LOGIC_SERIAL_TIMEOUT);
+}
 
-  // pinMode(MOTORCTL_IN, INPUT);
+void logic_boot_reset() {
+  _DEBUG("logic_boot_reset");
+  // попытаться отправить первый сброс, до трех раз перед тем, как сдаться
+  int attempts = 3;
+  while (attempts > 0 && !logic_reset()) {
+    _DEBUG("logic_boot_reset attempt");
+    vTaskDelay(pdMS_TO_TICKS(500));
+    attempts--;
+  }
+}
+
+void logic_setup() {
 
   xLogicGroup = xEventGroupCreate();
 
   xTaskCreatePinnedToCore(logic_task, "logic", 4096 * 2, NULL,
                           tskIDLE_PRIORITY + 10, NULL, 1);
+}
+
+bool is_manual_delayed_cmd = false;
+
+void logic_flip_delayed(Channel_t c) {
+  want_channel_status[c] = !want_channel_status[c];
+  is_manual_delayed_cmd = true;
+  logic_interrupt(LogicEvent::ManualControl);
 }
 
 void logic_task(void *pvParameter) {
@@ -56,6 +75,9 @@ void logic_task(void *pvParameter) {
   TickType_t xLastWakeTime;
   xLastWakeTime = xTaskGetTickCount();
   EventBits_t uxBits;
+
+  // инициализировать ПЛС
+  logic_boot_reset();
 
   int64_t prev_start = esp_timer_get_time();
 
@@ -88,6 +110,15 @@ void logic_task(void *pvParameter) {
 }
 
 void logic_tick(EventBits_t uxBits) {
+
+  if (is_manual_delayed_cmd) {
+    if (!logic_send_changed()) {
+      // не дать логике возможность затормозить интерфейс и другие таски
+      vTaskDelay(pdMS_TO_TICKS(1000));
+      return;
+    }
+    is_manual_delayed_cmd = false;
+  }
 
   switch (state) {
   case LogicState::Idle:
@@ -123,14 +154,127 @@ void logic_sync_ui() {
   }
 
   // состояния индикатора ошибки
-  switch (fatal_error) {
-  case false:
-    lv_obj_set_style_text_color(ui_WarningIndicator, lv_color_hex(0x1499FF),
-                                LV_PART_MAIN | LV_STATE_DEFAULT);
-    break;
-  case true:
+  if (fatal_error) {
     lv_obj_set_style_text_color(ui_WarningIndicator, lv_color_hex(0xFF0000),
                                 LV_PART_MAIN | LV_STATE_DEFAULT);
-    break;
+  } else {
+    lv_obj_set_style_text_color(ui_WarningIndicator, lv_color_hex(0x1499FF),
+                                LV_PART_MAIN | LV_STATE_DEFAULT);
+  }
+}
+
+bool logic_write_internal(Channel_t c, bool on) {
+  char cmd = commands[c * 2 + on];
+  Serial2.write(cmd);
+  Serial2.flush();
+
+  _DEBUG("logic_write_internal write %02x", cmd);
+
+  char buf[2] = {cmd, 0};
+  if (!Serial2.find(buf)) {
+    _DEBUG("logic_write: failed to ack %02x", cmd);
+    return false;
+  }
+
+  channel_status[c] = on;
+  // не дать отправить следующую команду слишком быстро
+  vTaskDelay(pdMS_TO_TICKS(10));
+
+  _DEBUG("logic_write_internal write %02x ok", cmd);
+  return true;
+}
+
+bool logic_write(Channel_t c, bool on) {
+  if (want_channel_status[c] == on) {
+    return true;
+  }
+
+  bool r = logic_write_internal(c, on);
+  if (!r) {
+    return logic_reset();
+  }
+
+  want_channel_status[c] = on;
+  return true;
+}
+
+bool logic_after_reset() {
+  // сбросить состояние с контроллера
+  for (int c = 0; c < NUM_CHANNEL; c++) {
+    channel_status[c] = false;
+  }
+
+  // восстановить состояние
+  for (int c = 0; c < NUM_CHANNEL; c++) {
+    if (want_channel_status[c]) {
+      bool r = logic_write_internal((Channel_t)c, true);
+      if (!r) {
+        _DEBUG("logic_after_reset failed");
+        return false;
+      }
+    }
+  }
+
+  return true;
+}
+
+bool logic_send_changed() {
+  for (int c = 0; c < NUM_CHANNEL; c++) {
+    if (want_channel_status[c] != channel_status[c]) {
+      bool r = logic_write_internal((Channel_t)c, want_channel_status[c]);
+      if (!r) {
+        _DEBUG("logic_send_changed failed");
+        return logic_reset();
+      }
+    }
+  }
+  return true;
+}
+
+bool logic_reset() {
+
+  // отправить команду перезагрузки
+  Serial2.write(reset_seq);
+  Serial2.flush();
+
+  if (!Serial2.find(reset_seq)) {
+    _DEBUG("logic_reset failed to get response");
+    fatal_error = true;
+    return false;
+  }
+
+  if (!logic_after_reset()) {
+    fatal_error = true;
+    return false;
+  }
+
+  fatal_error = false;
+  return true;
+}
+
+void logic_check_for_reset() {
+  while (Serial2.available() > 0) {
+    uint8_t n = Serial2.read();
+
+    if (n != 0xAA && n != 'X') {
+      _DEBUG("logic_check_for_reset #1: dicarding %02x", n);
+      return;
+    }
+
+    n = Serial2.read();
+    if (n != 0x55 && n != 'X') {
+      _DEBUG("logic_check_for_reset #2: dicarding %02x", n);
+      return;
+    }
+
+    if (n == 0x55) {
+      _DEBUG("logic_check_for_reset: reset");
+      if (logic_after_reset()) {
+        fatal_error = false;
+      }
+    } else if (n == 'X') {
+      // сигнал о конце обработке долгой команды
+      // не нужно
+    }
   }
 }

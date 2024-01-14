@@ -24,7 +24,8 @@
 
 void setup() {
 
-  delay(1000);
+  // early init: enable software serial ASAP
+  logic_early_setup();
 
 #ifdef DEBUG_WIPE_PREFERENCES
   nvs_flash_erase(); // erase the NVS partition and...
@@ -32,10 +33,6 @@ void setup() {
   while (true)
     ;
 #endif
-
-  // enable second serial
-  // Serial2.begin(LOGIC_SERIAL_SPEED, SERIAL_8N2, LOGIC_SERIAL_RX,
-  // LOGIC_SERIAL_TX); Serial2.setTimeout(LOGIC_SERIAL_TIMEOUT);
 
   // enable serial
   Serial.begin(115200);

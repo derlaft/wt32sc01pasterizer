@@ -19,3 +19,18 @@
 // датчик температуры
 #define DS_CHECK_CRC 1
 #define DS_CRC_USE_TABLE 1
+
+#ifdef _APP_SKREPPER
+
+#define LOGIC_DEBUG
+
+// (софтварный) серийный порт для общения со вторым контроллером
+#define LOGIC_SERIAL_SPEED 1200
+#define LOGIC_SERIAL_RX 5
+#define LOGIC_SERIAL_TX 33
+#define LOGIC_SERIAL_TIMEOUT 500
+
+// пин с датчиком температуры 18В20
+#define PIN_PROBE 25
+
+#endif
