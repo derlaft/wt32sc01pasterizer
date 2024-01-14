@@ -10,8 +10,13 @@
 #include "ui_hal.h"
 #include "wifi.hpp"
 
-// TODO
+#ifdef _APP_MOTORCTL
 #include "program/motorctl/logic.hpp"
+#endif
+
+#ifdef _APP_SKREPPER
+#include "program/skrepper/logic.hpp"
+#endif
 
 #ifdef DEBUG_WIPE_PREFERENCES
 #include <nvs_flash.h>

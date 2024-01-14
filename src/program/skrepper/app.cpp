@@ -15,71 +15,13 @@ lv_obj_t *ui_TabWifiSettings;
 
 Preferences preferences;
 
-uint8_t freq = 0;
-uint8_t delta_freq = 0;
-
-setting_decl freq_base = setting_decl{
-    .value = DEF_FREQ_BASE * 100,
-    .min = FREQ_BASE_MIN,
-    .max = FREQ_BASE_MAX,
-    .digits = 2,
-    .fmt = "%2.2f",
+setting_decl pause_time = setting_decl{
+    .value = PAUSE_TIME_DEF,
+    .min = PAUSE_TIME_MIN,
+    .max = PAUSE_TIME_MAX,
+    .digits = 0,
+    .fmt = "%2.0f",
 };
-
-setting_decl freq_delta = setting_decl{
-    .value = DEF_FREQ_DELTA * 100,
-    .min = FREQ_DELTA_MIN,
-    .max = FREQ_DELTA_MAX,
-    .digits = 2,
-    .fmt = "%2.2f",
-    .odd = true,
-};
-
-void inc_register(lv_event_t *e) {
-  lv_event_code_t code = lv_event_get_code(e);
-  if (code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT) {
-    lv_spinbox_increment(ui_Register);
-  }
-}
-
-void inc_value(lv_event_t *e) {
-  lv_event_code_t code = lv_event_get_code(e);
-  if (code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT) {
-    lv_spinbox_increment(ui_Value);
-  }
-}
-
-void dec_register(lv_event_t *e) {
-  lv_event_code_t code = lv_event_get_code(e);
-  if (code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT) {
-    lv_spinbox_decrement(ui_Register);
-  }
-}
-
-void dec_value(lv_event_t *e) {
-  lv_event_code_t code = lv_event_get_code(e);
-  if (code == LV_EVENT_SHORT_CLICKED || code == LV_EVENT_LONG_PRESSED_REPEAT) {
-    lv_spinbox_decrement(ui_Value);
-  }
-}
-
-uint16_t manual_reg = 0;
-uint16_t manual_value = 0;
-
-void do_manual_send() { logic_debug_send_write(manual_reg, manual_value); }
-
-void on_manual_write(lv_event_t *e) {
-  manual_reg = (uint16_t)lv_spinbox_get_value(ui_Register);
-  manual_value = (uint16_t)lv_spinbox_get_value(ui_Value);
-  logic_modbus_send(do_manual_send);
-}
-
-void do_manual_read() { logic_debug_send_read(manual_reg); }
-
-void on_manual_read(lv_event_t *e) {
-  manual_reg = (uint16_t)lv_spinbox_get_value(ui_Register);
-  logic_modbus_send(do_manual_read);
-}
 
 void on_start_stop(lv_event_t *e) {
   logic_interrupt(LogicEvent::StartStopProg);
@@ -196,26 +138,13 @@ void app_init() {
   lv_obj_set_style_pad_bottom(ui_TabSettings, 0,
                               LV_PART_MAIN | LV_STATE_DEFAULT);
 
-  // increment/decrement
-  lv_obj_add_event_cb(ui_Inc, inc_register, LV_EVENT_ALL, NULL);
-  lv_obj_add_event_cb(ui_Dec, dec_register, LV_EVENT_ALL, NULL);
-  lv_obj_add_event_cb(ui_Inc1, inc_value, LV_EVENT_ALL, NULL);
-  lv_obj_add_event_cb(ui_Dec1, dec_value, LV_EVENT_ALL, NULL);
-
-  // write
-  lv_obj_add_event_cb(ui_WriteButton, on_manual_write, LV_EVENT_SHORT_CLICKED,
-                      NULL);
-  lv_obj_add_event_cb(ui_ReadButton, on_manual_read, LV_EVENT_SHORT_CLICKED,
-                      NULL);
-
   // start/stop
   lv_obj_add_event_cb(ui_StartStopButton, on_start_stop, LV_EVENT_SHORT_CLICKED,
                       NULL);
 
   // настройки
   settings_setup();
-  ui_setting_add("Базовая частота", &freq_base);
-  ui_setting_add("Дельта частоты", &freq_delta);
+  ui_setting_add("Время выдержки (мин)", &pause_time);
 
   lv_obj_t *ApplyButton = ui_setting_add_apply();
   lv_obj_add_event_cb(ApplyButton, on_apply_button, LV_EVENT_SHORT_CLICKED,
@@ -239,20 +168,14 @@ void on_forward_button(lv_event_t *e) {}
 void on_main_button_pressed(lv_event_t *e) {}
 
 void settings_setup() {
-  if (!preferences.begin("motorctl", true)) {
+  if (!preferences.begin("skrepper", true)) {
     return;
   }
 
-  freq_base.value = (int)preferences.getInt("freq_base");
-  if (freq_base.value < FREQ_BASE_MIN * 100 ||
-      freq_base.value > FREQ_BASE_MAX * 100) {
-    freq_base.value = DEF_FREQ_BASE * 100;
-  }
-
-  freq_delta.value = (int)preferences.getInt("freq_delta");
-  if (freq_delta.value < FREQ_DELTA_MIN * 100 ||
-      freq_delta.value > FREQ_DELTA_MAX * 100) {
-    freq_delta.value = DEF_FREQ_DELTA * 100;
+  pause_time.value = (int)preferences.getInt("pause_time");
+  if (pause_time.value < PAUSE_TIME_MIN * 100 ||
+      pause_time.value > PAUSE_TIME_MAX * 100) {
+    pause_time.value = PAUSE_TIME_DEF;
   }
 
   preferences.end();
@@ -260,12 +183,11 @@ void settings_setup() {
 
 void settings_update() {
 
-  if (!preferences.begin("motorctl", false)) {
+  if (!preferences.begin("skrepper", false)) {
     return;
   }
 
-  preferences.putInt("freq_base", freq_base.value);
-  preferences.putInt("freq_delta", freq_delta.value);
+  preferences.putInt("pause_time", pause_time.value);
 
   preferences.end();
 }

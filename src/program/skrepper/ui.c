@@ -52,20 +52,17 @@ void ui_event_ReadButton(lv_event_t *e) {
   lv_event_code_t event_code = lv_event_get_code(e);
   lv_obj_t *target = lv_event_get_target(e);
   if (event_code == LV_EVENT_CLICKED) {
-    on_main_button_pressed(e);
   }
 }
 void ui_event_WriteButton(lv_event_t *e) {
   lv_event_code_t event_code = lv_event_get_code(e);
   lv_obj_t *target = lv_event_get_target(e);
   if (event_code == LV_EVENT_CLICKED) {
-    on_main_button_pressed(e);
   }
 }
 void ui_event_StartStopButton(lv_event_t *e) {
   lv_event_code_t event_code = lv_event_get_code(e);
   lv_obj_t *target = lv_event_get_target(e);
   if (event_code == LV_EVENT_CLICKED) {
-    on_main_button_pressed(e);
   }
 }

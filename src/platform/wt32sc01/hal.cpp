@@ -13,6 +13,7 @@ static lv_color_t buf2[TFT_WIDTH * 10];
 
 void hw_setup() {
   // Включить экран
+
   tft.begin();
   tft.initDMA(false);
   tft.setSwapBytes(true);

@@ -4,13 +4,15 @@
 #include <Arduino.h>
 
 #ifdef LOGIC_DEBUG
-#define _DEBUG(...) { \
-    char buf[256]; \
-    snprintf(buf, sizeof(buf), __VA_ARGS__); \
-    Serial.println(buf); \
-};
+#define _DEBUG(...)                                                            \
+  {                                                                            \
+    char buf[256];                                                             \
+    snprintf(buf, sizeof(buf), __VA_ARGS__);                                   \
+    Serial.println(buf);                                                       \
+  };
 #else
-#define _DEBUG(...) {}
+#define _DEBUG(...)                                                            \
+  {}
 #endif
 
 enum LogicState {
@@ -23,18 +25,33 @@ enum LogicState {
 typedef enum LogicState LogicState_t;
 
 enum LogicEvent {
-	// normal interrupt
-	Interrupt = (1 << 0),
-	// start/stop button pressed
-	StartStopProg = (1 << 1),
-	// "Any" selector
-	Any = 0b11,
+  // normal interrupt
+  Interrupt = (1 << 0),
+  // start/stop button pressed
+  StartStopProg = (1 << 1),
+  // "Any" selector
+  Any = 0b11,
 };
 typedef enum LogicEvent LogicEvent_t;
 
+enum Channel {
+  MotorFordward = 0,
+  MotorBackward = 1,
+};
+typedef enum Channel Channel_t;
+#define NUM_CHANNEL 2
+
+static char commands[NUM_CHANNEL * 2] = {
+    'a', '0', // Канал 0   вкл /выкл  Мотор вперед
+    'b', '1', // Канал 1   вкл /выкл  Мотор назад
+};
+
+// 0xAA55 - код сброса ПЛС и ответ после сброса
+static char reset_seq[3] = "\xAA\x55";
+
 typedef void (*lambda_t)();
 struct LambdaRequest {
-	lambda_t lambda;
+  lambda_t lambda;
 };
 
 void logic_setup();
@@ -50,6 +67,5 @@ void logic_interrupt(LogicEvent_t evt);
 void logic_modbus_send(lambda_t req);
 void logic_modbus_task(void *pvParameter);
 void logic_modbus_on_cb();
-
 
 #endif
