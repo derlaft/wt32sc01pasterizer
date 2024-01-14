@@ -17,22 +17,21 @@
 
 enum LogicState {
   Unknown = 0,
-  Idle = 1,
-  Activating = 2,
-  FreqControl = 3,
-  Deactivating = 4,
+  Startup = 1,
+  Forward = 2,
+  SwitchPause = 3,
+  Backward = 4,
+  Wait = 5,
 };
 typedef enum LogicState LogicState_t;
 
 enum LogicEvent {
   // normal interrupt
   Interrupt = (1 << 0),
-  // start/stop button pressed
-  StartStopProg = (1 << 1),
   // manual control request
-  ManualControl = (1 << 2),
+  ManualControl = (1 << 1),
   // "Any" selector
-  Any = 0b111,
+  Any = 0b11,
 };
 typedef enum LogicEvent LogicEvent_t;
 
@@ -68,8 +67,8 @@ void logic_sync_ui();
 
 void logic_interrupt(LogicEvent_t evt);
 
-extern bool logic_write(Channel_t c, bool on);
-extern bool logic_reset();
-extern bool logic_restore();
+bool logic_write(Channel_t c, bool on);
+bool logic_reset();
+bool logic_restore();
 
 #endif

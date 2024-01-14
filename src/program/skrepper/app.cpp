@@ -29,9 +29,7 @@ setting_decl pause_time = setting_decl{
     .fmt = "%2.0f",
 };
 
-void on_start_stop(lv_event_t *e) {
-  logic_interrupt(LogicEvent::StartStopProg);
-}
+void on_start_stop(lv_event_t *e) {}
 
 void on_apply_button(lv_event_t *e) {
   settings_update();
@@ -224,3 +222,5 @@ void settings_update() {
 
   preferences.end();
 }
+
+int get_pause_time() { return pause_time.value; }

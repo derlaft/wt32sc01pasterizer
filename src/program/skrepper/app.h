@@ -11,8 +11,15 @@
 
 #define LOGIC_INTERVAL_MS 200
 
+// время инициализации
+#define STARTUP_TIME_MS 5000
+// время паузы между движением вперед-назад
+#define SWITCH_PAUSE_TIME_MS 100
+
 void app_init();
 void settings_setup();
 void settings_update();
+
+int get_pause_time();
 
 #endif

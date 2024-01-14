@@ -2,6 +2,7 @@
 #include "../../ui_hal.h"
 #include "../shared/settings.h"
 #include "app.h"
+#include "esp32-hal-gpio.h"
 #include "ui.h"
 #include <Arduino.h>
 
@@ -13,7 +14,7 @@ EventGroupHandle_t xLogicGroup;
 
 bool fatal_error = false;
 
-LogicState state = LogicState::Idle;
+LogicState state = LogicState::Startup;
 
 bool channel_status[NUM_CHANNEL] = {false};
 bool want_channel_status[NUM_CHANNEL] = {false};
@@ -54,6 +55,9 @@ void logic_boot_reset() {
 }
 
 void logic_setup() {
+
+  pinMode(PIN_ENDSTOP_FW, INPUT_PULLUP);
+  pinMode(PIN_ENDSTOP_BW, INPUT_PULLUP);
 
   xLogicGroup = xEventGroupCreate();
 
@@ -121,15 +125,89 @@ void logic_tick(EventBits_t uxBits) {
     is_manual_delayed_cmd = false;
   }
 
+  int64_t ct_ms;
+  int64_t d_ms;
+
+  // _DEBUG("logic_tick endstop_bw %d", digitalRead(PIN_ENDSTOP_BW));
+  // _DEBUG("logic_tick endstop_fw %d", digitalRead(PIN_ENDSTOP_FW));
+
   switch (state) {
-  case LogicState::Idle:
-    if (uxBits & LogicEvent::StartStopProg) {
-      state = LogicState::Activating;
+  case LogicState::Startup:
+
+    // 5 секунд безусловного движения вперед
+    // игнорируя концевики
+    if (!logic_write(MotorFordward, true)) {
+      // не дать логике возможность затормозить интерфейс и другие таски
+      vTaskDelay(pdMS_TO_TICKS(1000));
+      return;
+    }
+
+    // проверка 5 секунд
+    ct_ms = LOGIC_INTERVAL_MS * cycles_in_state;
+    if (ct_ms > STARTUP_TIME_MS) {
+      logic_write(MotorFordward, true);
+      state = LogicState::Forward;
+      cycles_in_state = 0;
+      break;
+    }
+
+    cycles_in_state++;
+    break;
+  case LogicState::Forward:
+
+    if (digitalRead(PIN_ENDSTOP_FW) == HIGH) {
+      if (!logic_write(MotorFordward, false)) {
+        break;
+      }
+      state = LogicState::SwitchPause;
+      cycles_in_state = 0;
+      break;
     }
 
     break;
+  case LogicState::SwitchPause:
+    // небольшая задержка между движением вперед и назад
+    ct_ms = LOGIC_INTERVAL_MS * cycles_in_state;
+    if (ct_ms > SWITCH_PAUSE_TIME_MS) {
+      logic_write(MotorBackward, true);
+      state = LogicState::Backward;
+      cycles_in_state = 0;
+      break;
+    }
 
-    // TODO
+    cycles_in_state++;
+    break;
+  case LogicState::Backward:
+
+    if (digitalRead(PIN_ENDSTOP_BW) == HIGH) {
+      if (!logic_write(MotorBackward, false)) {
+        break;
+      }
+      state = LogicState::Wait;
+      cycles_in_state = 0;
+      break;
+    }
+
+    break;
+  case LogicState::Wait:
+    // длительная задержка перед перезапуском программы
+    ct_ms = LOGIC_INTERVAL_MS * cycles_in_state;
+    d_ms = get_pause_time() * 60 * 1000;
+
+    if (ct_ms > d_ms) {
+      logic_write(MotorFordward, true);
+      state = LogicState::Forward;
+      cycles_in_state = 0;
+      break;
+    }
+
+    cycles_in_state++;
+    break;
+  case LogicState::Unknown:
+    _DEBUG("logic_tick unknown state");
+    logic_reset();
+    fatal_error = true;
+    break;
   }
 }
 
@@ -143,16 +221,37 @@ void logic_sync_ui() {
 
   // состояние кнопки охлаждения
   switch (state) {
-  case FreqControl:
-  case Deactivating:
-    lv_obj_set_style_bg_color(ui_StartStopButton, enabled_color,
-                              LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_label_set_text(ui_ReadButtonLabel2, "Стоп");
-    break;
-  default:
+  case Startup:
     lv_obj_set_style_bg_color(ui_StartStopButton, disabled_color,
                               LV_PART_MAIN | LV_STATE_DEFAULT);
-    lv_label_set_text(ui_ReadButtonLabel2, "Старт");
+    lv_label_set_text(ui_ReadButtonLabel2, "Инициализация");
+    break;
+
+  case Forward:
+    lv_obj_set_style_bg_color(ui_StartStopButton, disabled_color,
+                              LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_label_set_text(ui_ReadButtonLabel2, "Движение вперед");
+    break;
+
+  case Backward:
+    lv_obj_set_style_bg_color(ui_StartStopButton, disabled_color,
+                              LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_label_set_text(ui_ReadButtonLabel2, "Движение назад");
+    break;
+
+  case SwitchPause:
+    lv_obj_set_style_bg_color(ui_StartStopButton, disabled_color,
+                              LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_label_set_text(ui_ReadButtonLabel2, "Смена направления");
+    break;
+
+  case Wait:
+    lv_obj_set_style_bg_color(ui_StartStopButton, disabled_color,
+                              LV_PART_MAIN | LV_STATE_DEFAULT);
+    lv_label_set_text(ui_ReadButtonLabel2, "Выдержка");
+    break;
+
+  default:
     break;
   }
 

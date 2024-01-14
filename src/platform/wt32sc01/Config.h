@@ -33,4 +33,10 @@
 // пин с датчиком температуры 18В20
 #define PIN_PROBE 25
 
+// пин на концевик (вперед)
+#define PIN_ENDSTOP_FW 26
+
+// пин на концевик (назад)
+#define PIN_ENDSTOP_BW 27
+
 #endif
