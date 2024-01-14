@@ -62,6 +62,7 @@ void logic_debug_send_read(uint16_t reg);
 void logic_task(void *pvParameter);
 void logic_tick(EventBits_t uxBits);
 bool logic_send_changed();
+void logic_flip_delayed(Channel_t c);
 
 void logic_sync_ui();
 

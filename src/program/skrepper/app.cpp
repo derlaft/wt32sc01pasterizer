@@ -12,7 +12,6 @@ lv_obj_t *ui_TabMainPanel;
 lv_obj_t *ui_TabManualControl;
 lv_obj_t *ui_TabSettings;
 lv_obj_t *ui_TabWifiSettings;
-
 lv_obj_t *ui_ManualControlMatrix;
 
 static const char *btnm_map[] = {
@@ -54,7 +53,7 @@ void on_back_button(lv_event_t *e) {
 void on_button_map_click(lv_event_t *e) {
   _DEBUG("on_button_map_click");
   uint32_t id = lv_btnmatrix_get_selected_btn(ui_ManualControlMatrix);
-  // logic_flip_delayed((Channel_t)id);
+  logic_flip_delayed((Channel_t)id);
 }
 
 void setup_button_map() {

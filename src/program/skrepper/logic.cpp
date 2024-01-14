@@ -1,6 +1,7 @@
 #include "logic.hpp"
 #include "../../ui_hal.h"
 #include "../shared/settings.h"
+#include "app.h"
 #include "ui.h"
 #include <Arduino.h>
 
@@ -160,6 +161,18 @@ void logic_sync_ui() {
   } else {
     lv_obj_set_style_text_color(ui_WarningIndicator, lv_color_hex(0x1499FF),
                                 LV_PART_MAIN | LV_STATE_DEFAULT);
+  }
+
+  // состояние кнопок в ручном управлении
+  // показать первые 12 каналов
+  for (int c = 0; c < NUM_CHANNEL && c < 12; c++) {
+    if (channel_status[c]) {
+      lv_btnmatrix_set_btn_ctrl(ui_ManualControlMatrix, c,
+                                LV_BTNMATRIX_CTRL_CHECKED);
+    } else {
+      lv_btnmatrix_clear_btn_ctrl(ui_ManualControlMatrix, c,
+                                  LV_BTNMATRIX_CTRL_CHECKED);
+    }
   }
 }
 
