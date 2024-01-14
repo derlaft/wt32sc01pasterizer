@@ -133,6 +133,8 @@ void logic_tick(EventBits_t uxBits) {
   }
 }
 
+extern lv_obj_t *ui_ManualControlMatrix;
+
 void logic_sync_ui() {
   // синхронизировать состояние логического модуля с интерфейсом пользователя
   auto const disabled_color = lv_color_hex(0x1499FF);

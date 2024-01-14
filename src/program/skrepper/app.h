@@ -1,8 +1,6 @@
 #ifndef _SKREPPER_APP_H
 #define _SKREPPER_APP_H
 
-#include <lvgl.h>
-
 // Настройки
 #define CTL_ADDR 0x1
 #define CTRL_REG 0x0
@@ -16,7 +14,5 @@
 void app_init();
 void settings_setup();
 void settings_update();
-
-extern lv_obj_t *ui_ManualControlMatrix;
 
 #endif

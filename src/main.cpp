@@ -4,9 +4,7 @@
 
 #include "Config.h"
 #include "settings.hpp"
-#include "temperature.hpp"
 #include "ui.h"
-#include "ui_events.hpp"
 #include "ui_hal.h"
 #include "wifi.hpp"
 
