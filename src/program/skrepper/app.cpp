@@ -13,6 +13,13 @@ lv_obj_t *ui_TabManualControl;
 lv_obj_t *ui_TabSettings;
 lv_obj_t *ui_TabWifiSettings;
 
+lv_obj_t *ui_ManualControlMatrix;
+
+static const char *btnm_map[] = {
+    "0", "1",  "2", "3", "\n", "4",  "5", "6",
+    "7", "\n", "8", "9", "10", "11", "",
+};
+
 Preferences preferences;
 
 setting_decl pause_time = setting_decl{
@@ -42,6 +49,32 @@ void on_settings_button(lv_event_t *e) {
 
 void on_back_button(lv_event_t *e) {
   lv_tabview_set_act(ui_TabView, 0, LV_ANIM_OFF);
+}
+
+void on_button_map_click(lv_event_t *e) {
+  _DEBUG("on_button_map_click");
+  uint32_t id = lv_btnmatrix_get_selected_btn(ui_ManualControlMatrix);
+  // logic_flip_delayed((Channel_t)id);
+}
+
+void setup_button_map() {
+  ui_ManualControlMatrix = lv_btnmatrix_create(ui_ManualControlScreen);
+  lv_btnmatrix_set_map(ui_ManualControlMatrix, btnm_map);
+  lv_obj_align(ui_ManualControlMatrix, LV_ALIGN_CENTER, 0, 0);
+  lv_obj_add_event_cb(ui_ManualControlMatrix, on_button_map_click,
+                      LV_EVENT_VALUE_CHANGED, NULL);
+  lv_obj_set_width(ui_ManualControlMatrix, lv_pct(100));
+  lv_obj_set_height(ui_ManualControlMatrix, lv_pct(100));
+  lv_obj_set_style_bg_color(ui_ManualControlMatrix, lv_color_hex(0x1499FF),
+                            LV_PART_ITEMS | LV_STATE_DEFAULT);
+  lv_obj_set_style_bg_color(ui_ManualControlMatrix, lv_color_hex(0x800000),
+                            LV_PART_ITEMS | LV_STATE_CHECKED);
+  lv_obj_set_style_text_color(ui_ManualControlMatrix, lv_color_hex(0xFFFFFF),
+                              LV_PART_ITEMS | LV_STATE_DEFAULT);
+  lv_obj_set_style_text_color(ui_ManualControlMatrix, lv_color_hex(0xFFFFFF),
+                              LV_PART_ITEMS | LV_STATE_CHECKED);
+  lv_obj_set_style_text_font(ui_ManualControlMatrix, &ui_font_bigfont,
+                             LV_PART_ITEMS | LV_STATE_DEFAULT);
 }
 
 void on_tab_change(lv_event_t *e) {
@@ -111,6 +144,7 @@ void app_init() {
   // создать tab для ручного управления
   ui_TabManualControl = lv_tabview_add_tab(ui_TabView, "2");
   ui_ManualControlScreen_screen_init(ui_TabManualControl);
+  setup_button_map();
 
   // костыли: установить размеры, убрать отступы
   lv_obj_set_width(ui_ManualControlScreen, lv_pct(100));
