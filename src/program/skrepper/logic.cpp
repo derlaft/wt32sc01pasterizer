@@ -192,7 +192,7 @@ void logic_tick(EventBits_t uxBits) {
   case LogicState::Wait:
     // длительная задержка перед перезапуском программы
     ct_ms = LOGIC_INTERVAL_MS * cycles_in_state;
-    d_ms = _TO_MS(get_pause_time() * 60 * 1000);
+    d_ms = get_pause_time() * 60 * 1000;
 
     if (ct_ms > d_ms) {
       logic_write(MotorFordward, true);
