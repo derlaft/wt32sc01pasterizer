@@ -155,7 +155,7 @@ void logic_tick(EventBits_t uxBits) {
     break;
   case LogicState::Forward:
 
-    if (digitalRead(PIN_ENDSTOP_FW) == HIGH) {
+    if (digitalRead(PIN_ENDSTOP_FW) == LOW) {
       if (!logic_write(MotorFordward, false)) {
         break;
       }
@@ -179,7 +179,7 @@ void logic_tick(EventBits_t uxBits) {
     break;
   case LogicState::Backward:
 
-    if (digitalRead(PIN_ENDSTOP_BW) == HIGH) {
+    if (digitalRead(PIN_ENDSTOP_BW) == LOW) {
       if (!logic_write(MotorBackward, false)) {
         break;
       }
@@ -192,7 +192,7 @@ void logic_tick(EventBits_t uxBits) {
   case LogicState::Wait:
     // длительная задержка перед перезапуском программы
     ct_ms = LOGIC_INTERVAL_MS * cycles_in_state;
-    d_ms = get_pause_time() * 60 * 1000;
+    d_ms = _TO_MS(get_pause_time() * 60 * 1000);
 
     if (ct_ms > d_ms) {
       logic_write(MotorFordward, true);
