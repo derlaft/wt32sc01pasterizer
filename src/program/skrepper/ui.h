@@ -26,7 +26,6 @@ extern lv_obj_t *ui_ManualControlScreen;
 // SCREEN: ui_MainPanelScreen
 void ui_MainPanelScreen_screen_init(lv_obj_t *root);
 extern lv_obj_t *ui_MainPanelScreen;
-extern lv_obj_t *ui_ProgressBar;
 extern lv_obj_t *ui_RootPanel;
 extern lv_obj_t *ui_MainButtonPanel;
 extern lv_obj_t *ui_StartStopButton;

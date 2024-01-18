@@ -3,6 +3,7 @@
 #include "../shared/settings.h"
 #include "app.h"
 #include "esp32-hal-gpio.h"
+#include "misc/lv_anim.h"
 #include "ui.h"
 #include <Arduino.h>
 
@@ -22,6 +23,8 @@ bool want_channel_status[NUM_CHANNEL] = {false};
 #define _TO_MS(BODY) ((BODY)*60ll * 1000ll)
 
 static int64_t cycles_in_state = 0;
+static int64_t progress_percentage = 0;
+#define _PROGRESS_MAX (1000)
 
 void logic_interrupt(LogicEvent_t evt) {
   BaseType_t xHigherPriorityTaskWoken, xResult;
@@ -148,10 +151,12 @@ void logic_tick(EventBits_t uxBits) {
       logic_write(MotorFordward, true);
       state = LogicState::Forward;
       cycles_in_state = 0;
+      progress_percentage = _PROGRESS_MAX;
       break;
     }
 
     cycles_in_state++;
+    progress_percentage = ct_ms * _PROGRESS_MAX / STARTUP_TIME_MS;
     break;
   case LogicState::Forward:
 
@@ -161,6 +166,7 @@ void logic_tick(EventBits_t uxBits) {
       }
       state = LogicState::SwitchPause;
       cycles_in_state = 0;
+      progress_percentage = 0;
       break;
     }
 
@@ -171,10 +177,12 @@ void logic_tick(EventBits_t uxBits) {
     if (ct_ms > SWITCH_PAUSE_TIME_MS) {
       logic_write(MotorBackward, true);
       state = LogicState::Backward;
+      progress_percentage = _PROGRESS_MAX;
       cycles_in_state = 0;
       break;
     }
 
+    progress_percentage = ct_ms * _PROGRESS_MAX / SWITCH_PAUSE_TIME_MS;
     cycles_in_state++;
     break;
   case LogicState::Backward:
@@ -185,6 +193,7 @@ void logic_tick(EventBits_t uxBits) {
       }
       state = LogicState::Wait;
       cycles_in_state = 0;
+      progress_percentage = _PROGRESS_MAX;
       break;
     }
 
@@ -198,10 +207,12 @@ void logic_tick(EventBits_t uxBits) {
       logic_write(MotorFordward, true);
       state = LogicState::Forward;
       cycles_in_state = 0;
+      progress_percentage = _PROGRESS_MAX;
       break;
     }
 
     cycles_in_state++;
+    progress_percentage = ct_ms * _PROGRESS_MAX / d_ms;
     break;
   case LogicState::Unknown:
     _DEBUG("logic_tick unknown state");
@@ -218,6 +229,9 @@ void logic_sync_ui() {
   auto const disabled_color = lv_color_hex(0x1499FF);
   auto const enabled_color = lv_color_hex(0x800000);
   auto const done_color = lv_color_hex(0x008000);
+
+  // состояние прогресс-бара
+  lv_bar_set_value(ui_ProgressBar, progress_percentage, LV_ANIM_OFF);
 
   // состояние кнопки охлаждения
   switch (state) {

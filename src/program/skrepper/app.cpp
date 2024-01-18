@@ -119,6 +119,8 @@ void app_init() {
   // создать tab view для содержимого
   ui_TabView = lv_tabview_create(ui_MainPanel, LV_DIR_LEFT, 50);
   lv_obj_clear_flag(lv_tabview_get_content(ui_TabView), LV_OBJ_FLAG_SCROLLABLE);
+  lv_obj_set_style_radius(lv_tabview_get_content(ui_TabView), 0,
+                          LV_PART_MAIN | LV_STATE_DEFAULT);
 
   // спрятать кнопки
   lv_obj_add_flag(lv_tabview_get_tab_btns(ui_TabView), LV_OBJ_FLAG_HIDDEN);
@@ -137,6 +139,7 @@ void app_init() {
   lv_obj_set_style_pad_top(ui_TabMainPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
   lv_obj_set_style_pad_bottom(ui_TabMainPanel, 0,
                               LV_PART_MAIN | LV_STATE_DEFAULT);
+  lv_obj_set_style_radius(ui_TabMainPanel, 0, LV_PART_MAIN | LV_STATE_DEFAULT);
 
   // создать tab для ручного управления
   ui_TabManualControl = lv_tabview_add_tab(ui_TabView, "2");
