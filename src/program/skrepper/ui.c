@@ -13,6 +13,8 @@ lv_obj_t *ui_ManualControlScreen;
 // SCREEN: ui_MainPanelScreen
 void ui_MainPanelScreen_screen_init(lv_obj_t *root);
 lv_obj_t *ui_MainPanelScreen;
+lv_obj_t *ui_ProgressBar;
+lv_obj_t *ui_RootPanel;
 lv_obj_t *ui_MainButtonPanel;
 lv_obj_t *ui_StartStopButton;
 lv_obj_t *ui_ReadButtonLabel2;
