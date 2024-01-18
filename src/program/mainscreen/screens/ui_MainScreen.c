@@ -39,7 +39,7 @@ lv_obj_set_style_bg_color(ui_TopPanel, lv_color_hex(0x1499FF), LV_PART_MAIN | LV
 lv_obj_set_style_bg_opa(ui_TopPanel, 255, LV_PART_MAIN| LV_STATE_DEFAULT);
 lv_obj_set_style_pad_left(ui_TopPanel, 0, LV_PART_MAIN| LV_STATE_DEFAULT);
 lv_obj_set_style_pad_right(ui_TopPanel, 0, LV_PART_MAIN| LV_STATE_DEFAULT);
-lv_obj_set_style_pad_top(ui_TopPanel, 0, LV_PART_MAIN| LV_STATE_DEFAULT);
+lv_obj_set_style_pad_top(ui_TopPanel, 5, LV_PART_MAIN| LV_STATE_DEFAULT);
 lv_obj_set_style_pad_bottom(ui_TopPanel, 0, LV_PART_MAIN| LV_STATE_DEFAULT);
 
 ui_BackButton = lv_label_create(ui_TopPanel);
@@ -163,7 +163,7 @@ lv_obj_set_style_bg_grad_dir(ui_ProgressBar, LV_GRAD_DIR_VER, LV_PART_INDICATOR|
 
 ui_MainPanel = lv_label_create(ui_MainScreen);
 lv_obj_set_width( ui_MainPanel, lv_pct(100));
-lv_obj_set_height( ui_MainPanel, lv_pct(75));
+lv_obj_set_height( ui_MainPanel, lv_pct(76));
 lv_obj_set_align( ui_MainPanel, LV_ALIGN_CENTER );
 lv_label_set_text(ui_MainPanel,"");
 lv_obj_clear_flag( ui_MainPanel, LV_OBJ_FLAG_SCROLLABLE | LV_OBJ_FLAG_SCROLL_ELASTIC | LV_OBJ_FLAG_SCROLL_MOMENTUM | LV_OBJ_FLAG_SCROLL_CHAIN );    /// Flags
